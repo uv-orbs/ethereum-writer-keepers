@@ -1,12 +1,14 @@
 import { State } from '../state';
-import { writeFileSync, mkdirSync } from 'fs';
-import { dirname } from 'path';
+import { writeFileSync } from 'fs';
+import { ensureFilePathExists } from '../helpers';
 
 export function writeStatus(filePath: string, state: State) {
   state.LastStatusTime = new Date();
+
   const status = {
     LastStatusTime: state.LastStatusTime.toISOString(),
   };
-  mkdirSync(dirname(filePath), { recursive: true });
+
+  ensureFilePathExists(filePath);
   writeFileSync(filePath, JSON.stringify(status, null, 2));
 }
