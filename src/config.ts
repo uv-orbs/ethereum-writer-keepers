@@ -1,5 +1,10 @@
+export const defaultConfiguration = {
+  StatusJsonPath: './status/status.json',
+};
+
 export interface Configuration {
   NodeManagementConfigUrl: string;
+  StatusJsonPath: string;
 }
 
 export function validateConfiguration(config: Configuration) {

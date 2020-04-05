@@ -1,4 +1,4 @@
-import { Configuration, validateConfiguration } from './config';
+import { Configuration, validateConfiguration, defaultConfiguration } from './config';
 import yargs from 'yargs';
 import { readFileSync } from 'fs';
 import * as Logger from './logger';
@@ -20,9 +20,9 @@ export function parseArgs(argv: string[]): Configuration {
 
   // read input config JSON files
   try {
-    const defaultConfig = {};
     res = Object.assign(
-      defaultConfig,
+      {},
+      defaultConfiguration,
       ...args.config.map((configPath) => JSON.parse(readFileSync(configPath).toString()))
     );
   } catch (err) {
