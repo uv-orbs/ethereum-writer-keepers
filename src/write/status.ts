@@ -1,6 +1,6 @@
 import { State } from '../state';
 import { writeFileSync } from 'fs';
-import { ensureFilePathExists } from '../helpers';
+import { ensureFileDirectoryExists } from '../helpers';
 
 export function writeStatus(filePath: string, state: State) {
   state.LastStatusTime = new Date();
@@ -9,6 +9,6 @@ export function writeStatus(filePath: string, state: State) {
     LastStatusTime: state.LastStatusTime.toISOString(),
   };
 
-  ensureFilePathExists(filePath);
+  ensureFileDirectoryExists(filePath);
   writeFileSync(filePath, JSON.stringify(status, null, 2));
 }
