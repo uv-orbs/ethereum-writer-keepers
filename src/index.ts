@@ -4,10 +4,15 @@ import { Configuration } from './config';
 import { State } from './state';
 import { writeStatus } from './write/status';
 
-export async function runLoop(config: Configuration) {
-  const state: State = {
+function initialState(): State {
+  return {
     LastStatusTime: new Date(),
   };
+}
+
+export async function runLoop(config: Configuration) {
+  const state = initialState();
+  writeStatus(config.StatusJsonPath, state);
 
   for (;;) {
     await sleep(5000);
