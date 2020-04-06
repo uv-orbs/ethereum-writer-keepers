@@ -2,11 +2,7 @@ import test from 'ava';
 import mockFs from 'mock-fs';
 import { parseArgs } from './cli-args';
 import _ from 'lodash';
-
-const validConfig = {
-  NodeManagementConfigUrl: 'http://localhost:8080',
-  StatusJsonPath: './status/status.json',
-};
+import { validConfig } from './config.test';
 
 test.serial.afterEach.always(() => {
   mockFs.restore();

@@ -39,6 +39,7 @@
     "@typescript-eslint/eslint-plugin": "^2.25.0",
     "@typescript-eslint/parser": "^2.25.0",
     "ava": "^3.5.1",
+    "bn.js": "^5.1.1",
     "child-process-promise": "^2.2.1",
     "docker-compose-mocha": "^1.2.0",
     "eslint": "^6.8.0",
@@ -52,6 +53,7 @@
   },
   "dependencies": {
     "@orbs-network/orbs-ethereum-contracts-v2": "^0.0.2",
+    "@truffle/hdwallet-provider": "^1.0.34",
     "lodash": "^4.17.15",
     "node-fetch": "^2.6.0",
     "ts-json-decode": "^0.5.1",

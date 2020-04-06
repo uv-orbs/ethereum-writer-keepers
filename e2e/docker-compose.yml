@@ -10,3 +10,8 @@ services:
             dockerfile: ./Dockerfile-management-service.test
         ports:
             - 8080
+    ganache:
+        image: trufflesuite/ganache-cli
+        ports:
+            - 7545
+        command: -p 7545 -i 5777 -a 100 -m  "vanish junk genuine web seminar cook absurd royal ability series taste method identify elevator liquid"

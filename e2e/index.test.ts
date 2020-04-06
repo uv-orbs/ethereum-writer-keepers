@@ -15,8 +15,14 @@ test.serial('[E2E] app updates LastStatusTime in status.json', async (t) => {
   t.not(status1.LastStatusTime, status2.LastStatusTime);
 });
 
-test.serial('[E2E] app reads NumVirtualChains in status.json', async (t) => {
+test.serial('[E2E] app updates NumVirtualChains in status.json', async (t) => {
   t.timeout(60 * 1000);
   const status = JSON.parse(await driver.catFileInService('app', '/opt/orbs/status/status.json'));
   t.is(status.NumVirtualChains, 2);
+});
+
+test.serial('[E2E] app updates EtherBalance in status.json', async (t) => {
+  t.timeout(60 * 1000);
+  const status = JSON.parse(await driver.catFileInService('app', '/opt/orbs/status/status.json'));
+  t.assert(status.EtherBalance.startsWith('9999'));
 });

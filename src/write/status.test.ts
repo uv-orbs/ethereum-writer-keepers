@@ -5,10 +5,8 @@ import { State } from '../state';
 import _ from 'lodash';
 import { readFileSync } from 'fs';
 
-const exampleState: State = {
-  LastStatusTime: new Date('2000-01-01T00:00:00.000Z'),
-  NumVirtualChains: 0,
-};
+const exampleState = new State();
+exampleState.lastStatusTime = new Date('2000-01-01T00:00:00.000Z');
 
 test.serial.afterEach.always(() => {
   mockFs.restore();
@@ -20,7 +18,7 @@ test.serial('updates and writes LastStatusTime', (t) => {
     ['./status/status.json']: '',
   });
   writeStatus('./status/status.json', state);
-  t.assert(new Date().getTime() - state.LastStatusTime.getTime() < 1000);
+  t.assert(new Date().getTime() - state.lastStatusTime.getTime() < 1000);
   const writtenContents = JSON.parse(readFileSync('./status/status.json').toString());
-  t.is(writtenContents.LastStatusTime, state.LastStatusTime.toISOString());
+  t.is(writtenContents.LastStatusTime, state.lastStatusTime.toISOString());
 });

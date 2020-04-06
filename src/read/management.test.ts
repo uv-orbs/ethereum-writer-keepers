@@ -20,10 +20,8 @@ const validNodeManagementConfig = {
   ],
 };
 
-const exampleState: State = {
-  LastStatusTime: new Date('2000-01-01T00:00:00.000Z'),
-  NumVirtualChains: 0,
-};
+const exampleState = new State();
+exampleState.lastStatusTime = new Date('2000-01-01T00:00:00.000Z');
 
 test.serial.afterEach.always(() => {
   nock.cleanAll();
@@ -33,7 +31,7 @@ test.serial('reads virtual chains from valid NodeManagementConfig', async (t) =>
   const state = _.cloneDeep(exampleState);
   nock(exampleManagementServiceUrl).get(nodeManagementPath).reply(200, JSON.stringify(validNodeManagementConfig));
   await readNodeManagementConfig(exampleManagementServiceUrl + nodeManagementPath, state);
-  t.is(state.NumVirtualChains, 2);
+  t.is(state.numVirtualChains, 2);
 });
 
 test.serial('no NodeManagementConfig response from management service', async (t) => {

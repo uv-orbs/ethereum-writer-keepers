@@ -3,11 +3,12 @@ import { writeFileSync } from 'fs';
 import { ensureFileDirectoryExists } from '../helpers';
 
 export function writeStatus(filePath: string, state: State) {
-  state.LastStatusTime = new Date();
+  state.lastStatusTime = new Date();
 
   const status = {
-    LastStatusTime: state.LastStatusTime.toISOString(),
-    NumVirtualChains: state.NumVirtualChains,
+    LastStatusTime: state.lastStatusTime.toISOString(),
+    NumVirtualChains: state.numVirtualChains,
+    EtherBalance: state.etherBalance,
   };
 
   ensureFileDirectoryExists(filePath);

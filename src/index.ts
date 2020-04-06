@@ -4,12 +4,12 @@ import { Configuration } from './config';
 import { State } from './state';
 import { writeStatus } from './write/status';
 import { readNodeManagementConfig } from './read/management';
+import { initWeb3Client, readEtherBalance } from './write/ethereum';
 
 const runLoopPollIntervalSeconds = 1;
 
 export async function runLoop(config: Configuration) {
-  const state = initialState();
-  writeStatus(config.StatusJsonPath, state);
+  const state = initializeState(config);
   for (;;) {
     try {
       await sleep(runLoopPollIntervalSeconds * 1000);
@@ -21,15 +21,16 @@ export async function runLoop(config: Configuration) {
   }
 }
 
-function initialState(): State {
-  return {
-    LastStatusTime: new Date(),
-    NumVirtualChains: 0,
-  };
+function initializeState(config: Configuration): State {
+  const state = new State();
+  initWeb3Client(config, state);
+  writeStatus(config.StatusJsonPath, state);
+  return state;
 }
 
 async function runLoopTick(config: Configuration, state: State) {
   Logger.log('Run loop waking up.');
   await readNodeManagementConfig(config.NodeManagementConfigUrl, state);
+  await readEtherBalance(state);
   writeStatus(config.StatusJsonPath, state);
 }

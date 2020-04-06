@@ -31,5 +31,5 @@ export async function readNodeManagementConfig(url: string, state: State) {
 }
 
 function readVirtualChains(nodeManagementConfig: NodeManagementConfig, state: State) {
-  state.NumVirtualChains = nodeManagementConfig.chains.length;
+  state.numVirtualChains = nodeManagementConfig.chains.length;
 }
