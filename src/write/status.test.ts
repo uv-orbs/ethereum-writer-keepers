@@ -7,6 +7,7 @@ import { readFileSync } from 'fs';
 
 const exampleState: State = {
   LastStatusTime: new Date('2000-01-01T00:00:00.000Z'),
+  NumVirtualChains: 0,
 };
 
 test.serial.afterEach.always(() => {

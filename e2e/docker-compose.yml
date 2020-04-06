@@ -1,0 +1,12 @@
+version: '3'
+services:
+    app:
+        build:
+            context: .
+            dockerfile: ./Dockerfile-app.test
+    management-service:
+        build:
+            context: .
+            dockerfile: ./Dockerfile-management-service.test
+        ports:
+            - 8080

@@ -7,6 +7,7 @@ export function writeStatus(filePath: string, state: State) {
 
   const status = {
     LastStatusTime: state.LastStatusTime.toISOString(),
+    NumVirtualChains: state.NumVirtualChains,
   };
 
   ensureFileDirectoryExists(filePath);

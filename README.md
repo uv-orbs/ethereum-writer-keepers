@@ -23,20 +23,6 @@ Node service to send Ethereum transactions for elections lifecycle (like auto vo
   npm test
   ```
 
-## Test
-
-* For unit tests, run in terminal in root project directory:
-
-  ```
-  npm run test
-  ```
-
-* For E2E tests (on docker), run in terminal in root project directory:
-
-  ```
-  npm run test:e2e
-  ```
-
 ## Build
 
 * Run in terminal in root project directory:
@@ -54,3 +40,24 @@ Node service to send Ethereum transactions for elections lifecycle (like auto vo
 * Docker image will be built and tagged as `local/ethereum-writer`.
 
   * Run it with `docker run local/ethereum-writer`.
+
+## Test
+
+* For unit tests, run in terminal in root project directory:
+
+  ```
+  npm run test
+  ```
+
+* For E2E tests (on docker), run in terminal in root project directory:
+
+  ```
+  npm run build
+  npm run test:e2e
+  ```
+
+  * Note: running E2E locally may leave docker residues:
+
+    * See which instances are running with `docker ps`, stop all with `docker stop $(docker ps -a -q)`
+
+    * See which images exist with `docker images`, delete all relevant with `docker rmi $(docker images --format '{{.Repository}}:{{.Tag}}' | grep 'cicontainer')`

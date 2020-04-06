@@ -2,9 +2,9 @@ import * as Logger from './logger';
 import { runLoop } from '.';
 import { parseArgs } from './cli-args';
 
-process.on('uncaughtException', function (e) {
+process.on('uncaughtException', function (err) {
   Logger.log('Uncaught exception on process, shutting down:');
-  Logger.error(e.stack);
+  Logger.error(err.stack);
   process.exit(1);
 });
 
@@ -19,6 +19,6 @@ Logger.log(`Input config: '${JSON.stringify(config)}'`);
 
 runLoop(config).catch((err) => {
   Logger.log('Exception thrown from runLoop, shutting down:');
-  Logger.error(err?.message);
+  Logger.error(err.stack);
   process.exit(128);
 });
