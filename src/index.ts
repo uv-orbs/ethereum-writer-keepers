@@ -4,7 +4,7 @@ import { Configuration } from './config';
 import { State } from './state';
 import { writeStatus } from './write/status';
 import { readNodeManagementConfig } from './read/management';
-import { initWeb3Client, readEtherBalance } from './write/ethereum';
+import { initWeb3Client, readEtherBalance, sendEthereumVoteOutTransaction } from './write/ethereum';
 
 const runLoopPollIntervalSeconds = 1;
 
@@ -32,5 +32,10 @@ async function runLoopTick(config: Configuration, state: State) {
   Logger.log('Run loop waking up.');
   await readNodeManagementConfig(config.NodeManagementConfigUrl, state);
   await readEtherBalance(state);
+  await sendEthereumVoteOutTransaction(
+    ['0x11f4d0A3c12e86B4b5F39B213F7E19D048276DAe'],
+    config.NodeEthereumAddress,
+    state
+  ); // temp for testing
   writeStatus(config.StatusJsonPath, state);
 }

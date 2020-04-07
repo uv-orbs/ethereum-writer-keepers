@@ -1,5 +1,5 @@
 import Web3 from 'web3';
-import { ElectionsContract } from '@orbs-network/orbs-ethereum-contracts-v2/release/typings/elections-contract';
+import { Contracts } from '@orbs-network/orbs-ethereum-contracts-v2/release/typings/contracts';
 
 export class State {
   // status
@@ -8,6 +8,6 @@ export class State {
   numVirtualChains = 0;
   // ethereum
   web3?: Web3;
-  ethereumElectionsContract?: ElectionsContract;
+  ethereumElectionsContract?: Contracts['Elections'];
   etherBalance = '';
 }

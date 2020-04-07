@@ -1,5 +1,5 @@
 import test from 'ava';
-import { dockerComposeTool, getAddressForService } from 'docker-compose-mocha';
+import { dockerComposeTool, getAddressForService, getLogsForService } from 'docker-compose-mocha';
 import { unlinkSync, writeFileSync } from 'fs';
 import { exec } from 'child-process-promise';
 import { retry } from 'ts-retry-promise';
@@ -53,7 +53,7 @@ export class TestEnvironment {
           return new Web3(
             new (HDWalletProvider as any)(
               'vanish junk genuine web seminar cook absurd royal ability series taste method identify elevator liquid',
-              `http://localhost:${ganacheAddress.split(':')[1]}`,
+              `http://localhost:${portFromAddress(ganacheAddress)}`,
               0,
               100,
               false
@@ -90,6 +90,13 @@ export class TestEnvironment {
         cleanUp: false,
       } as any
     );
+
+    // step 6 - print logs on failure
+    test.serial.afterEach.always('print logs on failures', async (t) => {
+      if (t.passed) return;
+      const logs = await getLogsForService(this.envName, this.pathToDockerCompose, 'app');
+      console.log(logs);
+    });
   }
 
   // inspired by https://github.com/applitools/docker-compose-mocha/blob/master/lib/get-logs-for-service.js
@@ -105,4 +112,8 @@ export class TestEnvironment {
       { retries: 10, delay: 300 }
     );
   }
+}
+
+function portFromAddress(address: string) {
+  return address.split(':')[1];
 }

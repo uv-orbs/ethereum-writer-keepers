@@ -26,7 +26,7 @@
     "test:quick": "echo '-- TEST --' && ava --verbose",
     "test:e2e": "ava --verbose --timeout=1m --serial --config ./ava.config.e2e.js",
     "prepack": "npm run build",
-    "prettify": "npx prettier \"src/**/*.ts\" --write",
+    "prettify": "npx prettier \"src/**/*.ts\" --write && npx prettier \"e2e/**/*.ts\" --write",
     "start": "node --async-stack-traces ./dist/main.js"
   },
   "devDependencies": {
@@ -52,7 +52,7 @@
     "typescript": "~3.7.5"
   },
   "dependencies": {
-    "@orbs-network/orbs-ethereum-contracts-v2": "^0.0.2",
+    "@orbs-network/orbs-ethereum-contracts-v2": "^0.0.3",
     "@truffle/hdwallet-provider": "^1.0.34",
     "lodash": "^4.17.15",
     "node-fetch": "^2.6.0",
