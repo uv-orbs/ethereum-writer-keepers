@@ -9,10 +9,12 @@ import HDWalletProvider from '@truffle/hdwallet-provider';
 import Web3 from 'web3';
 import { Driver as EthereumPosDriver } from '@orbs-network/orbs-ethereum-contracts-v2';
 import BN from 'bn.js';
+import { GammaDriver } from './gamma/driver';
 
 export class TestEnvironment {
   private envName: string = '';
   public ethereumPosDriver: EthereumPosDriver;
+  public gammaDriver: GammaDriver;
   public nodeEthereumAddress: string;
 
   constructor(private pathToDockerCompose: string) {}
@@ -23,6 +25,7 @@ export class TestEnvironment {
       EthereumEndpoint: 'http://ganache:7545',
       EthereumElectionsContract: this.ethereumPosDriver.elections.address,
       NodeEthereumAddress: this.nodeEthereumAddress,
+      VirtualChainUrlSchema: 'http://vchain-{{ID}}:8080',
     };
   }
 
@@ -34,7 +37,7 @@ export class TestEnvironment {
       test.serial.after.always.bind(test.serial.after),
       this.pathToDockerCompose,
       {
-        startOnlyTheseServices: ['ganache', 'management-service'],
+        startOnlyTheseServices: ['ganache', 'management-service', 'vchain-42'],
         containerCleanUp: false,
       } as any
     );
@@ -69,7 +72,15 @@ export class TestEnvironment {
       this.nodeEthereumAddress = validator.address;
     });
 
-    // step 4 - write config file for app
+    // step 4 - deploy Orbs contracts to gamma
+    test.serial.before('deploy Orbs contracts to gamma', async (t) => {
+      t.timeout(60 * 1000);
+      // note that gamma virtual chain id is always hard-coded as 42
+      const gammaAddress = await getAddressForService(this.envName, this.pathToDockerCompose, 'vchain-42', 8080);
+      this.gammaDriver = await new GammaDriver().init(`http://localhost:${portFromAddress(gammaAddress)}`, 42);
+    });
+
+    // step 5 - write config file for app
     test.serial.before('write management service config file', async (t) => {
       const configFilePath = join(__dirname, 'app-config.json');
       try {
@@ -78,7 +89,7 @@ export class TestEnvironment {
       writeFileSync(configFilePath, JSON.stringify(this.getAppConfig()));
     });
 
-    // step 5 - launch app docker
+    // step 6 - launch app docker
     dockerComposeTool(
       test.serial.before.bind(test.serial),
       test.serial.after.always.bind(test.serial.after),
@@ -91,7 +102,7 @@ export class TestEnvironment {
       } as any
     );
 
-    // step 6 - print logs on failure
+    // step 7 - print logs on failure
     test.serial.afterEach.always('print logs on failures', async (t) => {
       if (t.passed) return;
       const logs = await getLogsForService(this.envName, this.pathToDockerCompose, 'app');

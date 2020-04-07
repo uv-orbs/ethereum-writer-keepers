@@ -26,7 +26,7 @@ export function parseArgs(argv: string[]): Configuration {
       ...args.config.map((configPath) => JSON.parse(readFileSync(configPath).toString()))
     );
   } catch (err) {
-    Logger.error(`Cannot parse input JSON config files: [${args.config}]`);
+    Logger.error(`Cannot parse input JSON config files: [${args.config}].`);
     throw err;
   }
 
@@ -34,7 +34,7 @@ export function parseArgs(argv: string[]): Configuration {
   try {
     validateConfiguration(res);
   } catch (err) {
-    Logger.error(`Invalid JSON config: '${JSON.stringify(res)}'`);
+    Logger.error(`Invalid JSON config: '${JSON.stringify(res)}'.`);
     throw err;
   }
 

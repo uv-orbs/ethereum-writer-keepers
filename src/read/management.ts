@@ -32,4 +32,5 @@ export async function readNodeManagementConfig(url: string, state: State) {
 
 function readVirtualChains(nodeManagementConfig: NodeManagementConfig, state: State) {
   state.numVirtualChains = nodeManagementConfig.chains.length;
+  Logger.log(`Read number of virtual chains from management service: ${state.numVirtualChains}.`);
 }

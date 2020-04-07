@@ -5,6 +5,7 @@ import { State } from './state';
 import { writeStatus } from './write/status';
 import { readNodeManagementConfig } from './read/management';
 import { initWeb3Client, readEtherBalance, sendEthereumVoteOutTransaction } from './write/ethereum';
+import { readVirtualChainCounter } from './read/vchain';
 
 const runLoopPollIntervalSeconds = 1;
 
@@ -37,5 +38,6 @@ async function runLoopTick(config: Configuration, state: State) {
     config.NodeEthereumAddress,
     state
   ); // temp for testing
+  await readVirtualChainCounter(42, config, state); // temp for testing
   writeStatus(config.StatusJsonPath, state);
 }

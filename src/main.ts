@@ -15,7 +15,7 @@ process.on('SIGINT', function () {
 
 Logger.log('Service ethereum-writer started.');
 const config = parseArgs(process.argv);
-Logger.log(`Input config: '${JSON.stringify(config)}'`);
+Logger.log(`Input config: '${JSON.stringify(config)}'.`);
 
 runLoop(config).catch((err) => {
   Logger.log('Exception thrown from runLoop, shutting down:');

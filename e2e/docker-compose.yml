@@ -15,3 +15,7 @@ services:
         ports:
             - 7545
         command: -p 7545 -i 5777 -a 100 -m  "vanish junk genuine web seminar cook absurd royal ability series taste method identify elevator liquid"
+    vchain-42:
+        image: orbsnetwork/gamma:experimental
+        ports:
+            - 8080

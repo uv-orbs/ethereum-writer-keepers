@@ -38,33 +38,6 @@
         "SignerUrl": "http://signer:7777",
         "ethereum-endpoint": "http://eth.orbs.com"
       }
-    },
-    {
-      "Id": 43,
-      "InternalPort": 4400,
-      "ExternalPort": 4001,
-      "InternalHttpPort": 8080,
-      "Disabled": false,
-      "DockerConfig": {
-        "Image": "orbsnetwork/node",
-        "Tag": "v1.2.3-canary",
-        "Pull": true,
-        "Resources": {
-          "Limits": {
-            "Memory": 1024,
-            "CPUs": 1
-          },
-          "Reservations": {
-            "Memory": 512,
-            "CPUs": 0.5
-          }
-        }
-      },
-      "Config": {
-        "ManagementConfigUrl": "http://management-service:8080/vchains/42/management",
-        "SignerUrl": "http://signer:7777",
-        "ethereum-endpoint": "http://eth.orbs.com"
-      }
     }
   ],
   "services": {

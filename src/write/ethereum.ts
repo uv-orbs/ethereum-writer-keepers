@@ -1,3 +1,4 @@
+import * as Logger from '../logger';
 import { Configuration } from '../config';
 import { State } from '../state';
 import HDWalletProvider from '@truffle/hdwallet-provider';
@@ -30,13 +31,14 @@ export async function sendEthereumVoteOutTransaction(
   senderEthereumAddress: string,
   state: State
 ) {
-  if (!state.ethereumElectionsContract) throw new Error('Cannot send Ethereum tx until web3 client is initialized');
-  await state.ethereumElectionsContract.setBanningVotes(bannedValidatorsEthereumAddresses, {
+  if (!state.ethereumElectionsContract) throw new Error('Cannot send Ethereum tx until web3 client is initialized.');
+  const receipt = await state.ethereumElectionsContract.setBanningVotes(bannedValidatorsEthereumAddresses, {
     from: senderEthereumAddress,
   });
+  Logger.log(`Sent vote out against [${bannedValidatorsEthereumAddresses}], txHash: ${receipt.transactionHash}.`);
 }
 
 export async function readEtherBalance(state: State) {
-  if (!state.web3) throw new Error('Cannot check ETH balance until web3 client is initialized');
+  if (!state.web3) throw new Error('Cannot check ETH balance until web3 client is initialized.');
   state.etherBalance = await state.web3.eth.getBalance(state.web3.eth.defaultAccount as string);
 }
