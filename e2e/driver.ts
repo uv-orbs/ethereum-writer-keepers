@@ -31,7 +31,7 @@ export class TestEnvironment {
 
   // runs all the docker instances with docker-compose
   launchServices() {
-    // step 1 - launch ganache and management-service dockers
+    // step 1 - launch ganache, management-service mock and gamma dockers
     this.envName = dockerComposeTool(
       test.serial.before.bind(test.serial),
       test.serial.after.always.bind(test.serial.after),
@@ -102,7 +102,7 @@ export class TestEnvironment {
       } as any
     );
 
-    // step 7 - print logs on failure
+    // step 7 - print app logs from docker on failure
     test.serial.afterEach.always('print logs on failures', async (t) => {
       if (t.passed) return;
       const logs = await getLogsForService(this.envName, this.pathToDockerCompose, 'app');
