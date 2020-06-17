@@ -27,8 +27,9 @@ export class TestEnvironment {
       EthereumEndpoint: 'http://ganache:7545',
       EthereumElectionsContract: this.ethereumPosDriver.elections.address,
       NodeOrbsAddress: this.nodeOrbsAddress.substr(2).toLowerCase(), // remove "0x",
-      VirtualChainUrlSchema: 'http://vchain-{{ID}}:8080',
+      VirtualChainEndpointSchema: 'http://vchain-{{ID}}:8080',
       RunLoopPollTimeSeconds: 1,
+      VchainMetricsPollTimeSeconds: 1,
     };
   }
 

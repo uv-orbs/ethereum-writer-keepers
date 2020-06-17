@@ -4,8 +4,8 @@ import * as Orbs from 'orbs-client-sdk';
 
 export class State {
   // management service
-  managementLastPollTime = 0;
-  managementRefTime = 0;
+  managementLastPollTime = 0; // UTC time in seconds (like unix timestamp / Ethereum block time)
+  managementRefTime = 0; // UTC time in seconds (like unix timestamp / Ethereum block time)
   managementEthToOrbsAddress: { [EthAddress: string]: string } = {};
   managementVirtualChains: { [virtualChainId: string]: ManagementVirtualChain } = {};
   managementMyElectionStatus?: ManagementElectionsStatus;
@@ -19,6 +19,10 @@ export class State {
   orbsAccount?: Orbs.Account;
   orbsClientPerVc: { [virtualChainId: string]: Orbs.Client } = {};
   orbsCounter = BigInt(0);
+
+  // vchains
+  vchainMetricsLastPollTime = 0; // UTC time in seconds (like unix timestamp / Ethereum block time)
+  vchainMetrics: { [virtualChainId: string]: VchainMetrics } = {};
 }
 
 // helpers
@@ -37,4 +41,10 @@ interface ManagementElectionsStatus {
   LastUpdateTime: number;
   ReadyToSync: boolean;
   ReadyForCommittee: boolean;
+}
+
+interface VchainMetrics {
+  LastBlockHeight: number;
+  LastBlockTime: number; // UTC time in seconds (like unix timestamp / Ethereum block time)
+  Uptime: number; // seconds
 }

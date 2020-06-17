@@ -9,7 +9,6 @@ export async function readManagementStatus(endpoint: string, myOrbsAddress: stri
   const url = `${endpoint}/status`;
   const response = await fetchManagementStatus(url);
 
-  state.managementLastPollTime = getCurrentClockTime();
   state.managementRefTime = response.Payload.CurrentRefTime;
   state.managementEthToOrbsAddress = response.Payload.CurrentOrbsAddress;
   state.managementVirtualChains = response.Payload.CurrentVirtualChains;
@@ -17,11 +16,25 @@ export async function readManagementStatus(endpoint: string, myOrbsAddress: stri
   const myEthAddress = findEthFromOrbsAddress(myOrbsAddress, state);
   state.managementMyElectionStatus = response.Payload.CurrentElectionsStatus[myEthAddress];
 
+  // last to be after all possible exceptions and processing delays
+  state.managementLastPollTime = getCurrentClockTime();
+
   // log progress
   Logger.log(`Fetched management service, num vchains: ${Object.keys(state.managementVirtualChains).length}.`);
 }
 
 // helpers
+
+async function fetchManagementStatus(url: string): Promise<ManagementStatus> {
+  const res = await fetch(url);
+  const body = await res.text();
+  try {
+    return decodeString(managementStatusDecoder, body);
+  } catch (err) {
+    Logger.error(err.message);
+    throw new Error(`Invalid ManagementStatus response (HTTP-${res.status}):\n${body}`);
+  }
+}
 
 interface ManagementStatus {
   Payload: {
@@ -68,14 +81,3 @@ const managementStatusDecoder: Decoder<ManagementStatus> = object({
     ),
   }),
 });
-
-async function fetchManagementStatus(url: string): Promise<ManagementStatus> {
-  const res = await fetch(url);
-  const body = await res.text();
-  try {
-    return decodeString(managementStatusDecoder, body);
-  } catch (err) {
-    Logger.error(err.message);
-    throw new Error(`Invalid ManagementStatus response:\n${body}`);
-  }
-}

@@ -3,7 +3,7 @@ import nock from 'nock';
 import { readManagementStatus } from './management';
 import { State } from '../model/state';
 import _ from 'lodash';
-import { getCurrentClockTime, jsonStringifyState } from '../helpers';
+import { getCurrentClockTime, jsonStringifyBigint } from '../helpers';
 
 const myOrbsAddress = '86544bdd6c8b957cd198252c45fa215fc3892126';
 const exampleManagementServiceEndpoint = 'http://management-service:8080';
@@ -61,7 +61,7 @@ test.serial('reads data from valid ManagementStatus', async (t) => {
     .reply(200, JSON.stringify(validManagementStatusResponse));
   await readManagementStatus(exampleManagementServiceEndpoint, myOrbsAddress, state);
 
-  t.log('state:', jsonStringifyState(state));
+  t.log('state:', jsonStringifyBigint(state));
 
   t.assert(getCurrentClockTime() - state.managementLastPollTime < 5);
   t.is(state.managementRefTime, 1592400033);
@@ -82,7 +82,7 @@ test.serial('my orbsAddress not found in ManagementStatus', async (t) => {
   const unknownOrbsAddress = '77777777008b957cd198252c45fa215fc3892126';
   await readManagementStatus(exampleManagementServiceEndpoint, unknownOrbsAddress, state);
 
-  t.log('state:', jsonStringifyState(state));
+  t.log('state:', jsonStringifyBigint(state));
 
   t.falsy(state.managementMyElectionStatus);
 });
@@ -94,7 +94,7 @@ test.serial('my elections status not found in ManagementStatus', async (t) => {
   nock(exampleManagementServiceEndpoint).get(managementStatusPath).reply(200, JSON.stringify(partialResponse));
   await readManagementStatus(exampleManagementServiceEndpoint, myOrbsAddress, state);
 
-  t.log('state:', jsonStringifyState(state));
+  t.log('state:', jsonStringifyBigint(state));
 
   t.falsy(state.managementMyElectionStatus);
 });

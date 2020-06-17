@@ -2,7 +2,7 @@ import test from 'ava';
 import { State } from '../model/state';
 import _ from 'lodash';
 import { exampleConfig } from '../config.example';
-import { getOrbsClient, getEndpoint } from './vchain';
+import { getOrbsClient, getEndpoint2 } from './vchain-reputation';
 
 const exampleState = new State();
 
@@ -13,6 +13,6 @@ test.serial('gets Orbs client', (t) => {
 });
 
 test.serial('gets Orbs virtual chain endpoint', (t) => {
-  const endpoint = getEndpoint(42, exampleConfig);
+  const endpoint = getEndpoint2(42, exampleConfig);
   t.is(endpoint, 'http://vchain-42:8080');
 });

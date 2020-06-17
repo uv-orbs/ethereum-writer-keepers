@@ -12,7 +12,7 @@ export function getOrbsClient(virtualChainId: number, config: Configuration, sta
   // create client if needed
   if (!state.orbsClientPerVc[virtualChainId]) {
     state.orbsClientPerVc[virtualChainId] = new Orbs.Client(
-      getEndpoint(virtualChainId, config),
+      getEndpoint2(virtualChainId, config),
       virtualChainId,
       Orbs.NetworkType.NETWORK_TYPE_MAIN_NET,
       new Orbs.LocalSigner(state.orbsAccount)
@@ -33,6 +33,6 @@ export async function readVirtualChainCounter(virtualChainId: number, config: Co
   Logger.log(`Read counter value from virtual chain ${virtualChainId}: ${state.orbsCounter}.`);
 }
 
-export function getEndpoint(virtualChainId: number, config: Configuration) {
-  return config.VirtualChainUrlSchema.replace(/{{ID}}/g, virtualChainId.toString());
+export function getEndpoint2(virtualChainId: number, config: Configuration) {
+  return config.VirtualChainEndpointSchema.replace(/{{ID}}/g, virtualChainId.toString());
 }

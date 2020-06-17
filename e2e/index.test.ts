@@ -33,7 +33,7 @@ test.serial('[E2E] app updates NumVirtualChains in status.json', async (t) => {
 
   t.log('status:', JSON.stringify(status, null, 2));
 
-  t.is(status.Payload.NumVirtualChains, 2);
+  t.is(status.Payload.NumVirtualChains, 1);
 });
 
 test.serial('[E2E] app updates EtherBalance in status.json', async (t) => {

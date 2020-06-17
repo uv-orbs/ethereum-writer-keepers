@@ -3,15 +3,17 @@ export interface Configuration {
   EthereumEndpoint: string;
   EthereumElectionsContract: string;
   NodeOrbsAddress: string;
-  VirtualChainUrlSchema: string;
+  VirtualChainEndpointSchema: string;
   StatusJsonPath: string;
   RunLoopPollTimeSeconds: number;
+  VchainMetricsPollTimeSeconds: number; // multiple of RunLoopPollTimeSeconds
 }
 
 export const defaultConfiguration = {
   StatusJsonPath: './status/status.json',
-  VirtualChainUrlSchema: 'http://vchain-{{ID}}:8080',
+  VirtualChainEndpointSchema: 'http://vchain-{{ID}}:8080',
   RunLoopPollTimeSeconds: 10,
+  VchainMetricsPollTimeSeconds: 5 * 60,
 };
 
 export function validateConfiguration(config: Configuration) {
@@ -36,8 +38,8 @@ export function validateConfiguration(config: Configuration) {
   if (config.NodeOrbsAddress.length != '11f4d0a3c12e86b4b5f39b213f7e19d048276dae'.length) {
     throw new Error(`NodeOrbsAddress has incorrect length: ${config.NodeOrbsAddress.length}.`);
   }
-  if (!config.VirtualChainUrlSchema) {
-    throw new Error(`VirtualChainUrlSchema is empty in config.`);
+  if (!config.VirtualChainEndpointSchema) {
+    throw new Error(`VirtualChainEndpointSchema is empty in config.`);
   }
   if (!config.StatusJsonPath) {
     throw new Error(`StatusJsonPath is empty in config.`);
@@ -47,5 +49,11 @@ export function validateConfiguration(config: Configuration) {
   }
   if (typeof config.RunLoopPollTimeSeconds != 'number') {
     throw new Error(`RunLoopPollTimeSeconds is not a number.`);
+  }
+  if (!config.VchainMetricsPollTimeSeconds) {
+    throw new Error(`VchainMetricsPollTimeSeconds is empty or zero.`);
+  }
+  if (typeof config.VchainMetricsPollTimeSeconds != 'number') {
+    throw new Error(`VchainMetricsPollTimeSeconds is not a number.`);
   }
 }

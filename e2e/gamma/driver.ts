@@ -1,6 +1,7 @@
 import * as Orbs from 'orbs-client-sdk';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { jsonStringifyBigint } from '../../src/helpers';
 
 export class GammaDriver {
   public ownerAccount: Orbs.Account;
@@ -25,7 +26,7 @@ export class GammaDriver {
     );
     const response = await this.client.sendTransaction(deploymentTx);
     if (response.executionResult != Orbs.ExecutionResult.EXECUTION_RESULT_SUCCESS) {
-      throw new Error(`GammaDriver contract deployment failed: ${JSON.stringify(response)}.`);
+      throw new Error(`GammaDriver contract deployment failed: ${jsonStringifyBigint(response)}.`);
     }
     return this;
   }
@@ -34,7 +35,7 @@ export class GammaDriver {
     const [tx, txId] = await this.client.createTransaction('Counter', 'inc', []);
     const response = await this.client.sendTransaction(tx);
     if (response.executionResult != Orbs.ExecutionResult.EXECUTION_RESULT_SUCCESS) {
-      throw new Error(`GammaDriver increment transaction failed: ${JSON.stringify(response)}.`);
+      throw new Error(`GammaDriver increment transaction failed: ${jsonStringifyBigint(response)}.`);
     }
   }
 }

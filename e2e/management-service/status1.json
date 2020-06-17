@@ -40,18 +40,11 @@
       }
     },
     "CurrentVirtualChains": {
-      "1000000": {
+      "42": {
         "Expiration": 1592409043,
         "GenesisRefTime": 1592409043,
         "IdentityType": 0,
         "RolloutGroup": "main",
-        "Tier": "defaultTier"
-      },
-      "1000001": {
-        "Expiration": 1592409043,
-        "GenesisRefTime": 1592409043,
-        "IdentityType": 0,
-        "RolloutGroup": "canary",
         "Tier": "defaultTier"
       }
     },
