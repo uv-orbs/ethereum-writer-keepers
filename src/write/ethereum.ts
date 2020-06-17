@@ -1,6 +1,6 @@
 import * as Logger from '../logger';
 import { Configuration } from '../config';
-import { State } from '../state';
+import { State } from '../model/state';
 import HDWalletProvider from '@truffle/hdwallet-provider';
 import Web3 from 'web3';
 import { provider } from 'web3-core';

@@ -7,4 +7,5 @@ export const exampleConfig: Configuration = {
   NodeEthereumAddress: '0x11f4d0A3c12e86B4b5F39B213F7E19D048276DAe',
   VirtualChainUrlSchema: 'http://vchain-{{ID}}:8080',
   StatusJsonPath: './status/status.json',
+  RunLoopPollTimeSeconds: 1,
 };

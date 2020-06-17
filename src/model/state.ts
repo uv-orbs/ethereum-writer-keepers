@@ -3,14 +3,14 @@ import { Contracts } from '@orbs-network/orbs-ethereum-contracts-v2/release/typi
 import * as Orbs from 'orbs-client-sdk';
 
 export class State {
-  // status
-  lastStatusTime: Date = new Date();
   // management
   numVirtualChains = 0;
+  
   // ethereum
   web3?: Web3;
   ethereumElectionsContract?: Contracts['Elections'];
   etherBalance = '';
+  
   // orbs
   orbsAccount?: Orbs.Account;
   orbsClientPerVc: { [virtualChainId: number]: Orbs.Client } = {};

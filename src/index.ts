@@ -1,19 +1,17 @@
 import * as Logger from './logger';
 import { sleep } from './helpers';
 import { Configuration } from './config';
-import { State } from './state';
+import { State } from './model/state';
 import { writeStatus } from './write/status';
 import { readNodeManagementConfig } from './read/management';
 import { initWeb3Client, readEtherBalance, sendEthereumVoteOutTransaction } from './write/ethereum';
 import { readVirtualChainCounter } from './read/vchain';
 
-const runLoopPollIntervalSeconds = 1;
-
 export async function runLoop(config: Configuration) {
   const state = initializeState(config);
   for (;;) {
     try {
-      await sleep(runLoopPollIntervalSeconds * 1000);
+      await sleep(config.RunLoopPollTimeSeconds * 1000);
       await runLoopTick(config, state);
     } catch (err) {
       Logger.log('Exception thrown during runLoop, going back to sleep:');

@@ -8,3 +8,8 @@ export function sleep(ms: number) {
 export function ensureFileDirectoryExists(filePath: string) {
   mkdirSync(dirname(filePath), { recursive: true });
 }
+
+// returns UTC clock time in seconds (similar to unix timestamp / Ethereum block time / RefTime)
+export function getCurrentClockTime() {
+  return Math.round(new Date().getTime() / 1000);
+}

@@ -1,6 +1,6 @@
 import * as Logger from '../logger';
 import { Configuration } from '../config';
-import { State } from '../state';
+import { State } from '../model/state';
 import * as Orbs from 'orbs-client-sdk';
 
 export function getOrbsClient(virtualChainId: number, config: Configuration, state: State) {

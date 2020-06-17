@@ -1,7 +1,7 @@
 import test from 'ava';
 import nock from 'nock';
 import { readNodeManagementConfig } from './management';
-import { State } from '../state';
+import { State } from '../model/state';
 import _ from 'lodash';
 
 const exampleManagementServiceUrl = 'http://management-service:8080';
@@ -21,7 +21,6 @@ const validNodeManagementConfig = {
 };
 
 const exampleState = new State();
-exampleState.lastStatusTime = new Date('2000-01-01T00:00:00.000Z');
 
 test.serial.afterEach.always(() => {
   nock.cleanAll();

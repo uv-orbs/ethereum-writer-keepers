@@ -1,5 +1,5 @@
 import test from 'ava';
-import { State } from '../state';
+import { State } from '../model/state';
 import _ from 'lodash';
 import { initWeb3Client } from './ethereum';
 import { exampleConfig } from '../config.example';

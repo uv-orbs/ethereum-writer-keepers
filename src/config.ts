@@ -5,11 +5,13 @@ export interface Configuration {
   NodeEthereumAddress: string;
   VirtualChainUrlSchema: string;
   StatusJsonPath: string;
+  RunLoopPollTimeSeconds: number;
 }
 
 export const defaultConfiguration = {
   StatusJsonPath: './status/status.json',
   VirtualChainUrlSchema: 'http://vchain-{{ID}}:8080',
+  RunLoopPollTimeSeconds: 10,
 };
 
 export function validateConfiguration(config: Configuration) {
@@ -36,5 +38,8 @@ export function validateConfiguration(config: Configuration) {
   }
   if (!config.StatusJsonPath) {
     throw new Error('StatusJsonPath is empty in config.');
+  }
+  if (!config.RunLoopPollTimeSeconds) {
+    throw new Error('RunLoopPollTimeSeconds is empty in config.');
   }
 }

@@ -1,5 +1,5 @@
 import test from 'ava';
-import { State } from '../state';
+import { State } from '../model/state';
 import _ from 'lodash';
 import { exampleConfig } from '../config.example';
 import { getOrbsClient, getEndpoint } from './vchain';

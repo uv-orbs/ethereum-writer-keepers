@@ -1,16 +1,18 @@
 import * as Logger from '../logger';
-import { State } from '../state';
+import { State } from '../model/state';
 import { writeFileSync } from 'fs';
 import { ensureFileDirectoryExists } from '../helpers';
 
+// runs every 10 seconds in prod, 1 second in tests
 export function writeStatus(filePath: string, state: State) {
-  state.lastStatusTime = new Date();
 
   const status = {
-    LastStatusTime: state.lastStatusTime.toISOString(),
-    NumVirtualChains: state.numVirtualChains,
-    EtherBalance: state.etherBalance,
-    OrbsCounter: state.orbsCounter.toString(),
+    Timestamp: new Date().toISOString(),
+    Payload: {
+      NumVirtualChains: state.numVirtualChains,
+      EtherBalance: state.etherBalance,
+      OrbsCounter: state.orbsCounter.toString(),
+    },
   };
 
   ensureFileDirectoryExists(filePath);

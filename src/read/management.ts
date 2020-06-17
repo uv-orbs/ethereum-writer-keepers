@@ -1,5 +1,5 @@
 import * as Logger from '../logger';
-import { State } from '../state';
+import { State } from '../model/state';
 import fetch from 'node-fetch';
 import { Decoder, decodeString, num, object, array } from 'ts-json-decode';
 

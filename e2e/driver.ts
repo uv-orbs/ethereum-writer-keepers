@@ -26,6 +26,7 @@ export class TestEnvironment {
       EthereumElectionsContract: this.ethereumPosDriver.elections.address,
       NodeEthereumAddress: this.nodeEthereumAddress,
       VirtualChainUrlSchema: 'http://vchain-{{ID}}:8080',
+      RunLoopPollTimeSeconds: 1,
     };
   }
 
@@ -81,7 +82,7 @@ export class TestEnvironment {
     });
 
     // step 5 - write config file for app
-    test.serial.before('write management service config file', async (t) => {
+    test.serial.before('write ethereum writer service config file', (t) => {
       const configFilePath = join(__dirname, 'app-config.json');
       try {
         unlinkSync(configFilePath);

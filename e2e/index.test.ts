@@ -6,25 +6,25 @@ import { sleep } from '../src/helpers';
 const driver = new TestEnvironment(join(__dirname, 'docker-compose.yml'));
 driver.launchServices();
 
-test.serial('[E2E] app updates LastStatusTime in status.json', async (t) => {
+test.serial('[E2E] app updates Timestamp in status.json', async (t) => {
   t.timeout(60 * 1000);
   const status1 = JSON.parse(await driver.catFileInService('app', '/opt/orbs/status/status.json'));
   await sleep(2000);
   const status2 = JSON.parse(await driver.catFileInService('app', '/opt/orbs/status/status.json'));
-  t.assert(new Date().getTime() - new Date(status2.LastStatusTime).getTime() < 10000);
-  t.not(status1.LastStatusTime, status2.LastStatusTime);
+  t.assert(new Date().getTime() - new Date(status2.Timestamp).getTime() < 10000);
+  t.not(status1.Timestamp, status2.Timestamp);
 });
 
 test.serial('[E2E] app updates NumVirtualChains in status.json', async (t) => {
   t.timeout(60 * 1000);
   const status = JSON.parse(await driver.catFileInService('app', '/opt/orbs/status/status.json'));
-  t.is(status.NumVirtualChains, 1);
+  t.is(status.Payload.NumVirtualChains, 1);
 });
 
 test.serial('[E2E] app updates EtherBalance in status.json', async (t) => {
   t.timeout(60 * 1000);
   const status = JSON.parse(await driver.catFileInService('app', '/opt/orbs/status/status.json'));
-  t.assert(status.EtherBalance.startsWith('99'));
+  t.assert(status.Payload.EtherBalance.startsWith('99'));
 });
 
 test.serial('[E2E] app sends vote out Ethereum transactions', async (t) => {
@@ -41,5 +41,5 @@ test.serial('[E2E] app queries Orbs contract', async (t) => {
   await driver.gammaDriver.incrementCounter();
   await sleep(2000);
   const status = JSON.parse(await driver.catFileInService('app', '/opt/orbs/status/status.json'));
-  t.is(status.OrbsCounter, '2');
+  t.is(status.Payload.OrbsCounter, '2');
 });
