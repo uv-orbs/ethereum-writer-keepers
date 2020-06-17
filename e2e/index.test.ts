@@ -7,7 +7,10 @@ const driver = new TestEnvironment(join(__dirname, 'docker-compose.yml'));
 driver.launchServices();
 
 test.serial('[E2E] app updates Timestamp, Status, Error in status.json', async (t) => {
+  t.log('started');
+  driver.testLogger = t.log;
   t.timeout(60 * 1000);
+
   const status1 = JSON.parse(await driver.catFileInService('app', '/opt/orbs/status/status.json'));
   await sleep(2000);
   const status2 = JSON.parse(await driver.catFileInService('app', '/opt/orbs/status/status.json'));
@@ -22,7 +25,10 @@ test.serial('[E2E] app updates Timestamp, Status, Error in status.json', async (
 });
 
 test.serial('[E2E] app updates NumVirtualChains in status.json', async (t) => {
+  t.log('started');
+  driver.testLogger = t.log;
   t.timeout(60 * 1000);
+
   const status = JSON.parse(await driver.catFileInService('app', '/opt/orbs/status/status.json'));
 
   t.log('status:', JSON.stringify(status, null, 2));
@@ -31,7 +37,10 @@ test.serial('[E2E] app updates NumVirtualChains in status.json', async (t) => {
 });
 
 test.serial('[E2E] app updates EtherBalance in status.json', async (t) => {
+  t.log('started');
+  driver.testLogger = t.log;
   t.timeout(60 * 1000);
+
   const status = JSON.parse(await driver.catFileInService('app', '/opt/orbs/status/status.json'));
 
   t.log('status:', JSON.stringify(status, null, 2));
@@ -40,7 +49,10 @@ test.serial('[E2E] app updates EtherBalance in status.json', async (t) => {
 });
 
 test.serial('[E2E] app sends vote out Ethereum transactions', async (t) => {
+  t.log('started');
+  driver.testLogger = t.log;
   t.timeout(60 * 1000);
+
   const events = await driver.ethereumPosDriver.elections.web3Contract.getPastEvents('BanningVote');
 
   t.log('events:', JSON.stringify(events, null, 2));
@@ -51,7 +63,10 @@ test.serial('[E2E] app sends vote out Ethereum transactions', async (t) => {
 });
 
 test.serial('[E2E] app queries Orbs contract', async (t) => {
+  t.log('started');
+  driver.testLogger = t.log;
   t.timeout(60 * 1000);
+
   await driver.gammaDriver.incrementCounter();
   await driver.gammaDriver.incrementCounter();
   await sleep(2000);
