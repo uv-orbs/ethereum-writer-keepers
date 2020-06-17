@@ -5,13 +5,12 @@ import { ensureFileDirectoryExists, JsonResponse } from '../helpers';
 
 const MINIMUM_ALLOWED_ETH_BALANCE_WEI = BigInt('20000000000000000');
 
-// runs every 10 seconds in prod, 1 second in tests
-export function writeStatus(filePath: string, state: State) {
+export function writeStatusToDisk(filePath: string, state: State) {
   const status: JsonResponse = {
     Status: getStatusText(state),
     Timestamp: new Date().toISOString(),
     Payload: {
-      NumVirtualChains: state.numVirtualChains,
+      NumVirtualChains: Object.keys(state.managementVirtualChains).length,
       EtherBalance: state.etherBalance,
       OrbsCounter: state.orbsCounter.toString(),
     },
@@ -27,6 +26,8 @@ export function writeStatus(filePath: string, state: State) {
   ensureFileDirectoryExists(filePath);
   const content = JSON.stringify(status, null, 2);
   writeFileSync(filePath, content);
+
+  // log progress
   Logger.log(`Wrote status JSON to ${filePath} (${content.length} bytes).`);
 }
 

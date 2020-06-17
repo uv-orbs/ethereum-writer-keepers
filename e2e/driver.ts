@@ -16,17 +16,17 @@ export class TestEnvironment {
   private envName: string = '';
   public ethereumPosDriver: EthereumPosDriver;
   public gammaDriver: GammaDriver;
-  public nodeEthereumAddress: string;
+  public nodeOrbsAddress: string;
   public testLogger: (lines: string) => void;
 
   constructor(private pathToDockerCompose: string) {}
 
   getAppConfig() {
     return {
-      NodeManagementConfigUrl: 'http://management-service:8080/node/management',
+      ManagementServiceEndpoint: 'http://management-service:8080',
       EthereumEndpoint: 'http://ganache:7545',
       EthereumElectionsContract: this.ethereumPosDriver.elections.address,
-      NodeEthereumAddress: this.nodeEthereumAddress,
+      NodeOrbsAddress: this.nodeOrbsAddress.substr(2).toLowerCase(), // remove "0x",
       VirtualChainUrlSchema: 'http://vchain-{{ID}}:8080',
       RunLoopPollTimeSeconds: 1,
     };
@@ -79,7 +79,8 @@ export class TestEnvironment {
       const stake = new BN(1000);
       await validator.stake(stake);
       await validator.registerAsValidator();
-      this.nodeEthereumAddress = validator.address;
+      this.nodeOrbsAddress = validator.address;
+      console.log(`[posv2] driver.nodeOrbsAddress = ${this.nodeOrbsAddress}`);
     });
 
     // step 4 - deploy Orbs contracts to gamma

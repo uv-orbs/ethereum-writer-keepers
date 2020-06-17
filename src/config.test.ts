@@ -21,8 +21,16 @@ test.serial('validateConfiguration fails on invalid EthereumElectionsContract', 
   t.throws(() => validateConfiguration(invalidConfig));
 });
 
-test.serial('validateConfiguration fails on invalid NodeEthereumAddress', (t) => {
+test.serial('validateConfiguration fails on invalid NodeOrbsAddress', (t) => {
   const invalidConfig = _.cloneDeep(exampleConfig);
-  invalidConfig.NodeEthereumAddress = 'hello world';
+  invalidConfig.NodeOrbsAddress = 'hello world';
+  t.throws(() => validateConfiguration(invalidConfig));
+  invalidConfig.NodeOrbsAddress = '0x11f4d0a3c12e86b4b5f39b213f7e19d048276dae'; // should not start with "0x"
+  t.throws(() => validateConfiguration(invalidConfig));
+});
+
+test.serial('validateConfiguration fails when string given instead of number', (t) => {
+  const invalidConfig = JSON.parse(JSON.stringify(exampleConfig));
+  invalidConfig.RunLoopPollTimeSeconds = '99'; // as string
   t.throws(() => validateConfiguration(invalidConfig));
 });

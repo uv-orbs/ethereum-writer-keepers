@@ -33,7 +33,7 @@ test.serial('[E2E] app updates NumVirtualChains in status.json', async (t) => {
 
   t.log('status:', JSON.stringify(status, null, 2));
 
-  t.is(status.Payload.NumVirtualChains, 1);
+  t.is(status.Payload.NumVirtualChains, 2);
 });
 
 test.serial('[E2E] app updates EtherBalance in status.json', async (t) => {
@@ -58,7 +58,7 @@ test.serial('[E2E] app sends vote out Ethereum transactions', async (t) => {
   t.log('events:', JSON.stringify(events, null, 2));
 
   t.assert(events.length > 0);
-  t.is(events[0].returnValues.voter, driver.nodeEthereumAddress);
+  t.is(events[0].returnValues.voter, driver.nodeOrbsAddress);
   t.deepEqual(events[0].returnValues.against, ['0x11f4d0A3c12e86B4b5F39B213F7E19D048276DAe']);
 });
 

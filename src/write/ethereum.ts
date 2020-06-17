@@ -16,13 +16,13 @@ export function initWeb3Client(config: Configuration, state: State) {
     false
   ) as unknown) as provider;
   state.web3 = new Web3(provider);
-  state.web3.eth.defaultAccount = config.NodeEthereumAddress;
+  state.web3.eth.defaultAccount = config.NodeOrbsAddress;
 
   // init ethereum contracts
   const web3 = state.web3;
   const orbsWeb3Driver = new Web3Driver(() => web3);
   state.ethereumElectionsContract = orbsWeb3Driver.getExisting('Elections', config.EthereumElectionsContract);
-  state.ethereumElectionsContract.web3Contract.defaultAccount = config.NodeEthereumAddress;
+  state.ethereumElectionsContract.web3Contract.defaultAccount = config.NodeOrbsAddress;
 }
 
 // TODO: improve timeouts, retries and such

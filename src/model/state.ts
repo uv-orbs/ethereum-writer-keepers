@@ -3,8 +3,12 @@ import { Contracts } from '@orbs-network/orbs-ethereum-contracts-v2/release/typi
 import * as Orbs from 'orbs-client-sdk';
 
 export class State {
-  // management
-  numVirtualChains = 0;
+  // management service
+  managementLastPollTime = 0;
+  managementRefTime = 0;
+  managementEthToOrbsAddress: { [EthAddress: string]: string } = {};
+  managementVirtualChains: { [virtualChainId: string]: ManagementVirtualChain } = {};
+  managementMyElectionStatus?: ManagementElectionsStatus;
 
   // ethereum
   web3?: Web3;
@@ -13,6 +17,24 @@ export class State {
 
   // orbs
   orbsAccount?: Orbs.Account;
-  orbsClientPerVc: { [virtualChainId: number]: Orbs.Client } = {};
+  orbsClientPerVc: { [virtualChainId: string]: Orbs.Client } = {};
   orbsCounter = BigInt(0);
+}
+
+// helpers
+
+// taken from management-service/src/model/state.ts
+interface ManagementVirtualChain {
+  Expiration: number;
+  RolloutGroup: string;
+  IdentityType: number;
+  Tier: string;
+  GenesisRefTime: number;
+}
+
+// taken from management-service/src/model/state.ts
+interface ManagementElectionsStatus {
+  LastUpdateTime: number;
+  ReadyToSync: boolean;
+  ReadyForCommittee: boolean;
 }

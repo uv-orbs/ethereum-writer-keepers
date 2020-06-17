@@ -48,9 +48,9 @@ test.serial('parseArgs custom config file invalid JSON format', (t) => {
   t.throws(() => parseArgs(['--config', './some/file.json']));
 });
 
-test.serial('parseArgs custom config file missing NodeManagementConfigUrl', (t) => {
+test.serial('parseArgs custom config file missing ManagementServiceEndpoint', (t) => {
   const partialConfig = _.cloneDeep(exampleConfig);
-  delete partialConfig.NodeManagementConfigUrl;
+  delete partialConfig.ManagementServiceEndpoint;
   mockFs({
     ['./some/partial.json']: JSON.stringify(partialConfig),
   });

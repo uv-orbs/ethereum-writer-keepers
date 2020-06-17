@@ -1,8 +1,8 @@
 export interface Configuration {
-  NodeManagementConfigUrl: string;
+  ManagementServiceEndpoint: string;
   EthereumEndpoint: string;
   EthereumElectionsContract: string;
-  NodeEthereumAddress: string;
+  NodeOrbsAddress: string;
   VirtualChainUrlSchema: string;
   StatusJsonPath: string;
   RunLoopPollTimeSeconds: number;
@@ -15,31 +15,37 @@ export const defaultConfiguration = {
 };
 
 export function validateConfiguration(config: Configuration) {
-  if (!config.NodeManagementConfigUrl) {
-    throw new Error('NodeManagementConfigUrl is empty in config.');
+  if (!config.ManagementServiceEndpoint) {
+    throw new Error(`ManagementServiceEndpoint is empty in config.`);
   }
   if (!config.EthereumEndpoint) {
-    throw new Error('EthereumEndpoint is empty in config.');
+    throw new Error(`EthereumEndpoint is empty in config.`);
   }
   if (!config.EthereumElectionsContract) {
-    throw new Error('EthereumElectionsContract is empty in config.');
+    throw new Error(`EthereumElectionsContract is empty in config.`);
   }
   if (!config.EthereumElectionsContract.startsWith('0x')) {
-    throw new Error('EthereumElectionsContract does not start with "0x".');
+    throw new Error(`EthereumElectionsContract does not start with "0x".`);
   }
-  if (!config.NodeEthereumAddress) {
-    throw new Error('NodeEthereumAddress is empty in config.');
+  if (!config.NodeOrbsAddress) {
+    throw new Error(`NodeOrbsAddress is empty in config.`);
   }
-  if (!config.NodeEthereumAddress.startsWith('0x')) {
-    throw new Error('NodeEthereumAddress does not start with "0x".');
+  if (config.NodeOrbsAddress.startsWith('0x')) {
+    throw new Error(`NodeOrbsAddress must not start with "0x".`);
+  }
+  if (config.NodeOrbsAddress.length != '11f4d0a3c12e86b4b5f39b213f7e19d048276dae'.length) {
+    throw new Error(`NodeOrbsAddress has incorrect length: ${config.NodeOrbsAddress.length}.`);
   }
   if (!config.VirtualChainUrlSchema) {
-    throw new Error('VirtualChainUrlSchema is empty in config.');
+    throw new Error(`VirtualChainUrlSchema is empty in config.`);
   }
   if (!config.StatusJsonPath) {
-    throw new Error('StatusJsonPath is empty in config.');
+    throw new Error(`StatusJsonPath is empty in config.`);
   }
   if (!config.RunLoopPollTimeSeconds) {
-    throw new Error('RunLoopPollTimeSeconds is empty in config.');
+    throw new Error(`RunLoopPollTimeSeconds is empty or zero.`);
+  }
+  if (typeof config.RunLoopPollTimeSeconds != 'number') {
+    throw new Error(`RunLoopPollTimeSeconds is not a number.`);
   }
 }

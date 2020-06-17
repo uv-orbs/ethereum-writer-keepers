@@ -1,5 +1,7 @@
+import _ from 'lodash';
 import { mkdirSync } from 'fs';
 import { dirname } from 'path';
+import { State } from './model/state';
 
 export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -16,3 +18,10 @@ export function getCurrentClockTime() {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type JsonResponse = any;
+
+export function jsonStringifyState(state: State): string {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const stateCopy = _.cloneDeep(state) as any;
+  stateCopy.orbsCounter = stateCopy.orbsCounter.toString();
+  return JSON.stringify(stateCopy, null, 2);
+}
