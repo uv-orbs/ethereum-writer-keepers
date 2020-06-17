@@ -13,3 +13,6 @@ export function ensureFileDirectoryExists(filePath: string) {
 export function getCurrentClockTime() {
   return Math.round(new Date().getTime() / 1000);
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type JsonResponse = any;

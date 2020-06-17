@@ -11,8 +11,8 @@ export async function runLoop(config: Configuration) {
   const state = initializeState(config);
   for (;;) {
     try {
-      await sleep(config.RunLoopPollTimeSeconds * 1000);
       await runLoopTick(config, state);
+      await sleep(config.RunLoopPollTimeSeconds * 1000);
     } catch (err) {
       Logger.log('Exception thrown during runLoop, going back to sleep:');
       Logger.error(err.stack);
@@ -23,7 +23,6 @@ export async function runLoop(config: Configuration) {
 function initializeState(config: Configuration): State {
   const state = new State();
   initWeb3Client(config, state);
-  writeStatus(config.StatusJsonPath, state);
   return state;
 }
 

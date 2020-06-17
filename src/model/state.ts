@@ -5,12 +5,12 @@ import * as Orbs from 'orbs-client-sdk';
 export class State {
   // management
   numVirtualChains = 0;
-  
+
   // ethereum
   web3?: Web3;
   ethereumElectionsContract?: Contracts['Elections'];
-  etherBalance = '';
-  
+  etherBalance = ''; // string in wei
+
   // orbs
   orbsAccount?: Orbs.Account;
   orbsClientPerVc: { [virtualChainId: number]: Orbs.Client } = {};
