@@ -9,18 +9,18 @@ export async function readManagementStatus(endpoint: string, myOrbsAddress: stri
   const url = `${endpoint}/status`;
   const response = await fetchManagementStatus(url);
 
-  state.managementRefTime = response.Payload.CurrentRefTime;
-  state.managementEthToOrbsAddress = response.Payload.CurrentOrbsAddress;
-  state.managementVirtualChains = response.Payload.CurrentVirtualChains;
+  state.ManagementRefTime = response.Payload.CurrentRefTime;
+  state.ManagementEthToOrbsAddress = response.Payload.CurrentOrbsAddress;
+  state.ManagementVirtualChains = response.Payload.CurrentVirtualChains;
 
   const myEthAddress = findEthFromOrbsAddress(myOrbsAddress, state);
-  state.managementMyElectionStatus = response.Payload.CurrentElectionsStatus[myEthAddress];
+  state.ManagementMyElectionStatus = response.Payload.CurrentElectionsStatus[myEthAddress];
 
   // last to be after all possible exceptions and processing delays
-  state.managementLastPollTime = getCurrentClockTime();
+  state.ManagementLastPollTime = getCurrentClockTime();
 
   // log progress
-  Logger.log(`Fetched management service, num vchains: ${Object.keys(state.managementVirtualChains).length}.`);
+  Logger.log(`Fetched management service, num vchains: ${Object.keys(state.ManagementVirtualChains).length}.`);
 }
 
 // helpers

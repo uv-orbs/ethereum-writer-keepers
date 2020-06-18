@@ -67,12 +67,17 @@ test.serial('[E2E] app queries Orbs contract', async (t) => {
   driver.testLogger = t.log;
   t.timeout(60 * 1000);
 
-  await driver.gammaDriver.incrementCounter();
-  await driver.gammaDriver.incrementCounter();
-  await sleep(2000);
+  // await driver.gammaDriver.incrementCounter();
+  // await driver.gammaDriver.incrementCounter();
+  // await sleep(2000);
   const status = JSON.parse(await driver.catFileInService('app', '/opt/orbs/status/status.json'));
 
   t.log('status:', JSON.stringify(status, null, 2));
 
-  t.is(status.Payload.OrbsCounter, '2');
+  t.deepEqual(status.Payload.VchainReputations, {
+    '42': {
+      '1111111111111111111111111111111111111111': 3,
+      '2222222222222222222222222222222222222222': 4,
+    },
+  });
 });

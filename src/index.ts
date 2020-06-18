@@ -37,13 +37,13 @@ async function runLoopTick(config: Configuration, state: State) {
   await readManagementStatus(config.ManagementServiceEndpoint, config.NodeOrbsAddress, state);
 
   // refresh all vchain metrics to see if they're live and in sync, rate according to config
-  if (getCurrentClockTime() - state.vchainMetricsLastPollTime > config.VchainMetricsPollTimeSeconds) {
+  if (getCurrentClockTime() - state.VchainMetricsLastPollTime > config.VchainMetricsPollTimeSeconds) {
     await readAllVchainMetrics(config.VirtualChainEndpointSchema, state);
   }
 
   // refresh all vchain reputations to prepare for vote outs, rate according to config
-  if (getCurrentClockTime() - state.vchainReputationsLastPollTime > config.VchainReputationsPollTimeSeconds) {
-    await readAllVchainReputations(config.VirtualChainEndpointSchema, state);
+  if (getCurrentClockTime() - state.VchainReputationsLastPollTime > config.VchainReputationsPollTimeSeconds) {
+    await readAllVchainReputations(config.VirtualChainEndpointSchema, config.OrbsReputationsContract, state);
   }
 
   await readEtherBalance(state);

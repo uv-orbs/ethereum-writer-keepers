@@ -18,9 +18,9 @@ export class GammaDriver {
     );
 
     // deploy contracts
-    const source = readFileSync(join(__dirname, 'counter_contract.go'));
+    const source = readFileSync(join(__dirname, 'reputation_contract.go'));
     const [deploymentTx, deploymentTxId] = await this.client.createDeployTransaction(
-      'Counter',
+      'MockCommittee',
       Orbs.PROCESSOR_TYPE_NATIVE,
       source
     );
@@ -31,11 +31,11 @@ export class GammaDriver {
     return this;
   }
 
-  async incrementCounter() {
-    const [tx, txId] = await this.client.createTransaction('Counter', 'inc', []);
-    const response = await this.client.sendTransaction(tx);
-    if (response.executionResult != Orbs.ExecutionResult.EXECUTION_RESULT_SUCCESS) {
-      throw new Error(`GammaDriver increment transaction failed: ${jsonStringifyComplexTypes(response)}.`);
-    }
-  }
+  // async incrementCounter() {
+  //   const [tx, txId] = await this.client.createTransaction('Counter', 'inc', []);
+  //   const response = await this.client.sendTransaction(tx);
+  //   if (response.executionResult != Orbs.ExecutionResult.EXECUTION_RESULT_SUCCESS) {
+  //     throw new Error(`GammaDriver increment transaction failed: ${jsonStringifyComplexTypes(response)}.`);
+  //   }
+  // }
 }

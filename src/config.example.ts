@@ -10,4 +10,5 @@ export const exampleConfig: Configuration = {
   RunLoopPollTimeSeconds: 1,
   VchainMetricsPollTimeSeconds: 1,
   VchainReputationsPollTimeSeconds: 1,
+  OrbsReputationsContract: 'MockCommittee',
 };

@@ -6,14 +6,14 @@ import { getCurrentClockTime } from '../helpers';
 
 export async function readAllVchainMetrics(endpointSchema: string, state: State) {
   let successful = 0;
-  for (const [vcId] of Object.entries(state.managementVirtualChains)) {
+  for (const [vcId] of Object.entries(state.ManagementVirtualChains)) {
     try {
       const url = `${getEndpoint(vcId, endpointSchema)}/metrics`;
-      state.vchainMetrics[vcId] = await fetchVchainMetrics(url);
+      state.VchainMetrics[vcId] = await fetchVchainMetrics(url);
       successful++;
     } catch (err) {
       Logger.error(err.stack);
-      state.vchainMetrics[vcId] = {
+      state.VchainMetrics[vcId] = {
         LastBlockHeight: -1,
         LastBlockTime: -1,
         Uptime: -1,
@@ -22,11 +22,11 @@ export async function readAllVchainMetrics(endpointSchema: string, state: State)
   }
 
   // last to be after all possible exceptions and processing delays
-  state.vchainMetricsLastPollTime = getCurrentClockTime();
+  state.VchainMetricsLastPollTime = getCurrentClockTime();
 
   // log progress
   Logger.log(
-    `Fetched vchain metrics, num vchains succeeded: ${successful}/${Object.keys(state.managementVirtualChains).length}.`
+    `Fetched vchain metrics, num vchains succeeded: ${successful}/${Object.keys(state.ManagementVirtualChains).length}.`
   );
 }
 

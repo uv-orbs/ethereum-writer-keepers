@@ -31,6 +31,7 @@ export class TestEnvironment {
       RunLoopPollTimeSeconds: 1,
       VchainMetricsPollTimeSeconds: 1,
       VchainReputationsPollTimeSeconds: 1,
+      OrbsReputationsContract: 'MockCommittee',
     };
   }
 

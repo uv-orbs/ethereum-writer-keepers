@@ -63,11 +63,11 @@ test.serial('reads data from valid ManagementStatus', async (t) => {
 
   t.log('state:', jsonStringifyComplexTypes(state));
 
-  t.assert(getCurrentClockTime() - state.managementLastPollTime < 5);
-  t.is(state.managementRefTime, 1592400033);
-  t.deepEqual(state.managementEthToOrbsAddress, validManagementStatusResponse.Payload.CurrentOrbsAddress);
-  t.deepEqual(state.managementVirtualChains, validManagementStatusResponse.Payload.CurrentVirtualChains);
-  t.deepEqual(state.managementMyElectionStatus, {
+  t.assert(getCurrentClockTime() - state.ManagementLastPollTime < 5);
+  t.is(state.ManagementRefTime, 1592400033);
+  t.deepEqual(state.ManagementEthToOrbsAddress, validManagementStatusResponse.Payload.CurrentOrbsAddress);
+  t.deepEqual(state.ManagementVirtualChains, validManagementStatusResponse.Payload.CurrentVirtualChains);
+  t.deepEqual(state.ManagementMyElectionStatus, {
     LastUpdateTime: 1592400002,
     ReadyToSync: true,
     ReadyForCommittee: true,
@@ -84,7 +84,7 @@ test.serial('my orbsAddress not found in ManagementStatus', async (t) => {
 
   t.log('state:', jsonStringifyComplexTypes(state));
 
-  t.falsy(state.managementMyElectionStatus);
+  t.falsy(state.ManagementMyElectionStatus);
 });
 
 test.serial('my elections status not found in ManagementStatus', async (t) => {
@@ -96,7 +96,7 @@ test.serial('my elections status not found in ManagementStatus', async (t) => {
 
   t.log('state:', jsonStringifyComplexTypes(state));
 
-  t.falsy(state.managementMyElectionStatus);
+  t.falsy(state.ManagementMyElectionStatus);
 });
 
 test.serial('no ManagementStatus response from management service', async (t) => {

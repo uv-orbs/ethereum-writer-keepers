@@ -24,13 +24,13 @@ test.serial('updates and writes Timestamp', (t) => {
 
 test.serial('eth balance appears in status and error when too low', (t) => {
   const state = _.cloneDeep(exampleState);
-  state.etherBalance = '123';
+  state.EtherBalance = '123';
   mockFs({ ['./status/status.json']: '' });
   writeStatusToDisk('./status/status.json', state);
 
   const writtenContents = JSON.parse(readFileSync('./status/status.json').toString());
   t.log('result:', JSON.stringify(writtenContents, null, 2));
 
-  t.assert(writtenContents.Status.includes(state.etherBalance));
-  t.assert(writtenContents.Error.includes(state.etherBalance));
+  t.assert(writtenContents.Status.includes(state.EtherBalance));
+  t.assert(writtenContents.Error.includes(state.EtherBalance));
 });

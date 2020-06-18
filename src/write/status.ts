@@ -10,9 +10,9 @@ export function writeStatusToDisk(filePath: string, state: State) {
     Status: getStatusText(state),
     Timestamp: new Date().toISOString(),
     Payload: {
-      NumVirtualChains: Object.keys(state.managementVirtualChains).length,
-      EtherBalance: state.etherBalance,
-      OrbsCounter: state.vchainReputations['42']?.TempCounter.toString(), // TEMP
+      NumVirtualChains: Object.keys(state.ManagementVirtualChains).length,
+      EtherBalance: state.EtherBalance,
+      VchainReputations: state.VchainReputations,
     },
   };
 
@@ -35,14 +35,14 @@ export function writeStatusToDisk(filePath: string, state: State) {
 
 function getStatusText(state: State) {
   const res = [];
-  res.push(`EtherBalance = ${state.etherBalance}`);
+  res.push(`EtherBalance = ${state.EtherBalance}`);
   return res.join(', ');
 }
 
 function getErrorText(state: State) {
   const res = [];
-  if (BigInt(state.etherBalance) < MINIMUM_ALLOWED_ETH_BALANCE_WEI) {
-    res.push(`Eth balance low: ${state.etherBalance}.`);
+  if (BigInt(state.EtherBalance) < MINIMUM_ALLOWED_ETH_BALANCE_WEI) {
+    res.push(`Eth balance low: ${state.EtherBalance}.`);
   }
   return res.join(' ');
 }

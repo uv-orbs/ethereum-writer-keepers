@@ -4,26 +4,26 @@ import * as Orbs from 'orbs-client-sdk';
 
 export class State {
   // management service
-  managementLastPollTime = 0; // UTC time in seconds (like unix timestamp / Ethereum block time)
-  managementRefTime = 0; // UTC time in seconds (like unix timestamp / Ethereum block time)
-  managementEthToOrbsAddress: { [EthAddress: string]: string } = {};
-  managementVirtualChains: { [virtualChainId: string]: ManagementVirtualChain } = {};
-  managementMyElectionStatus?: ManagementElectionsStatus;
+  ManagementLastPollTime = 0; // UTC time in seconds (like unix timestamp / Ethereum block time)
+  ManagementRefTime = 0; // UTC time in seconds (like unix timestamp / Ethereum block time)
+  ManagementEthToOrbsAddress: { [EthAddress: string]: string } = {};
+  ManagementVirtualChains: { [VirtualChainId: string]: ManagementVirtualChain } = {};
+  ManagementMyElectionStatus?: ManagementElectionsStatus;
 
   // vchains
-  vchainMetricsLastPollTime = 0; // UTC time in seconds (like unix timestamp / Ethereum block time)
-  vchainMetrics: { [virtualChainId: string]: VchainMetrics } = {};
-  vchainReputationsLastPollTime = 0; // UTC time in seconds (like unix timestamp / Ethereum block time)
-  vchainReputations: { [virtualChainId: string]: VchainReputations } = {};
+  VchainMetricsLastPollTime = 0; // UTC time in seconds (like unix timestamp / Ethereum block time)
+  VchainMetrics: { [VirtualChainId: string]: VchainMetrics } = {};
+  VchainReputationsLastPollTime = 0; // UTC time in seconds (like unix timestamp / Ethereum block time)
+  VchainReputations: { [VirtualChainId: string]: VchainReputations } = {};
 
   // ethereum
-  web3?: Web3;
-  ethereumElectionsContract?: Contracts['Elections'];
-  etherBalance = ''; // string in wei
+  Web3?: Web3;
+  EthereumElectionsContract?: Contracts['Elections'];
+  EtherBalance = ''; // string in wei
 
   // orbs
-  orbsAccount = Orbs.createAccount();
-  orbsClientPerVchain: { [virtualChainId: string]: Orbs.Client } = {};
+  OrbsAccount = Orbs.createAccount();
+  OrbsClientPerVchain: { [VirtualChainId: string]: Orbs.Client } = {};
 }
 
 // helpers
@@ -50,6 +50,4 @@ export interface VchainMetrics {
   Uptime: number; // seconds
 }
 
-export interface VchainReputations {
-  TempCounter: BigInt;
-}
+export type VchainReputations = { [OrbsAddress: string]: number };

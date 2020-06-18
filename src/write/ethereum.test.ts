@@ -9,8 +9,8 @@ const exampleState = new State();
 test.serial('initializes web3 and contracts', (t) => {
   const state = _.cloneDeep(exampleState);
   initWeb3Client(exampleConfig, state);
-  t.assert(state.web3);
-  t.assert(state.ethereumElectionsContract);
+  t.assert(state.Web3);
+  t.assert(state.EthereumElectionsContract);
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  t.assert(_.isFunction(state.ethereumElectionsContract?.setBanningVotes));
+  t.assert(_.isFunction(state.EthereumElectionsContract?.setBanningVotes));
 });

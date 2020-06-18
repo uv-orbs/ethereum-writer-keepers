@@ -25,14 +25,14 @@ const validVchainMetricsResponse = `{
 }`;
 
 const exampleState = new State();
-exampleState.managementVirtualChains['1000000'] = {
+exampleState.ManagementVirtualChains['1000000'] = {
   Expiration: 1592400011,
   GenesisRefTime: 1592400010,
   IdentityType: 0,
   RolloutGroup: 'main',
   Tier: 'defaultTier',
 };
-exampleState.managementVirtualChains['1000001'] = {
+exampleState.ManagementVirtualChains['1000001'] = {
   Expiration: 1592400021,
   GenesisRefTime: 1592400020,
   IdentityType: 0,
@@ -53,9 +53,9 @@ test.serial('reads data from valid VchainMetrics', async (t) => {
 
   t.log('state:', jsonStringifyComplexTypes(state));
 
-  t.assert(getCurrentClockTime() - state.vchainMetricsLastPollTime < 5);
+  t.assert(getCurrentClockTime() - state.VchainMetricsLastPollTime < 5);
   for (const vcId of ['1000000', '1000001']) {
-    t.deepEqual(state.vchainMetrics[vcId], {
+    t.deepEqual(state.VchainMetrics[vcId], {
       LastBlockHeight: 4618292,
       LastBlockTime: 1592414358,
       Uptime: 15,
@@ -72,13 +72,13 @@ test.serial('no VchainMetrics response from first vchain', async (t) => {
 
   t.log('state:', jsonStringifyComplexTypes(state));
 
-  t.assert(getCurrentClockTime() - state.vchainMetricsLastPollTime < 5);
-  t.deepEqual(state.vchainMetrics['1000001'], {
+  t.assert(getCurrentClockTime() - state.VchainMetricsLastPollTime < 5);
+  t.deepEqual(state.VchainMetrics['1000001'], {
     LastBlockHeight: 4618292,
     LastBlockTime: 1592414358,
     Uptime: 15,
   });
-  t.deepEqual(state.vchainMetrics['1000000'], {
+  t.deepEqual(state.VchainMetrics['1000000'], {
     LastBlockHeight: -1,
     LastBlockTime: -1,
     Uptime: -1,
@@ -95,13 +95,13 @@ test.serial('404 VchainMetrics response from first vchain', async (t) => {
 
   t.log('state:', jsonStringifyComplexTypes(state));
 
-  t.assert(getCurrentClockTime() - state.vchainMetricsLastPollTime < 5);
-  t.deepEqual(state.vchainMetrics['1000001'], {
+  t.assert(getCurrentClockTime() - state.VchainMetricsLastPollTime < 5);
+  t.deepEqual(state.VchainMetrics['1000001'], {
     LastBlockHeight: 4618292,
     LastBlockTime: 1592414358,
     Uptime: 15,
   });
-  t.deepEqual(state.vchainMetrics['1000000'], {
+  t.deepEqual(state.VchainMetrics['1000000'], {
     LastBlockHeight: -1,
     LastBlockTime: -1,
     Uptime: -1,
@@ -120,13 +120,13 @@ test.serial('invalid JSON format VchainMetrics response from first vchain', asyn
 
   t.log('state:', jsonStringifyComplexTypes(state));
 
-  t.assert(getCurrentClockTime() - state.vchainMetricsLastPollTime < 5);
-  t.deepEqual(state.vchainMetrics['1000001'], {
+  t.assert(getCurrentClockTime() - state.VchainMetricsLastPollTime < 5);
+  t.deepEqual(state.VchainMetrics['1000001'], {
     LastBlockHeight: 4618292,
     LastBlockTime: 1592414358,
     Uptime: 15,
   });
-  t.deepEqual(state.vchainMetrics['1000000'], {
+  t.deepEqual(state.VchainMetrics['1000000'], {
     LastBlockHeight: -1,
     LastBlockTime: -1,
     Uptime: -1,
@@ -157,13 +157,13 @@ test.serial('partial VchainMetrics response from first vchain', async (t) => {
 
   t.log('state:', jsonStringifyComplexTypes(state));
 
-  t.assert(getCurrentClockTime() - state.vchainMetricsLastPollTime < 5);
-  t.deepEqual(state.vchainMetrics['1000001'], {
+  t.assert(getCurrentClockTime() - state.VchainMetricsLastPollTime < 5);
+  t.deepEqual(state.VchainMetrics['1000001'], {
     LastBlockHeight: 4618292,
     LastBlockTime: 1592414358,
     Uptime: 15,
   });
-  t.deepEqual(state.vchainMetrics['1000000'], {
+  t.deepEqual(state.VchainMetrics['1000000'], {
     LastBlockHeight: -1,
     LastBlockTime: -1,
     Uptime: -1,

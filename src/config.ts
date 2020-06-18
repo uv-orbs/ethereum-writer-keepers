@@ -8,6 +8,7 @@ export interface Configuration {
   RunLoopPollTimeSeconds: number;
   VchainMetricsPollTimeSeconds: number; // multiple of RunLoopPollTimeSeconds
   VchainReputationsPollTimeSeconds: number; // multiple of RunLoopPollTimeSeconds
+  OrbsReputationsContract: string;
 }
 
 export const defaultConfiguration = {
@@ -16,6 +17,7 @@ export const defaultConfiguration = {
   RunLoopPollTimeSeconds: 10,
   VchainMetricsPollTimeSeconds: 5 * 60,
   VchainReputationsPollTimeSeconds: 20 * 60,
+  OrbsReputationsContract: '_Committee',
 };
 
 export function validateConfiguration(config: Configuration) {
@@ -63,5 +65,8 @@ export function validateConfiguration(config: Configuration) {
   }
   if (typeof config.VchainReputationsPollTimeSeconds != 'number') {
     throw new Error(`VchainReputationsPollTimeSeconds is not a number.`);
+  }
+  if (!config.OrbsReputationsContract) {
+    throw new Error(`OrbsReputationsContract is empty in config.`);
   }
 }
