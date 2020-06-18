@@ -59,7 +59,7 @@ async function fetchVchainReputations(client: Orbs.Client, contractName: string)
       `Orbs reputations results length mismatch: ${committeeAddresses.length} != ${committeeReputations.length}.`
     );
   }
-  
+
   const res: { [OrbsAddress: string]: number } = {};
   for (let i = 0; i < committeeAddresses.length; i++) {
     const addressAsHex = Buffer.from(committeeAddresses[i]).toString('hex').toLowerCase();

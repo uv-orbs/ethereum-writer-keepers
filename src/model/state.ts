@@ -3,6 +3,9 @@ import { Contracts } from '@orbs-network/orbs-ethereum-contracts-v2/release/typi
 import * as Orbs from 'orbs-client-sdk';
 
 export class State {
+  // state machines
+  VchainSyncStatus: VchainSyncStatusEnum = 'not-exist';
+
   // management service
   ManagementLastPollTime = 0; // UTC time in seconds (like unix timestamp / Ethereum block time)
   ManagementRefTime = 0; // UTC time in seconds (like unix timestamp / Ethereum block time)
@@ -16,17 +19,19 @@ export class State {
   VchainReputationsLastPollTime = 0; // UTC time in seconds (like unix timestamp / Ethereum block time)
   VchainReputations: { [VirtualChainId: string]: VchainReputations } = {};
 
+  // orbs
+  OrbsAccount = Orbs.createAccount();
+  OrbsClientPerVchain: { [VirtualChainId: string]: Orbs.Client } = {};
+
   // ethereum
   Web3?: Web3;
   EthereumElectionsContract?: Contracts['Elections'];
   EtherBalance = ''; // string in wei
-
-  // orbs
-  OrbsAccount = Orbs.createAccount();
-  OrbsClientPerVchain: { [VirtualChainId: string]: Orbs.Client } = {};
 }
 
 // helpers
+
+export type VchainSyncStatusEnum = 'not-exist' | 'exist-not-in-sync' | 'in-sync';
 
 // taken from management-service/src/model/state.ts
 export interface ManagementVirtualChain {
@@ -47,7 +52,7 @@ export interface ManagementElectionsStatus {
 export interface VchainMetrics {
   LastBlockHeight: number;
   LastBlockTime: number; // UTC time in seconds (like unix timestamp / Ethereum block time)
-  Uptime: number; // seconds
+  UptimeSeconds: number;
 }
 
 export type VchainReputations = { [OrbsAddress: string]: number };

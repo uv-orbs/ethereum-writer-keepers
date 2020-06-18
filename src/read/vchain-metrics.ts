@@ -16,7 +16,7 @@ export async function readAllVchainMetrics(endpointSchema: string, state: State)
       state.VchainMetrics[vcId] = {
         LastBlockHeight: -1,
         LastBlockTime: -1,
-        Uptime: -1,
+        UptimeSeconds: -1,
       };
     }
   }
@@ -44,7 +44,7 @@ async function fetchVchainMetrics(url: string): Promise<VchainMetrics> {
     return {
       LastBlockHeight: decoded['BlockStorage.BlockHeight'].Value,
       LastBlockTime: Math.floor(decoded['BlockStorage.LastCommitted.TimeNano'].Value / 1e9),
-      Uptime: decoded['Runtime.Uptime.Seconds'].Value,
+      UptimeSeconds: decoded['Runtime.Uptime.Seconds'].Value,
     };
   } catch (err) {
     Logger.error(err.message);

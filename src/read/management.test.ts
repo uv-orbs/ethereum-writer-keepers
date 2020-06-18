@@ -48,14 +48,12 @@ const validManagementStatusResponse = {
   },
 };
 
-const exampleState = new State();
-
 test.serial.afterEach.always(() => {
   nock.cleanAll();
 });
 
 test.serial('reads data from valid ManagementStatus', async (t) => {
-  const state = _.cloneDeep(exampleState);
+  const state = new State();
   nock(exampleManagementServiceEndpoint)
     .get(managementStatusPath)
     .reply(200, JSON.stringify(validManagementStatusResponse));
@@ -75,7 +73,7 @@ test.serial('reads data from valid ManagementStatus', async (t) => {
 });
 
 test.serial('my orbsAddress not found in ManagementStatus', async (t) => {
-  const state = _.cloneDeep(exampleState);
+  const state = new State();
   nock(exampleManagementServiceEndpoint)
     .get(managementStatusPath)
     .reply(200, JSON.stringify(validManagementStatusResponse));
@@ -88,7 +86,7 @@ test.serial('my orbsAddress not found in ManagementStatus', async (t) => {
 });
 
 test.serial('my elections status not found in ManagementStatus', async (t) => {
-  const state = _.cloneDeep(exampleState);
+  const state = new State();
   const partialResponse = _.cloneDeep(validManagementStatusResponse);
   delete partialResponse.Payload.CurrentElectionsStatus['e16e965a4cc3fcd597ecdb9cd9ab8f3e6a750ac9'];
   nock(exampleManagementServiceEndpoint).get(managementStatusPath).reply(200, JSON.stringify(partialResponse));
@@ -100,14 +98,14 @@ test.serial('my elections status not found in ManagementStatus', async (t) => {
 });
 
 test.serial('no ManagementStatus response from management service', async (t) => {
-  const state = _.cloneDeep(exampleState);
+  const state = new State();
   await t.throwsAsync(async () => {
     await readManagementStatus(exampleManagementServiceEndpoint, myOrbsAddress, state);
   });
 });
 
 test.serial('404 ManagementStatus response from management service', async (t) => {
-  const state = _.cloneDeep(exampleState);
+  const state = new State();
   nock(exampleManagementServiceEndpoint).get(managementStatusPath).reply(404);
   await t.throwsAsync(async () => {
     await readManagementStatus(exampleManagementServiceEndpoint, myOrbsAddress, state);
@@ -115,7 +113,7 @@ test.serial('404 ManagementStatus response from management service', async (t) =
 });
 
 test.serial('invalid JSON format ManagementStatus response from management service', async (t) => {
-  const state = _.cloneDeep(exampleState);
+  const state = new State();
   nock(exampleManagementServiceEndpoint)
     .get(managementStatusPath)
     .reply(200, JSON.stringify(validManagementStatusResponse) + '}}}');
@@ -125,7 +123,7 @@ test.serial('invalid JSON format ManagementStatus response from management servi
 });
 
 test.serial('partial ManagementStatus response from management service', async (t) => {
-  const state = _.cloneDeep(exampleState);
+  const state = new State();
   const partialResponse = _.cloneDeep(validManagementStatusResponse);
   delete partialResponse.Payload.CurrentVirtualChains['1000001'].GenesisRefTime;
   nock(exampleManagementServiceEndpoint).get(managementStatusPath).reply(200, JSON.stringify(partialResponse));

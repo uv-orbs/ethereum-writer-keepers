@@ -9,6 +9,9 @@ export interface Configuration {
   VchainMetricsPollTimeSeconds: number; // multiple of RunLoopPollTimeSeconds
   VchainReputationsPollTimeSeconds: number; // multiple of RunLoopPollTimeSeconds
   OrbsReputationsContract: string;
+  VchainUptimeRequiredSeconds: number;
+  VchainSyncThresholdSeconds: number;
+  VchainOutOfSyncThresholdSeconds: number;
 }
 
 export const defaultConfiguration = {
@@ -18,6 +21,9 @@ export const defaultConfiguration = {
   VchainMetricsPollTimeSeconds: 5 * 60,
   VchainReputationsPollTimeSeconds: 20 * 60,
   OrbsReputationsContract: '_Committee',
+  VchainUptimeRequiredSeconds: 5,
+  VchainSyncThresholdSeconds: 5 * 60,
+  VchainOutOfSyncThresholdSeconds: 60 * 60,
 };
 
 export function validateConfiguration(config: Configuration) {
@@ -68,5 +74,23 @@ export function validateConfiguration(config: Configuration) {
   }
   if (!config.OrbsReputationsContract) {
     throw new Error(`OrbsReputationsContract is empty in config.`);
+  }
+  if (!config.VchainUptimeRequiredSeconds) {
+    throw new Error(`VchainUptimeRequiredSeconds is empty or zero.`);
+  }
+  if (typeof config.VchainUptimeRequiredSeconds != 'number') {
+    throw new Error(`VchainUptimeRequiredSeconds is not a number.`);
+  }
+  if (!config.VchainSyncThresholdSeconds) {
+    throw new Error(`VchainSyncThresholdSeconds is empty or zero.`);
+  }
+  if (typeof config.VchainSyncThresholdSeconds != 'number') {
+    throw new Error(`VchainSyncThresholdSeconds is not a number.`);
+  }
+  if (!config.VchainOutOfSyncThresholdSeconds) {
+    throw new Error(`VchainOutOfSyncThresholdSeconds is empty or zero.`);
+  }
+  if (typeof config.VchainOutOfSyncThresholdSeconds != 'number') {
+    throw new Error(`VchainOutOfSyncThresholdSeconds is not a number.`);
   }
 }

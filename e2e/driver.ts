@@ -32,6 +32,9 @@ export class TestEnvironment {
       VchainMetricsPollTimeSeconds: 1,
       VchainReputationsPollTimeSeconds: 1,
       OrbsReputationsContract: 'MockCommittee',
+      VchainUptimeRequiredSeconds: 2,
+      VchainSyncThresholdSeconds: 5 * 60,
+      VchainOutOfSyncThresholdSeconds: 60 * 60,
     };
   }
 

@@ -4,10 +4,8 @@ import _ from 'lodash';
 import { initWeb3Client } from './ethereum';
 import { exampleConfig } from '../config.example';
 
-const exampleState = new State();
-
-test.serial('initializes web3 and contracts', (t) => {
-  const state = _.cloneDeep(exampleState);
+test('initializes web3 and contracts', (t) => {
+  const state = new State();
   initWeb3Client(exampleConfig, state);
   t.assert(state.Web3);
   t.assert(state.EthereumElectionsContract);

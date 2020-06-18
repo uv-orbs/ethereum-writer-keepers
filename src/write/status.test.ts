@@ -2,17 +2,14 @@ import test from 'ava';
 import mockFs from 'mock-fs';
 import { writeStatusToDisk } from './status';
 import { State } from '../model/state';
-import _ from 'lodash';
 import { readFileSync } from 'fs';
-
-const exampleState = new State();
 
 test.serial.afterEach.always(() => {
   mockFs.restore();
 });
 
 test.serial('updates and writes Timestamp', (t) => {
-  const state = _.cloneDeep(exampleState);
+  const state = new State();
   mockFs({ ['./status/status.json']: '' });
   writeStatusToDisk('./status/status.json', state);
 
@@ -23,7 +20,7 @@ test.serial('updates and writes Timestamp', (t) => {
 });
 
 test.serial('eth balance appears in status and error when too low', (t) => {
-  const state = _.cloneDeep(exampleState);
+  const state = new State();
   state.EtherBalance = '123';
   mockFs({ ['./status/status.json']: '' });
   writeStatusToDisk('./status/status.json', state);

@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { validateConfiguration, Configuration } from './config';
 import { exampleConfig } from './config.example';
 
-test.serial('validateConfiguration works on valid config', (t) => {
+test('validateConfiguration works on valid config', (t) => {
   t.notThrows(() => validateConfiguration(exampleConfig));
 });
 
@@ -15,13 +15,13 @@ for (const configKeyName in exampleConfig) {
   });
 }
 
-test.serial('validateConfiguration fails on invalid EthereumElectionsContract', (t) => {
+test('validateConfiguration fails on invalid EthereumElectionsContract', (t) => {
   const invalidConfig = _.cloneDeep(exampleConfig);
   invalidConfig.EthereumElectionsContract = 'hello world';
   t.throws(() => validateConfiguration(invalidConfig));
 });
 
-test.serial('validateConfiguration fails on invalid NodeOrbsAddress', (t) => {
+test('validateConfiguration fails on invalid NodeOrbsAddress', (t) => {
   const invalidConfig = _.cloneDeep(exampleConfig);
   invalidConfig.NodeOrbsAddress = 'hello world';
   t.throws(() => validateConfiguration(invalidConfig));
@@ -29,7 +29,7 @@ test.serial('validateConfiguration fails on invalid NodeOrbsAddress', (t) => {
   t.throws(() => validateConfiguration(invalidConfig));
 });
 
-test.serial('validateConfiguration fails when string given instead of number', (t) => {
+test('validateConfiguration fails when string given instead of number', (t) => {
   const invalidConfig = JSON.parse(JSON.stringify(exampleConfig));
   invalidConfig.RunLoopPollTimeSeconds = '99'; // as string
   t.throws(() => validateConfiguration(invalidConfig));

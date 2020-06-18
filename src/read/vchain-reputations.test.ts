@@ -1,29 +1,32 @@
 import test from 'ava';
 import { State } from '../model/state';
-import _ from 'lodash';
 import { getOrbsClient, readAllVchainReputations } from './vchain-reputations';
 import * as Orbs from 'orbs-client-sdk';
 import { jsonStringifyComplexTypes, getCurrentClockTime } from '../helpers';
 
 const exampleVchainEndpointSchema = 'http://vchain-{{ID}}:8080';
-const exampleState = new State();
-exampleState.ManagementVirtualChains['1000000'] = {
-  Expiration: 1592400011,
-  GenesisRefTime: 1592400010,
-  IdentityType: 0,
-  RolloutGroup: 'main',
-  Tier: 'defaultTier',
-};
-exampleState.ManagementVirtualChains['1000001'] = {
-  Expiration: 1592400021,
-  GenesisRefTime: 1592400020,
-  IdentityType: 0,
-  RolloutGroup: 'canary',
-  Tier: 'defaultTier',
-};
 
-test.serial('gets Orbs client', (t) => {
-  const state = _.cloneDeep(exampleState);
+function getExampleState() {
+  const exampleState = new State();
+  exampleState.ManagementVirtualChains['1000000'] = {
+    Expiration: 1592400011,
+    GenesisRefTime: 1592400010,
+    IdentityType: 0,
+    RolloutGroup: 'main',
+    Tier: 'defaultTier',
+  };
+  exampleState.ManagementVirtualChains['1000001'] = {
+    Expiration: 1592400021,
+    GenesisRefTime: 1592400020,
+    IdentityType: 0,
+    RolloutGroup: 'canary',
+    Tier: 'defaultTier',
+  };
+  return exampleState;
+}
+
+test('gets Orbs client', (t) => {
+  const state = getExampleState();
   getOrbsClient('1000000', exampleVchainEndpointSchema, state);
   t.assert(state.OrbsClientPerVchain['1000000']);
 });
@@ -40,8 +43,8 @@ function getMockOrbsClient(result = Orbs.ExecutionResult.EXECUTION_RESULT_SUCCES
   };
 }
 
-test.serial('reads data from valid VchainReputations', async (t) => {
-  const state = _.cloneDeep(exampleState);
+test('reads data from valid VchainReputations', async (t) => {
+  const state = getExampleState();
   state.OrbsClientPerVchain['1000000'] = (getMockOrbsClient() as unknown) as Orbs.Client;
   state.OrbsClientPerVchain['1000001'] = (getMockOrbsClient() as unknown) as Orbs.Client;
   await readAllVchainReputations(exampleVchainEndpointSchema, 'bla', state);
@@ -54,8 +57,8 @@ test.serial('reads data from valid VchainReputations', async (t) => {
   }
 });
 
-test.serial('invalid VchainReputations response from first vchain', async (t) => {
-  const state = _.cloneDeep(exampleState);
+test('invalid VchainReputations response from first vchain', async (t) => {
+  const state = getExampleState();
   state.OrbsClientPerVchain['1000000'] = (getMockOrbsClient(
     Orbs.ExecutionResult.EXECUTION_RESULT_ERROR_UNEXPECTED
   ) as unknown) as Orbs.Client;
