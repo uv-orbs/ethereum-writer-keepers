@@ -9,6 +9,7 @@ export class State {
   // management service
   ManagementLastPollTime = 0; // UTC time in seconds (like unix timestamp / Ethereum block time)
   ManagementRefTime = 0; // UTC time in seconds (like unix timestamp / Ethereum block time)
+  ManagementEthRefBlock = 0;
   ManagementEthToOrbsAddress: { [EthAddress: string]: string } = {};
   ManagementVirtualChains: { [VirtualChainId: string]: ManagementVirtualChain } = {};
   ManagementMyElectionStatus?: ManagementElectionsStatus;

@@ -12,6 +12,7 @@ const validManagementStatusResponse = {
   ExtraField: 'something',
   Payload: {
     CurrentRefTime: 1592400033,
+    CurrentRefBlock: 3454,
     CurrentOrbsAddress: {
       '29ce860a2247d97160d6dfc087a15f41e2349087': '16fcf728f8dc3f687132f2157d8379c021a08c12',
       e16e965a4cc3fcd597ecdb9cd9ab8f3e6a750ac9: '86544bdd6c8b957cd198252c45fa215fc3892126',
@@ -63,6 +64,7 @@ test.serial('reads data from valid ManagementStatus', async (t) => {
 
   t.assert(getCurrentClockTime() - state.ManagementLastPollTime < 5);
   t.is(state.ManagementRefTime, 1592400033);
+  t.is(state.ManagementEthRefBlock, 3454);
   t.deepEqual(state.ManagementEthToOrbsAddress, validManagementStatusResponse.Payload.CurrentOrbsAddress);
   t.deepEqual(state.ManagementVirtualChains, validManagementStatusResponse.Payload.CurrentVirtualChains);
   t.deepEqual(state.ManagementMyElectionStatus, {

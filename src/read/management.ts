@@ -10,6 +10,7 @@ export async function readManagementStatus(endpoint: string, myOrbsAddress: stri
   const response = await fetchManagementStatus(url);
 
   state.ManagementRefTime = response.Payload.CurrentRefTime;
+  state.ManagementEthRefBlock = response.Payload.CurrentRefBlock;
   state.ManagementEthToOrbsAddress = response.Payload.CurrentOrbsAddress;
   state.ManagementVirtualChains = response.Payload.CurrentVirtualChains;
 
@@ -39,6 +40,7 @@ async function fetchManagementStatus(url: string): Promise<ManagementStatusRespo
 interface ManagementStatusResponse {
   Payload: {
     CurrentRefTime: number;
+    CurrentRefBlock: number;
     CurrentOrbsAddress: { [EthAddress: string]: string };
     CurrentElectionsStatus: {
       [EthAddress: string]: {
@@ -62,6 +64,7 @@ interface ManagementStatusResponse {
 const managementStatusResponseDecoder: Decoder<ManagementStatusResponse> = object({
   Payload: object({
     CurrentRefTime: num,
+    CurrentRefBlock: num,
     CurrentOrbsAddress: record(str),
     CurrentElectionsStatus: record(
       object({

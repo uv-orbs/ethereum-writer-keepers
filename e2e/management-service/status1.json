@@ -4,6 +4,7 @@
   "Error": "Some error string",
   "Payload": {
     "CurrentRefTime": 1592409043,
+    "CurrentRefBlock": 3454,
     "CurrentCommittee": [
       {
         "EthAddress": "8a670ddc1910c27278ab7db2a148a0dccc6bf0f5",
