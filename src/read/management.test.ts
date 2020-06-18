@@ -13,6 +13,21 @@ const validManagementStatusResponse = {
   Payload: {
     CurrentRefTime: 1592400033,
     CurrentRefBlock: 3454,
+    CurrentCommittee: [
+      {
+        EthAddress: '8a670ddc1910c27278ab7db2a148a0dccc6bf0f5',
+        Weight: 40000,
+      },
+      {
+        EthAddress: 'e16e965a4cc3fcd597ecdb9cd9ab8f3e6a750ac9',
+        Weight: 30000,
+      },
+    ],
+    CurrentStandbys: [
+      {
+        EthAddress: '29ce860a2247d97160d6dfc087a15f41e2349087',
+      },
+    ],
     CurrentOrbsAddress: {
       '29ce860a2247d97160d6dfc087a15f41e2349087': '16fcf728f8dc3f687132f2157d8379c021a08c12',
       e16e965a4cc3fcd597ecdb9cd9ab8f3e6a750ac9: '86544bdd6c8b957cd198252c45fa215fc3892126',
@@ -67,6 +82,8 @@ test.serial('reads data from valid ManagementStatus', async (t) => {
   t.is(state.ManagementEthRefBlock, 3454);
   t.deepEqual(state.ManagementEthToOrbsAddress, validManagementStatusResponse.Payload.CurrentOrbsAddress);
   t.deepEqual(state.ManagementVirtualChains, validManagementStatusResponse.Payload.CurrentVirtualChains);
+  t.is(state.ManagementInCommittee, true);
+  t.is(state.ManagementIsStandby, false);
   t.deepEqual(state.ManagementMyElectionStatus, {
     LastUpdateTime: 1592400002,
     ReadyToSync: true,
@@ -84,6 +101,8 @@ test.serial('my orbsAddress not found in ManagementStatus', async (t) => {
 
   t.log('state:', jsonStringifyComplexTypes(state));
 
+  t.is(state.ManagementInCommittee, false);
+  t.is(state.ManagementIsStandby, false);
   t.falsy(state.ManagementMyElectionStatus);
 });
 

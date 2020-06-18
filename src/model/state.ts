@@ -5,6 +5,8 @@ import * as Orbs from 'orbs-client-sdk';
 export class State {
   // state machines
   VchainSyncStatus: VchainSyncStatusEnum = 'not-exist';
+  EthereumWriteStatus: EthereumWriteStatusEnum = 'out-of-sync';
+  TimeEnteredStandbyWithoutVcSync = 0;
 
   // management service
   ManagementLastPollTime = 0; // UTC time in seconds (like unix timestamp / Ethereum block time)
@@ -12,6 +14,8 @@ export class State {
   ManagementEthRefBlock = 0;
   ManagementEthToOrbsAddress: { [EthAddress: string]: string } = {};
   ManagementVirtualChains: { [VirtualChainId: string]: ManagementVirtualChain } = {};
+  ManagementInCommittee = false;
+  ManagementIsStandby = false;
   ManagementMyElectionStatus?: ManagementElectionsStatus;
 
   // vchains
@@ -27,12 +31,16 @@ export class State {
   // ethereum
   Web3?: Web3;
   EthereumElectionsContract?: Contracts['Elections'];
+  EthereumLastElectionsTxPollTime = 0;
+  EthereumLastElectionsTx?: EthereumTxStatus;
   EtherBalance = ''; // string in wei
 }
 
 // helpers
 
 export type VchainSyncStatusEnum = 'not-exist' | 'exist-not-in-sync' | 'in-sync';
+
+export type EthereumWriteStatusEnum = 'out-of-sync' | 'operational' | 'tx-pending' | 'need-reset';
 
 // taken from management-service/src/model/state.ts
 export interface ManagementVirtualChain {
@@ -57,3 +65,10 @@ export interface VchainMetrics {
 }
 
 export type VchainReputations = { [OrbsAddress: string]: number };
+
+export interface EthereumTxStatus {
+  SendTime: number;
+  Status: 'pending' | 'final' | 'revert'; // final according to ManagementEthRefBlock
+  TxHash: string;
+  EthBlock: number;
+}

@@ -4,7 +4,7 @@ import { getCurrentClockTime } from '../helpers';
 import { calcVchainSyncStatus } from './statemachine-sync';
 import { exampleConfig } from '../config.example';
 
-// example state should reflect in sync
+// example state reflects all vcs in sync
 function getExampleState() {
   const exampleState = new State();
   exampleState.VchainMetrics['1000'] = {

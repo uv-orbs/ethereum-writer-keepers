@@ -14,4 +14,6 @@ export const exampleConfig: Configuration = {
   VchainUptimeRequiredSeconds: 2,
   VchainSyncThresholdSeconds: 5 * 60,
   VchainOutOfSyncThresholdSeconds: 60 * 60,
+  EthereumSyncRequirementSeconds: 20 * 60,
+  FailToSyncVcsTimeoutSeconds: 24 * 60 * 60,
 };

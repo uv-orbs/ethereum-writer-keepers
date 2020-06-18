@@ -12,6 +12,8 @@ export interface Configuration {
   VchainUptimeRequiredSeconds: number;
   VchainSyncThresholdSeconds: number;
   VchainOutOfSyncThresholdSeconds: number;
+  EthereumSyncRequirementSeconds: number;
+  FailToSyncVcsTimeoutSeconds: number;
 }
 
 export const defaultConfiguration = {
@@ -24,6 +26,8 @@ export const defaultConfiguration = {
   VchainUptimeRequiredSeconds: 5,
   VchainSyncThresholdSeconds: 5 * 60,
   VchainOutOfSyncThresholdSeconds: 60 * 60,
+  EthereumSyncRequirementSeconds: 20 * 60,
+  FailToSyncVcsTimeoutSeconds: 24 * 60 * 60,
 };
 
 export function validateConfiguration(config: Configuration) {
@@ -92,5 +96,17 @@ export function validateConfiguration(config: Configuration) {
   }
   if (typeof config.VchainOutOfSyncThresholdSeconds != 'number') {
     throw new Error(`VchainOutOfSyncThresholdSeconds is not a number.`);
+  }
+  if (!config.EthereumSyncRequirementSeconds) {
+    throw new Error(`EthereumSyncRequirementSeconds is empty or zero.`);
+  }
+  if (typeof config.EthereumSyncRequirementSeconds != 'number') {
+    throw new Error(`EthereumSyncRequirementSeconds is not a number.`);
+  }
+  if (!config.FailToSyncVcsTimeoutSeconds) {
+    throw new Error(`FailToSyncVcsTimeoutSeconds is empty or zero.`);
+  }
+  if (typeof config.FailToSyncVcsTimeoutSeconds != 'number') {
+    throw new Error(`FailToSyncVcsTimeoutSeconds is not a number.`);
   }
 }

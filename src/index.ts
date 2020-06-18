@@ -8,6 +8,7 @@ import { initWeb3Client, readEtherBalance, sendEthereumVoteOutTransaction } from
 import { readAllVchainReputations } from './read/vchain-reputations';
 import { readAllVchainMetrics } from './read/vchain-metrics';
 import { calcVchainSyncStatus } from './model/statemachine-sync';
+import { calcEthereumWriteStatus } from './model/statemachine-eth';
 
 export async function runLoop(config: Configuration) {
   const state = initializeState(config);
@@ -56,6 +57,13 @@ async function runLoopTick(config: Configuration, state: State) {
   if (newVchainSyncStatus != state.VchainSyncStatus) {
     Logger.log(`VchainSyncStatus changing from ${state.VchainSyncStatus} to ${newVchainSyncStatus}.`);
     state.VchainSyncStatus = newVchainSyncStatus;
+  }
+
+  // ethereum notifications state machine
+  const newEthereumWriteStatus = calcEthereumWriteStatus(state, config);
+  if (newEthereumWriteStatus != state.EthereumWriteStatus) {
+    Logger.log(`EthereumWriteStatus changing from ${state.EthereumWriteStatus} to ${newEthereumWriteStatus}.`);
+    state.EthereumWriteStatus = newEthereumWriteStatus;
   }
 
   // write all data
