@@ -25,18 +25,18 @@ export async function readManagementStatus(endpoint: string, myOrbsAddress: stri
 
 // helpers
 
-async function fetchManagementStatus(url: string): Promise<ManagementStatus> {
+async function fetchManagementStatus(url: string): Promise<ManagementStatusResponse> {
   const res = await fetch(url);
   const body = await res.text();
   try {
-    return decodeString(managementStatusDecoder, body);
+    return decodeString(managementStatusResponseDecoder, body);
   } catch (err) {
     Logger.error(err.message);
     throw new Error(`Invalid ManagementStatus response (HTTP-${res.status}):\n${body}`);
   }
 }
 
-interface ManagementStatus {
+interface ManagementStatusResponse {
   Payload: {
     CurrentRefTime: number;
     CurrentOrbsAddress: { [EthAddress: string]: string };
@@ -59,7 +59,7 @@ interface ManagementStatus {
   };
 }
 
-const managementStatusDecoder: Decoder<ManagementStatus> = object({
+const managementStatusResponseDecoder: Decoder<ManagementStatusResponse> = object({
   Payload: object({
     CurrentRefTime: num,
     CurrentOrbsAddress: record(str),

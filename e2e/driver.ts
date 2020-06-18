@@ -30,6 +30,7 @@ export class TestEnvironment {
       VirtualChainEndpointSchema: 'http://vchain-{{ID}}:8080',
       RunLoopPollTimeSeconds: 1,
       VchainMetricsPollTimeSeconds: 1,
+      VchainReputationsPollTimeSeconds: 1,
     };
   }
 

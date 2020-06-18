@@ -3,7 +3,7 @@ import nock from 'nock';
 import { State } from '../model/state';
 import _ from 'lodash';
 import { getEndpoint, readAllVchainMetrics } from './vchain-metrics';
-import { jsonStringifyBigint, getCurrentClockTime } from '../helpers';
+import { jsonStringifyComplexTypes, getCurrentClockTime } from '../helpers';
 
 const exampleVchainEndpointSchema = 'http://vchain-{{ID}}:8080';
 const vchainMetricsPath = '/metrics';
@@ -51,7 +51,7 @@ test.serial('reads data from valid VchainMetrics', async (t) => {
   }
   await readAllVchainMetrics(exampleVchainEndpointSchema, state);
 
-  t.log('state:', jsonStringifyBigint(state));
+  t.log('state:', jsonStringifyComplexTypes(state));
 
   t.assert(getCurrentClockTime() - state.vchainMetricsLastPollTime < 5);
   for (const vcId of ['1000000', '1000001']) {
@@ -70,7 +70,7 @@ test.serial('no VchainMetrics response from first vchain', async (t) => {
     .reply(200, validVchainMetricsResponse);
   await readAllVchainMetrics(exampleVchainEndpointSchema, state);
 
-  t.log('state:', jsonStringifyBigint(state));
+  t.log('state:', jsonStringifyComplexTypes(state));
 
   t.assert(getCurrentClockTime() - state.vchainMetricsLastPollTime < 5);
   t.deepEqual(state.vchainMetrics['1000001'], {
@@ -93,7 +93,7 @@ test.serial('404 VchainMetrics response from first vchain', async (t) => {
     .reply(200, validVchainMetricsResponse);
   await readAllVchainMetrics(exampleVchainEndpointSchema, state);
 
-  t.log('state:', jsonStringifyBigint(state));
+  t.log('state:', jsonStringifyComplexTypes(state));
 
   t.assert(getCurrentClockTime() - state.vchainMetricsLastPollTime < 5);
   t.deepEqual(state.vchainMetrics['1000001'], {
@@ -118,7 +118,7 @@ test.serial('invalid JSON format VchainMetrics response from first vchain', asyn
     .reply(200, validVchainMetricsResponse);
   await readAllVchainMetrics(exampleVchainEndpointSchema, state);
 
-  t.log('state:', jsonStringifyBigint(state));
+  t.log('state:', jsonStringifyComplexTypes(state));
 
   t.assert(getCurrentClockTime() - state.vchainMetricsLastPollTime < 5);
   t.deepEqual(state.vchainMetrics['1000001'], {
@@ -155,7 +155,7 @@ test.serial('partial VchainMetrics response from first vchain', async (t) => {
     .reply(200, validVchainMetricsResponse);
   await readAllVchainMetrics(exampleVchainEndpointSchema, state);
 
-  t.log('state:', jsonStringifyBigint(state));
+  t.log('state:', jsonStringifyComplexTypes(state));
 
   t.assert(getCurrentClockTime() - state.vchainMetricsLastPollTime < 5);
   t.deepEqual(state.vchainMetrics['1000001'], {

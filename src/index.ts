@@ -5,7 +5,7 @@ import { State } from './model/state';
 import { writeStatusToDisk } from './write/status';
 import { readManagementStatus } from './read/management';
 import { initWeb3Client, readEtherBalance, sendEthereumVoteOutTransaction } from './write/ethereum';
-import { readVirtualChainCounter } from './read/vchain-reputation';
+import { readAllVchainReputations } from './read/vchain-reputations';
 import { readAllVchainMetrics } from './read/vchain-metrics';
 
 export async function runLoop(config: Configuration) {
@@ -41,8 +41,12 @@ async function runLoopTick(config: Configuration, state: State) {
     await readAllVchainMetrics(config.VirtualChainEndpointSchema, state);
   }
 
+  // refresh all vchain reputations to prepare for vote outs, rate according to config
+  if (getCurrentClockTime() - state.vchainReputationsLastPollTime > config.VchainReputationsPollTimeSeconds) {
+    await readAllVchainReputations(config.VirtualChainEndpointSchema, state);
+  }
+
   await readEtherBalance(state);
-  await readVirtualChainCounter(42, config, state); // temp for testing
 
   // update all (state machine) logic
 

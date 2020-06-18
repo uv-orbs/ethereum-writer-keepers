@@ -9,4 +9,5 @@ export const exampleConfig: Configuration = {
   StatusJsonPath: './status/status.json',
   RunLoopPollTimeSeconds: 1,
   VchainMetricsPollTimeSeconds: 1,
+  VchainReputationsPollTimeSeconds: 1,
 };

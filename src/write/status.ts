@@ -12,7 +12,7 @@ export function writeStatusToDisk(filePath: string, state: State) {
     Payload: {
       NumVirtualChains: Object.keys(state.managementVirtualChains).length,
       EtherBalance: state.etherBalance,
-      OrbsCounter: state.orbsCounter.toString(),
+      OrbsCounter: state.vchainReputations['42']?.TempCounter.toString(), // TEMP
     },
   };
 

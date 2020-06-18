@@ -18,10 +18,17 @@ export function getCurrentClockTime() {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type JsonResponse = any;
 
-export function jsonStringifyBigint(obj: unknown): string {
+export function jsonStringifyComplexTypes(obj: unknown): string {
   return JSON.stringify(
     obj,
-    (_key, value) => (typeof value === 'bigint' ? value.toString() : value), // return everything else unchanged
+    (key, value) => {
+      if (key == 'privateKey') return '<redacted>';
+      if (typeof value === 'bigint') return `BigInt(${value.toString()})`;
+      if (typeof value == 'object') {
+        if (value.constructor === Uint8Array) return `Uint8Array(${Buffer.from(value).toString('hex')})`;
+      }
+      return value; // return everything else unchanged
+    },
     2
   );
 }

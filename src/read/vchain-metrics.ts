@@ -1,5 +1,5 @@
 import * as Logger from '../logger';
-import { State } from '../model/state';
+import { State, VchainMetrics } from '../model/state';
 import { Decoder, decodeString, object, num } from 'ts-json-decode';
 import fetch from 'node-fetch';
 import { getCurrentClockTime } from '../helpers';
@@ -9,13 +9,7 @@ export async function readAllVchainMetrics(endpointSchema: string, state: State)
   for (const [vcId] of Object.entries(state.managementVirtualChains)) {
     try {
       const url = `${getEndpoint(vcId, endpointSchema)}/metrics`;
-      const response = await fetchVchainMetrics(url);
-
-      state.vchainMetrics[vcId] = {
-        LastBlockHeight: response['BlockStorage.BlockHeight'].Value,
-        LastBlockTime: Math.floor(response['BlockStorage.LastCommitted.TimeNano'].Value / 1e9),
-        Uptime: response['Runtime.Uptime.Seconds'].Value,
-      };
+      state.vchainMetrics[vcId] = await fetchVchainMetrics(url);
       successful++;
     } catch (err) {
       Logger.error(err.stack);
@@ -46,14 +40,19 @@ async function fetchVchainMetrics(url: string): Promise<VchainMetrics> {
   const res = await fetch(url);
   const body = await res.text();
   try {
-    return decodeString(vchainMetricsDecoder, body);
+    const decoded = decodeString(vchainMetricsResponseDecoder, body);
+    return {
+      LastBlockHeight: decoded['BlockStorage.BlockHeight'].Value,
+      LastBlockTime: Math.floor(decoded['BlockStorage.LastCommitted.TimeNano'].Value / 1e9),
+      Uptime: decoded['Runtime.Uptime.Seconds'].Value,
+    };
   } catch (err) {
     Logger.error(err.message);
     throw new Error(`Invalid VchainMetrics response for ${url} (HTTP-${res.status}):\n${body}`);
   }
 }
 
-interface VchainMetrics {
+interface VchainMetricsResponse {
   'BlockStorage.BlockHeight': {
     Value: number;
   };
@@ -65,7 +64,7 @@ interface VchainMetrics {
   };
 }
 
-const vchainMetricsDecoder: Decoder<VchainMetrics> = object({
+const vchainMetricsResponseDecoder: Decoder<VchainMetricsResponse> = object({
   'BlockStorage.BlockHeight': object({
     Value: num,
   }),

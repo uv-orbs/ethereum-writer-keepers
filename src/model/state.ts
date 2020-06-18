@@ -10,25 +10,26 @@ export class State {
   managementVirtualChains: { [virtualChainId: string]: ManagementVirtualChain } = {};
   managementMyElectionStatus?: ManagementElectionsStatus;
 
+  // vchains
+  vchainMetricsLastPollTime = 0; // UTC time in seconds (like unix timestamp / Ethereum block time)
+  vchainMetrics: { [virtualChainId: string]: VchainMetrics } = {};
+  vchainReputationsLastPollTime = 0; // UTC time in seconds (like unix timestamp / Ethereum block time)
+  vchainReputations: { [virtualChainId: string]: VchainReputations } = {};
+
   // ethereum
   web3?: Web3;
   ethereumElectionsContract?: Contracts['Elections'];
   etherBalance = ''; // string in wei
 
   // orbs
-  orbsAccount?: Orbs.Account;
-  orbsClientPerVc: { [virtualChainId: string]: Orbs.Client } = {};
-  orbsCounter = BigInt(0);
-
-  // vchains
-  vchainMetricsLastPollTime = 0; // UTC time in seconds (like unix timestamp / Ethereum block time)
-  vchainMetrics: { [virtualChainId: string]: VchainMetrics } = {};
+  orbsAccount = Orbs.createAccount();
+  orbsClientPerVchain: { [virtualChainId: string]: Orbs.Client } = {};
 }
 
 // helpers
 
 // taken from management-service/src/model/state.ts
-interface ManagementVirtualChain {
+export interface ManagementVirtualChain {
   Expiration: number;
   RolloutGroup: string;
   IdentityType: number;
@@ -37,14 +38,18 @@ interface ManagementVirtualChain {
 }
 
 // taken from management-service/src/model/state.ts
-interface ManagementElectionsStatus {
+export interface ManagementElectionsStatus {
   LastUpdateTime: number;
   ReadyToSync: boolean;
   ReadyForCommittee: boolean;
 }
 
-interface VchainMetrics {
+export interface VchainMetrics {
   LastBlockHeight: number;
   LastBlockTime: number; // UTC time in seconds (like unix timestamp / Ethereum block time)
   Uptime: number; // seconds
+}
+
+export interface VchainReputations {
+  TempCounter: BigInt;
 }

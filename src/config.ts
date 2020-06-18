@@ -7,6 +7,7 @@ export interface Configuration {
   StatusJsonPath: string;
   RunLoopPollTimeSeconds: number;
   VchainMetricsPollTimeSeconds: number; // multiple of RunLoopPollTimeSeconds
+  VchainReputationsPollTimeSeconds: number; // multiple of RunLoopPollTimeSeconds
 }
 
 export const defaultConfiguration = {
@@ -14,6 +15,7 @@ export const defaultConfiguration = {
   VirtualChainEndpointSchema: 'http://vchain-{{ID}}:8080',
   RunLoopPollTimeSeconds: 10,
   VchainMetricsPollTimeSeconds: 5 * 60,
+  VchainReputationsPollTimeSeconds: 20 * 60,
 };
 
 export function validateConfiguration(config: Configuration) {
@@ -55,5 +57,11 @@ export function validateConfiguration(config: Configuration) {
   }
   if (typeof config.VchainMetricsPollTimeSeconds != 'number') {
     throw new Error(`VchainMetricsPollTimeSeconds is not a number.`);
+  }
+  if (!config.VchainReputationsPollTimeSeconds) {
+    throw new Error(`VchainReputationsPollTimeSeconds is empty or zero.`);
+  }
+  if (typeof config.VchainReputationsPollTimeSeconds != 'number') {
+    throw new Error(`VchainReputationsPollTimeSeconds is not a number.`);
   }
 }

@@ -49,6 +49,12 @@ Node service to send Ethereum transactions for elections lifecycle (like auto vo
   npm run test
   ```
 
+  To run a single test:
+
+  ```
+  npm run test:quick -- src/config.test.ts
+  ```
+
 * For E2E tests (on docker), run in terminal in root project directory:
 
   ```
