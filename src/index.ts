@@ -9,7 +9,7 @@ import { readAllVchainReputations } from './read/vchain-reputations';
 import { readAllVchainMetrics } from './read/vchain-metrics';
 import { calcVchainSyncStatus } from './model/statemachine-vcsync';
 import { calcEthereumWriteStatus } from './model/statemachine-eth';
-import { shouldNotifyReadyForCommittee, shouldNotifyReadyToSync } from './model/selectors-eth-elections';
+import { shouldNotifyReadyForCommittee, shouldNotifyReadyToSync } from './model/selectors-elections';
 
 export async function runLoop(config: Configuration) {
   const state = initializeState(config);

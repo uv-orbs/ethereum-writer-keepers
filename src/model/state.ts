@@ -18,6 +18,7 @@ export class State {
   ManagementIsStandby = false;
   ManagementMyElectionStatus?: ManagementElectionsStatus;
   ManagementOthersElectionStatus: { [EthAddress: string]: ManagementElectionsStatus } = {};
+  ManagementCurrentCommittee: { EthAddress: string; Weight: number }[] = [];
   ManagementCurrentStandbys: { EthAddress: string }[] = [];
 
   // vchains

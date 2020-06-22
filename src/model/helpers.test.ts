@@ -1,6 +1,6 @@
 import test from 'ava';
 import { State } from './state';
-import { findEthFromOrbsAddress } from './selectors-eth';
+import { findEthFromOrbsAddress } from './helpers';
 
 test('findEthFromOrbsAddress selector', (t) => {
   const state = new State();

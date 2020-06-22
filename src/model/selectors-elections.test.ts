@@ -1,6 +1,6 @@
 import test from 'ava';
 import { State } from './state';
-import { shouldNotifyReadyToSync, shouldNotifyReadyForCommittee } from './selectors-eth-elections';
+import { shouldNotifyReadyToSync, shouldNotifyReadyForCommittee } from './selectors-elections';
 import { exampleConfig } from '../config.example';
 import { getCurrentClockTime } from '../helpers';
 

@@ -3,7 +3,7 @@ import { State } from '../model/state';
 import fetch from 'node-fetch';
 import { Decoder, decodeString, num, object, record, bool, str, array } from 'ts-json-decode';
 import { getCurrentClockTime } from '../helpers';
-import { findEthFromOrbsAddress } from '../model/selectors-eth';
+import { findEthFromOrbsAddress } from '../model/helpers';
 
 export async function readManagementStatus(endpoint: string, myOrbsAddress: string, state: State) {
   const url = `${endpoint}/status`;
@@ -13,6 +13,7 @@ export async function readManagementStatus(endpoint: string, myOrbsAddress: stri
   state.ManagementEthRefBlock = response.Payload.CurrentRefBlock;
   state.ManagementEthToOrbsAddress = response.Payload.CurrentOrbsAddress;
   state.ManagementVirtualChains = response.Payload.CurrentVirtualChains;
+  state.ManagementCurrentCommittee = response.Payload.CurrentCommittee;
   state.ManagementCurrentStandbys = response.Payload.CurrentStandbys;
 
   const myEthAddress = findEthFromOrbsAddress(myOrbsAddress, state);

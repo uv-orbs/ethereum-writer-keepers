@@ -81,15 +81,14 @@ function isUpdateStale(state: State, config: EthereumElectionsParams): boolean {
   return false;
 }
 
-// TODO: what about having small number of standbys?
 function isStandbyAvailable(state: State, config: EthereumElectionsParams): boolean {
   // no enough standbys
   if (state.ManagementCurrentStandbys.length < MAX_STANDBYS) return true;
   // or one of the standbys is stale
-  for (const standby of state.ManagementCurrentStandbys) {
-    if (!state.ManagementOthersElectionStatus[standby.EthAddress]) return true;
+  for (const node of state.ManagementCurrentStandbys) {
+    if (!state.ManagementOthersElectionStatus[node.EthAddress]) return true;
     const nowEth = state.ManagementRefTime;
-    const lastUpdate = state.ManagementOthersElectionStatus[standby.EthAddress].LastUpdateTime;
+    const lastUpdate = state.ManagementOthersElectionStatus[node.EthAddress].LastUpdateTime;
     if (nowEth - lastUpdate > config.ElectionsStaleUpdateSeconds) return true;
   }
   return false;
