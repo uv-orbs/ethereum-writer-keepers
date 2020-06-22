@@ -9,6 +9,7 @@ import { readAllVchainReputations } from './read/vchain-reputations';
 import { readAllVchainMetrics } from './read/vchain-metrics';
 import { calcVchainSyncStatus } from './model/statemachine-vcsync';
 import { calcEthereumWriteStatus } from './model/statemachine-eth';
+import { shouldNotifyReadyForCommittee, shouldNotifyReadyToSync } from './model/selectors-eth-elections';
 
 export async function runLoop(config: Configuration) {
   const state = initializeState(config);
@@ -48,6 +49,7 @@ async function runLoopTick(config: Configuration, state: State) {
     await readAllVchainReputations(config.VirtualChainEndpointSchema, config.OrbsReputationsContract, state);
   }
 
+  // TODO: add throttle
   await readEtherBalance(state);
 
   // update all state machine logic
@@ -68,6 +70,13 @@ async function runLoopTick(config: Configuration, state: State) {
 
   // write all data
 
+  if (shouldNotifyReadyForCommittee(state, config)) {
+    // TODO: ethereum send RFC
+  } else if (shouldNotifyReadyToSync(state, config)) {
+    // TODO: ethereum send RTS
+  }
+
+  // TODO: remove
   await sendEthereumVoteOutTransaction(['0x11f4d0A3c12e86B4b5F39B213F7E19D048276DAe'], config.NodeOrbsAddress, state); // temp for testing
 
   // write status.json file, we don't mind doing this often (10s)

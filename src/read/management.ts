@@ -3,7 +3,7 @@ import { State } from '../model/state';
 import fetch from 'node-fetch';
 import { Decoder, decodeString, num, object, record, bool, str, array } from 'ts-json-decode';
 import { getCurrentClockTime } from '../helpers';
-import { findEthFromOrbsAddress } from '../model/selectors';
+import { findEthFromOrbsAddress } from '../model/selectors-eth';
 
 export async function readManagementStatus(endpoint: string, myOrbsAddress: string, state: State) {
   const url = `${endpoint}/status`;
@@ -13,11 +13,14 @@ export async function readManagementStatus(endpoint: string, myOrbsAddress: stri
   state.ManagementEthRefBlock = response.Payload.CurrentRefBlock;
   state.ManagementEthToOrbsAddress = response.Payload.CurrentOrbsAddress;
   state.ManagementVirtualChains = response.Payload.CurrentVirtualChains;
+  state.ManagementCurrentStandbys = response.Payload.CurrentStandbys;
 
   const myEthAddress = findEthFromOrbsAddress(myOrbsAddress, state);
   state.ManagementInCommittee = response.Payload.CurrentCommittee.some((n) => n.EthAddress == myEthAddress);
   state.ManagementIsStandby = response.Payload.CurrentStandbys.some((n) => n.EthAddress == myEthAddress);
   state.ManagementMyElectionStatus = response.Payload.CurrentElectionsStatus[myEthAddress];
+  state.ManagementOthersElectionStatus = response.Payload.CurrentElectionsStatus;
+  delete state.ManagementOthersElectionStatus[myEthAddress];
 
   // last to be after all possible exceptions and processing delays
   state.ManagementLastPollTime = getCurrentClockTime();

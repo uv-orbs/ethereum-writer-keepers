@@ -17,6 +17,8 @@ export class State {
   ManagementInCommittee = false;
   ManagementIsStandby = false;
   ManagementMyElectionStatus?: ManagementElectionsStatus;
+  ManagementOthersElectionStatus: { [EthAddress: string]: ManagementElectionsStatus } = {};
+  ManagementCurrentStandbys: { EthAddress: string }[] = [];
 
   // vchains
   VchainMetricsLastPollTime = 0; // UTC time in seconds (like unix timestamp / Ethereum block time)

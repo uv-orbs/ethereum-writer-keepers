@@ -89,6 +89,18 @@ test.serial('reads data from valid ManagementStatus', async (t) => {
     ReadyToSync: true,
     ReadyForCommittee: true,
   });
+  t.deepEqual(state.ManagementOthersElectionStatus, {
+    '29ce860a2247d97160d6dfc087a15f41e2349087': {
+      LastUpdateTime: 1592400001,
+      ReadyToSync: true,
+      ReadyForCommittee: false,
+    },
+  });
+  t.deepEqual(state.ManagementCurrentStandbys, [
+    {
+      EthAddress: '29ce860a2247d97160d6dfc087a15f41e2349087',
+    },
+  ]);
 });
 
 test.serial('my orbsAddress not found in ManagementStatus', async (t) => {
@@ -104,6 +116,18 @@ test.serial('my orbsAddress not found in ManagementStatus', async (t) => {
   t.is(state.ManagementInCommittee, false);
   t.is(state.ManagementIsStandby, false);
   t.falsy(state.ManagementMyElectionStatus);
+  t.deepEqual(state.ManagementOthersElectionStatus, {
+    '29ce860a2247d97160d6dfc087a15f41e2349087': {
+      LastUpdateTime: 1592400001,
+      ReadyToSync: true,
+      ReadyForCommittee: false,
+    },
+    e16e965a4cc3fcd597ecdb9cd9ab8f3e6a750ac9: {
+      LastUpdateTime: 1592400002,
+      ReadyToSync: true,
+      ReadyForCommittee: true,
+    },
+  });
 });
 
 test.serial('my elections status not found in ManagementStatus', async (t) => {
@@ -116,6 +140,13 @@ test.serial('my elections status not found in ManagementStatus', async (t) => {
   t.log('state:', jsonStringifyComplexTypes(state));
 
   t.falsy(state.ManagementMyElectionStatus);
+  t.deepEqual(state.ManagementOthersElectionStatus, {
+    '29ce860a2247d97160d6dfc087a15f41e2349087': {
+      LastUpdateTime: 1592400001,
+      ReadyToSync: true,
+      ReadyForCommittee: false,
+    },
+  });
 });
 
 test.serial('no ManagementStatus response from management service', async (t) => {
