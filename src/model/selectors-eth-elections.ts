@@ -1,6 +1,7 @@
 import { State } from './state';
-import { getCurrentClockTime } from '../helpers';
 import * as Logger from '../logger';
+
+const MAX_STANDBYS = 5; // in future, can be taken from the MaxStandbysChanged event
 
 export function shouldNotifyReadyToSync(state: State, config: EthereumElectionsParams): boolean {
   if (state.EthereumWriteStatus != 'operational') return false;
@@ -74,18 +75,21 @@ export interface EthereumElectionsParams {
 function isUpdateStale(state: State, config: EthereumElectionsParams): boolean {
   if (!state.ManagementMyElectionStatus) return true;
   if (state.ManagementMyElectionStatus.ReadyToSync != true) return true; // TODO: verify with odedw
-  const now = getCurrentClockTime();
+  const nowEth = state.ManagementRefTime;
   const lastUpdate = state.ManagementMyElectionStatus.LastUpdateTime;
-  if (now - lastUpdate + config.ElectionsRefreshWindowSeconds > config.ElectionsStaleUpdateSeconds) return true;
+  if (nowEth - lastUpdate + config.ElectionsRefreshWindowSeconds > config.ElectionsStaleUpdateSeconds) return true;
   return false;
 }
 
 // TODO: what about having small number of standbys?
 function isStandbyAvailable(state: State, config: EthereumElectionsParams): boolean {
+  // no enough standbys
+  if (state.ManagementCurrentStandbys.length < MAX_STANDBYS) return true;
+  // or one of the standbys is stale
   for (const standby of state.ManagementCurrentStandbys) {
     if (!state.ManagementOthersElectionStatus[standby.EthAddress]) return true;
-    const lastUpdate = state.ManagementOthersElectionStatus[standby.EthAddress].LastUpdateTime;
     const nowEth = state.ManagementRefTime;
+    const lastUpdate = state.ManagementOthersElectionStatus[standby.EthAddress].LastUpdateTime;
     if (nowEth - lastUpdate > config.ElectionsStaleUpdateSeconds) return true;
   }
   return false;

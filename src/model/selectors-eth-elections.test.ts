@@ -4,14 +4,40 @@ import { shouldNotifyReadyToSync, shouldNotifyReadyForCommittee } from './select
 import { exampleConfig } from '../config.example';
 import { getCurrentClockTime } from '../helpers';
 
-// example state reflects operational eth state and standbys updated
+// example state reflects operational eth state and standbys full (5) and not stale
 function getExampleState() {
   const exampleState = new State();
   exampleState.EthereumWriteStatus = 'operational';
   exampleState.ManagementRefTime = getCurrentClockTime() - 3 * 60;
-  exampleState.ManagementCurrentStandbys = [{ EthAddress: 's1' }];
+  exampleState.ManagementCurrentStandbys = [
+    { EthAddress: 's1' },
+    { EthAddress: 's2' },
+    { EthAddress: 's3' },
+    { EthAddress: 's4' },
+    { EthAddress: 's5' },
+  ];
   exampleState.ManagementOthersElectionStatus = {
     s1: {
+      LastUpdateTime: getCurrentClockTime() - 10,
+      ReadyToSync: true,
+      ReadyForCommittee: false,
+    },
+    s2: {
+      LastUpdateTime: getCurrentClockTime() - 10,
+      ReadyToSync: true,
+      ReadyForCommittee: false,
+    },
+    s3: {
+      LastUpdateTime: getCurrentClockTime() - 10,
+      ReadyToSync: true,
+      ReadyForCommittee: false,
+    },
+    s4: {
+      LastUpdateTime: getCurrentClockTime() - 10,
+      ReadyToSync: true,
+      ReadyForCommittee: false,
+    },
+    s5: {
       LastUpdateTime: getCurrentClockTime() - 10,
       ReadyToSync: true,
       ReadyForCommittee: false,
@@ -74,6 +100,12 @@ test('shouldNotifyReadyToSync: standby slot becomes available', (t) => {
   t.false(shouldNotifyReadyToSync(state, exampleConfig));
 
   state.ManagementOthersElectionStatus['s1'].LastUpdateTime = getCurrentClockTime() - 8 * 24 * 60 * 60;
+  t.true(shouldNotifyReadyToSync(state, exampleConfig));
+
+  state.ManagementOthersElectionStatus['s1'].LastUpdateTime = getCurrentClockTime() - 10;
+  t.false(shouldNotifyReadyToSync(state, exampleConfig));
+
+  state.ManagementCurrentStandbys.pop();
   t.true(shouldNotifyReadyToSync(state, exampleConfig));
 });
 
