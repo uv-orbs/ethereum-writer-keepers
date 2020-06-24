@@ -1,15 +1,17 @@
 import * as Logger from '../logger';
 import { State } from '../model/state';
 import { writeFileSync } from 'fs';
-import { ensureFileDirectoryExists, JsonResponse } from '../helpers';
+import { ensureFileDirectoryExists, JsonResponse, getCurrentClockTime } from '../helpers';
 
 const MINIMUM_ALLOWED_ETH_BALANCE_WEI = BigInt('20000000000000000');
+const timeOriginallyLaunched = getCurrentClockTime();
 
 export function writeStatusToDisk(filePath: string, state: State) {
   const status: JsonResponse = {
     Status: getStatusText(state),
     Timestamp: new Date().toISOString(),
     Payload: {
+      Uptime: getCurrentClockTime() - timeOriginallyLaunched,
       NumVirtualChains: Object.keys(state.ManagementVirtualChains).length,
       EtherBalance: state.EtherBalance,
       VchainReputations: state.VchainReputations,
