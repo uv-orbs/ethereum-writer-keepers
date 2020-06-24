@@ -4,31 +4,20 @@ import { Configuration } from './config';
 import { State } from './model/state';
 import { writeStatusToDisk } from './write/status';
 import { readManagementStatus } from './read/management';
-import { initWeb3Client, readEtherBalance, sendEthereumVoteOutTransaction } from './write/ethereum';
+import {
+  readEtherBalance,
+  initWeb3Client,
+  readPendingTransactionStatus,
+  sendEthereumElectionsTransaction,
+  sendEthereumVoteOutTransaction,
+} from './write/ethereum';
+import { OLDinitWeb3Client, OLDsendEthereumVoteOutTransaction } from './write/old-ethereum';
 import { readAllVchainReputations } from './read/vchain-reputations';
 import { readAllVchainMetrics } from './read/vchain-metrics';
-import { calcVchainSyncStatus } from './model/statemachine-vcsync';
-import { calcEthereumWriteStatus } from './model/statemachine-eth';
-import { shouldNotifyReadyForCommittee, shouldNotifyReadyToSync } from './model/selectors-elections';
-
-export async function runLoop(config: Configuration) {
-  const state = initializeState(config);
-  for (;;) {
-    try {
-      await sleep(config.RunLoopPollTimeSeconds * 1000);
-      await runLoopTick(config, state);
-    } catch (err) {
-      Logger.log('Exception thrown during runLoop, going back to sleep:');
-      Logger.error(err.stack);
-    }
-  }
-}
-
-function initializeState(config: Configuration): State {
-  const state = new State();
-  initWeb3Client(config, state);
-  return state;
-}
+import { calcVchainSyncStatus } from './model/logic-vcsync';
+import { calcEthereumSyncStatus } from './model/logic-ethsync';
+import { shouldNotifyReadyForCommittee, shouldNotifyReadyToSync } from './model/logic-elections';
+import { getAllValidatorsToVoteOut } from './model/logic-voteout';
 
 // runs every 10 seconds in prod, 1 second in tests
 async function runLoopTick(config: Configuration, state: State) {
@@ -49,8 +38,26 @@ async function runLoopTick(config: Configuration, state: State) {
     await readAllVchainReputations(config.VirtualChainEndpointSchema, config.OrbsReputationsContract, state);
   }
 
-  // TODO: add throttle
-  await readEtherBalance(state);
+  // refresh pending ethereum transactions status for ready-to-sync / ready-for-comittee, rate according to config
+  if (
+    getCurrentClockTime() - (state.EthereumLastElectionsTx?.LastPollTime ?? 0) >
+    config.EthereumPendingTxPollTimeSeconds
+  ) {
+    await readPendingTransactionStatus(state.EthereumLastElectionsTx, state);
+  }
+
+  // refresh pending ethereum transactions status for vote outs, rate according to config
+  if (
+    getCurrentClockTime() - (state.EthereumLastVoteOutTx?.LastPollTime ?? 0) >
+    config.EthereumPendingTxPollTimeSeconds
+  ) {
+    await readPendingTransactionStatus(state.EthereumLastVoteOutTx, state);
+  }
+
+  // warn if we have low ether to pay tx fees, rate according to config
+  if (getCurrentClockTime() - state.EthereumBalanceLastPollTime > config.EthereumBalancePollTimeSeconds) {
+    await readEtherBalance(config.NodeOrbsAddress, state);
+  }
 
   // update all state machine logic
 
@@ -61,24 +68,55 @@ async function runLoopTick(config: Configuration, state: State) {
     state.VchainSyncStatus = newVchainSyncStatus;
   }
 
-  // ethereum notifications state machine
-  const newEthereumWriteStatus = calcEthereumWriteStatus(state, config);
-  if (newEthereumWriteStatus != state.EthereumWriteStatus) {
-    Logger.log(`EthereumWriteStatus changing from ${state.EthereumWriteStatus} to ${newEthereumWriteStatus}.`);
-    state.EthereumWriteStatus = newEthereumWriteStatus;
+  // ethereum elections notifications state machine
+  const newEthereumSyncStatus = calcEthereumSyncStatus(state, config);
+  if (newEthereumSyncStatus != state.EthereumSyncStatus) {
+    Logger.log(`EthereumSyncStatus changing from ${state.EthereumSyncStatus} to ${newEthereumSyncStatus}.`);
+    state.EthereumSyncStatus = newEthereumSyncStatus;
   }
 
   // write all data
 
+  // send ready-to-sync / ready-for-comittee if needed, we don't mind checking this often (10s)
   if (shouldNotifyReadyForCommittee(state, config)) {
-    // TODO: ethereum send RFC
+    await sendEthereumElectionsTransaction('ready-for-committee', config.NodeOrbsAddress, state);
   } else if (shouldNotifyReadyToSync(state, config)) {
-    // TODO: ethereum send RTS
+    await sendEthereumElectionsTransaction('ready-to-sync', config.NodeOrbsAddress, state);
+  }
+
+  // send vote outs if needed, we don't mind checking this often (10s)
+  const toVoteOut = getAllValidatorsToVoteOut(state, config);
+  if (toVoteOut.length > 0) {
+    await sendEthereumVoteOutTransaction(toVoteOut, config.NodeOrbsAddress, state);
   }
 
   // TODO: remove
-  await sendEthereumVoteOutTransaction(['0x11f4d0A3c12e86B4b5F39B213F7E19D048276DAe'], config.NodeOrbsAddress, state); // temp for testing
+  await OLDsendEthereumVoteOutTransaction(
+    ['0x11f4d0A3c12e86B4b5F39B213F7E19D048276DAe'],
+    config.NodeOrbsAddress,
+    state
+  );
 
   // write status.json file, we don't mind doing this often (10s)
   writeStatusToDisk(config.StatusJsonPath, state);
+}
+
+export async function runLoop(config: Configuration) {
+  const state = initializeState(config);
+  for (;;) {
+    try {
+      await sleep(config.RunLoopPollTimeSeconds * 1000);
+      await runLoopTick(config, state);
+    } catch (err) {
+      Logger.log('Exception thrown during runLoop, going back to sleep:');
+      Logger.error(err.stack);
+    }
+  }
+}
+
+function initializeState(config: Configuration): State {
+  const state = new State();
+  initWeb3Client(config.EthereumEndpoint, config.EthereumElectionsContract, state);
+  OLDinitWeb3Client(config, state);
+  return state;
 }

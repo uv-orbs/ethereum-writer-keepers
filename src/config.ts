@@ -8,6 +8,8 @@ export interface Configuration {
   RunLoopPollTimeSeconds: number;
   VchainMetricsPollTimeSeconds: number; // multiple of RunLoopPollTimeSeconds
   VchainReputationsPollTimeSeconds: number; // multiple of RunLoopPollTimeSeconds
+  EthereumBalancePollTimeSeconds: number; // multiple of RunLoopPollTimeSeconds
+  EthereumPendingTxPollTimeSeconds: number; // multiple of RunLoopPollTimeSeconds
   OrbsReputationsContract: string;
   VchainUptimeRequiredSeconds: number;
   VchainSyncThresholdSeconds: number;
@@ -16,6 +18,8 @@ export interface Configuration {
   FailToSyncVcsTimeoutSeconds: number;
   ElectionsStaleUpdateSeconds: number;
   ElectionsRefreshWindowSeconds: number;
+  InvalidReputationGraceSeconds: number;
+  VoteOutValiditySeconds: number;
   ElectionsAuditOnly: boolean;
 }
 
@@ -28,11 +32,15 @@ export const defaultConfiguration = {
   OrbsReputationsContract: '_Committee',
   VchainUptimeRequiredSeconds: 5,
   VchainSyncThresholdSeconds: 5 * 60,
+  EthereumBalancePollTimeSeconds: 4 * 60 * 60,
+  EthereumPendingTxPollTimeSeconds: 2 * 60,
   VchainOutOfSyncThresholdSeconds: 60 * 60,
   EthereumSyncRequirementSeconds: 20 * 60,
   FailToSyncVcsTimeoutSeconds: 24 * 60 * 60,
   ElectionsStaleUpdateSeconds: 7 * 24 * 60 * 60,
   ElectionsRefreshWindowSeconds: 2 * 60 * 60,
+  InvalidReputationGraceSeconds: 6 * 60 * 60,
+  VoteOutValiditySeconds: 7 * 24 * 60 * 60,
   ElectionsAuditOnly: false,
 };
 
@@ -82,6 +90,18 @@ export function validateConfiguration(config: Configuration) {
   if (typeof config.VchainReputationsPollTimeSeconds != 'number') {
     throw new Error(`VchainReputationsPollTimeSeconds is not a number.`);
   }
+  if (!config.EthereumBalancePollTimeSeconds) {
+    throw new Error(`EthereumBalancePollTimeSeconds is empty or zero.`);
+  }
+  if (typeof config.EthereumBalancePollTimeSeconds != 'number') {
+    throw new Error(`EthereumBalancePollTimeSeconds is not a number.`);
+  }
+  if (!config.EthereumPendingTxPollTimeSeconds) {
+    throw new Error(`EthereumPendingTxPollTimeSeconds is empty or zero.`);
+  }
+  if (typeof config.EthereumPendingTxPollTimeSeconds != 'number') {
+    throw new Error(`EthereumPendingTxPollTimeSeconds is not a number.`);
+  }
   if (!config.OrbsReputationsContract) {
     throw new Error(`OrbsReputationsContract is empty in config.`);
   }
@@ -126,6 +146,18 @@ export function validateConfiguration(config: Configuration) {
   }
   if (typeof config.ElectionsRefreshWindowSeconds != 'number') {
     throw new Error(`ElectionsRefreshWindowSeconds is not a number.`);
+  }
+  if (!config.InvalidReputationGraceSeconds) {
+    throw new Error(`InvalidReputationGraceSeconds is empty or zero.`);
+  }
+  if (typeof config.InvalidReputationGraceSeconds != 'number') {
+    throw new Error(`InvalidReputationGraceSeconds is not a number.`);
+  }
+  if (!config.VoteOutValiditySeconds) {
+    throw new Error(`VoteOutValiditySeconds is empty or zero.`);
+  }
+  if (typeof config.VoteOutValiditySeconds != 'number') {
+    throw new Error(`VoteOutValiditySeconds is not a number.`);
   }
   if (typeof config.ElectionsAuditOnly != 'boolean') {
     throw new Error(`ElectionsAuditOnly is not found or not a boolean.`);

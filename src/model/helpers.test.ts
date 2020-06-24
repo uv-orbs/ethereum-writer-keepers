@@ -1,8 +1,8 @@
 import test from 'ava';
 import { State } from './state';
-import { findEthFromOrbsAddress } from './helpers';
+import { findEthFromOrbsAddress, calcMedianInPlace } from './helpers';
 
-test('findEthFromOrbsAddress selector', (t) => {
+test('findEthFromOrbsAddress', (t) => {
   const state = new State();
   state.ManagementEthToOrbsAddress = {
     '29ce860a2247d97160d6dfc087a15f41e2349087': '16fcf728f8dc3f687132f2157d8379c021a08c12',
@@ -19,4 +19,12 @@ test('findEthFromOrbsAddress selector', (t) => {
   );
   t.falsy(findEthFromOrbsAddress('29ce860a2247d97160d6dfc087a15f41e2349087', state));
   t.falsy(findEthFromOrbsAddress('xyz', state));
+});
+
+test('calcMedianInPlace', (t) => {
+  t.is(calcMedianInPlace([]), 0);
+  t.is(calcMedianInPlace([1]), 1);
+  t.is(calcMedianInPlace([2, 1]), 1.5);
+  t.is(calcMedianInPlace([3, 1, 2]), 2);
+  t.is(calcMedianInPlace([3, 1, 4, 2]), 2.5);
 });

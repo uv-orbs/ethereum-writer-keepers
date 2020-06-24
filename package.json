@@ -52,8 +52,7 @@
     "typescript": "~3.7.5"
   },
   "dependencies": {
-    "@orbs-network/orbs-ethereum-contracts-v2": "^0.0.3",
-    "@truffle/hdwallet-provider": "^1.0.34",
+    "@orbs-network/orbs-ethereum-contracts-v2": "0.0.12",
     "lodash": "^4.17.15",
     "node-fetch": "^2.6.0",
     "orbs-client-sdk": "^2.3.1",

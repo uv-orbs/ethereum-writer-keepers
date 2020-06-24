@@ -1,9 +1,9 @@
 import * as Logger from '../logger';
-import { EthereumWriteStatusEnum, State } from './state';
+import { EthereumSyncStatusEnum, State } from './state';
 import { getCurrentClockTime } from '../helpers';
 
-export function calcEthereumWriteStatus(state: State, config: EthereumWriteStatusParams): EthereumWriteStatusEnum {
-  if (state.EthereumWriteStatus == 'need-reset') return 'need-reset'; // stuck until node reset
+export function calcEthereumSyncStatus(state: State, config: EthereumWriteStatusParams): EthereumSyncStatusEnum {
+  if (state.EthereumSyncStatus == 'need-reset') return 'need-reset'; // stuck until node reset
   if (!isEthValid(state, config)) return 'out-of-sync';
   if (isAnyTxReverted(state)) return 'need-reset';
   if (isVotedOut(state)) return 'need-reset';

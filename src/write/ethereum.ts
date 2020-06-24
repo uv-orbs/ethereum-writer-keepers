@@ -1,44 +1,159 @@
 import * as Logger from '../logger';
-import { Configuration } from '../config';
-import { State } from '../model/state';
-import HDWalletProvider from '@truffle/hdwallet-provider';
+import { State, EthereumTxStatus, CommitteeMember } from '../model/state';
+import HDWalletProvider from 'truffle-hdwallet-provider';
 import Web3 from 'web3';
 import { provider } from 'web3-core';
-import { Web3Driver } from '@orbs-network/orbs-ethereum-contracts-v2/release/eth';
+import { compiledContracts } from '@orbs-network/orbs-ethereum-contracts-v2/release/compiled-contracts';
+import { getCurrentClockTime } from '../helpers';
 
-export function initWeb3Client(config: Configuration, state: State) {
+export async function sendEthereumElectionsTransaction(type: Type, senderAddress: string, state: State) {
+  if (!state.EthereumElectionsContract) throw new Error('Cannot send tx until contract object is initialized.');
+
+  const senderAddressString = `0x${senderAddress}`;
+  const contractMethod =
+    type == 'ready-to-sync'
+      ? state.EthereumElectionsContract.methods.notifyReadyToSync
+      : state.EthereumElectionsContract.methods.notifyReadyForCommittee;
+
+  state.EthereumLastElectionsTx = {
+    LastPollTime: 0,
+    Type: type,
+    SendTime: getCurrentClockTime(),
+    Status: 'pending',
+    TxHash: '',
+    EthBlock: 0,
+  };
+
+  return new Promise((resolve, reject) => {
+    contractMethod().send(
+      {
+        from: senderAddressString,
+        // TODO: complete me gasPrice: '1',
+        // TODO: complete me gas: 1,
+      },
+      (err: Error, txHash: string) => {
+        if (err) {
+          Logger.error(`Failed sending ${type} transaction: ${err.message}.`);
+          state.EthereumLastElectionsTx = undefined;
+          return reject(err);
+        }
+        Logger.log(`${type} transaction sent with txHash ${txHash}.`);
+        if (state.EthereumLastElectionsTx) state.EthereumLastElectionsTx.TxHash = txHash;
+        return resolve();
+      }
+    );
+  });
+}
+
+export async function sendEthereumVoteOutTransaction(to: CommitteeMember[], senderAddress: string, state: State) {
+  if (!state.EthereumElectionsContract) throw new Error('Cannot send tx until contract object is initialized.');
+
+  if (to.length == 0) return;
+  const ethAddress = to[0].EthAddress;
+  const ethAddressString = `0x${ethAddress}`;
+  const senderAddressString = `0x${senderAddress}`;
+  const contractMethod = state.EthereumElectionsContract.methods.voteOut;
+
+  state.EthereumLastVoteOutTx = {
+    LastPollTime: 0,
+    Type: 'vote-out',
+    SendTime: getCurrentClockTime(),
+    Status: 'pending',
+    TxHash: '',
+    EthBlock: 0,
+    OnFinal: () => (state.EthereumLastVoteOutTime[ethAddress] = state.ManagementRefTime),
+  };
+
+  return new Promise((resolve, reject) => {
+    contractMethod(ethAddressString).send(
+      {
+        from: senderAddressString,
+        // TODO: complete me gasPrice: '1',
+        // TODO: complete me gas: 1,
+      },
+      (err: Error, txHash: string) => {
+        if (err) {
+          Logger.error(`Failed sending vote out transaction: ${err.message}.`);
+          state.EthereumLastVoteOutTx = undefined;
+          return reject(err);
+        }
+        Logger.log(`Vote out transaction against ${ethAddress} sent with txHash ${txHash}.`);
+        if (state.EthereumLastVoteOutTx) state.EthereumLastVoteOutTx.TxHash = txHash;
+        return resolve();
+      }
+    );
+  });
+}
+
+export async function readPendingTransactionStatus(status: EthereumTxStatus | undefined, state: State) {
+  if (!state.Web3) throw new Error('Cannot check pending tx status until web3 client is initialized.');
+  if (!status) return;
+  if (status.Status != 'pending') return;
+  if (!status.TxHash) return;
+
+  // no need to poll ethereum if we know the block, just wait until management service reaches it
+  if (status.EthBlock > 0) {
+    if (state.ManagementEthRefBlock >= status.EthBlock) {
+      Logger.log(`Last ethereum ${status.Type} tx ${status.TxHash} is final.`);
+      status.Status = 'final';
+      if (status.OnFinal) status.OnFinal();
+    }
+    return;
+  }
+
+  // done before the actual execution to space out calls in case of connection errors
+  status.LastPollTime = getCurrentClockTime();
+
+  // needed since getTransactionReceipt fails on light client when tx is pending
+  const tx = await state.Web3.eth.getTransaction(status.TxHash);
+  if (tx.blockNumber == null) {
+    Logger.log(`Last ethereum ${status.Type} tx ${status.TxHash} is still waiting for block.`);
+    return; // still pending
+  }
+
+  const receipt = await state.Web3.eth.getTransactionReceipt(status.TxHash);
+  if (receipt == null) return; // still pending
+  status.EthBlock = receipt.blockNumber;
+  if (receipt.status) {
+    Logger.log(`Last ethereum ${status.Type} tx ${status.TxHash} was successful in block ${receipt.blockNumber}.`);
+    if (state.ManagementEthRefBlock >= receipt.blockNumber) {
+      Logger.log(`Last ethereum ${status.Type} tx ${status.TxHash} is final.`);
+      status.Status = 'final';
+    }
+  } else {
+    Logger.error(`Last ethereum ${status.Type} tx ${status.TxHash} was reverted in block ${receipt.blockNumber}.`);
+    status.Status = 'revert';
+  }
+}
+
+export async function readEtherBalance(nodeOrbsAddress: string, state: State) {
+  if (!state.Web3) throw new Error('Cannot check ETH balance until web3 client is initialized.');
+
+  // done before the actual execution to space out calls in case of connection errors
+  state.EthereumBalanceLastPollTime = getCurrentClockTime();
+
+  state.EtherBalance = await state.Web3.eth.getBalance(nodeOrbsAddress);
+
+  // log progress
+  Logger.log(`Fetched ETH balance for account ${nodeOrbsAddress}: ${state.EtherBalance}.`);
+}
+
+// helpers
+
+type Type = 'ready-to-sync' | 'ready-for-committee';
+
+export function initWeb3Client(ethereumEndpoint: string, electionsContractAddress: string, state: State) {
   // init web3
   const provider = (new HDWalletProvider(
     'vanish junk genuine web seminar cook absurd royal ability series taste method identify elevator liquid',
-    config.EthereumEndpoint,
+    ethereumEndpoint,
     0,
     100,
     false
-  ) as unknown) as provider;
+  ) as unknown) as provider; // TODO: support signer service
   state.Web3 = new Web3(provider);
-  state.Web3.eth.defaultAccount = config.NodeOrbsAddress;
 
-  // init ethereum contracts
-  const web3 = state.Web3;
-  const orbsWeb3Driver = new Web3Driver(() => web3);
-  state.EthereumElectionsContract = orbsWeb3Driver.getExisting('Elections', config.EthereumElectionsContract);
-  state.EthereumElectionsContract.web3Contract.defaultAccount = config.NodeOrbsAddress;
-}
-
-// TODO: improve timeouts, retries and such
-export async function sendEthereumVoteOutTransaction(
-  bannedValidatorsEthereumAddresses: string[],
-  senderEthereumAddress: string,
-  state: State
-) {
-  if (!state.EthereumElectionsContract) throw new Error('Cannot send Ethereum tx until web3 client is initialized.');
-  const receipt = await state.EthereumElectionsContract.setBanningVotes(bannedValidatorsEthereumAddresses, {
-    from: senderEthereumAddress,
-  });
-  Logger.log(`Sent vote out against [${bannedValidatorsEthereumAddresses}], txHash: ${receipt.transactionHash}.`);
-}
-
-export async function readEtherBalance(state: State) {
-  if (!state.Web3) throw new Error('Cannot check ETH balance until web3 client is initialized.');
-  state.EtherBalance = await state.Web3.eth.getBalance(state.Web3.eth.defaultAccount as string);
+  // init contracts
+  const electionsAbi = compiledContracts.Elections.abi;
+  state.EthereumElectionsContract = new state.Web3.eth.Contract(electionsAbi, electionsContractAddress);
 }

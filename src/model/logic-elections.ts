@@ -4,9 +4,8 @@ import * as Logger from '../logger';
 const MAX_STANDBYS = 5; // in future, can be taken from the MaxStandbysChanged event
 
 export function shouldNotifyReadyToSync(state: State, config: EthereumElectionsParams): boolean {
-  if (state.EthereumWriteStatus != 'operational') return false;
+  if (state.EthereumSyncStatus != 'operational') return false;
 
-  // node is deployed, not in topology and does not have a non-stale RTS in place
   if (
     !(state.ManagementIsStandby || state.ManagementInCommittee) &&
     (isUpdateStale(state, config) || isStandbyAvailable(state, config)) &&
@@ -18,7 +17,6 @@ export function shouldNotifyReadyToSync(state: State, config: EthereumElectionsP
     return true;
   }
 
-  // audit only node, in sync that want to keep its position in the standby
   if (
     config.ElectionsAuditOnly &&
     state.ManagementIsStandby &&
@@ -35,11 +33,10 @@ export function shouldNotifyReadyToSync(state: State, config: EthereumElectionsP
 }
 
 export function shouldNotifyReadyForCommittee(state: State, config: EthereumElectionsParams): boolean {
-  if (state.EthereumWriteStatus != 'operational') return false;
+  if (state.EthereumSyncStatus != 'operational') return false;
   if (config.ElectionsAuditOnly) return false;
   if (state.VchainSyncStatus != 'in-sync') return false;
 
-  // node that the world thinks is not ready for committee, and is now ready
   if (
     !state.ManagementInCommittee &&
     (!state.ManagementMyElectionStatus || state.ManagementMyElectionStatus.ReadyForCommittee == false)
@@ -50,7 +47,6 @@ export function shouldNotifyReadyForCommittee(state: State, config: EthereumElec
     return true;
   }
 
-  // consensus node refresh - in standby, in sync and stale
   if (
     state.ManagementIsStandby &&
     state.ManagementMyElectionStatus &&

@@ -10,6 +10,8 @@ export const exampleConfig: Configuration = {
   RunLoopPollTimeSeconds: 1,
   VchainMetricsPollTimeSeconds: 1,
   VchainReputationsPollTimeSeconds: 1,
+  EthereumBalancePollTimeSeconds: 1,
+  EthereumPendingTxPollTimeSeconds: 1,
   OrbsReputationsContract: 'MockCommittee',
   VchainUptimeRequiredSeconds: 2,
   VchainSyncThresholdSeconds: 5 * 60,
@@ -18,5 +20,7 @@ export const exampleConfig: Configuration = {
   FailToSyncVcsTimeoutSeconds: 24 * 60 * 60,
   ElectionsStaleUpdateSeconds: 7 * 24 * 60 * 60,
   ElectionsRefreshWindowSeconds: 2 * 60 * 60,
+  InvalidReputationGraceSeconds: 6 * 60 * 60,
+  VoteOutValiditySeconds: 7 * 24 * 60 * 60,
   ElectionsAuditOnly: false,
 };

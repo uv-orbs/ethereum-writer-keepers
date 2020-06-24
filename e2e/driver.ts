@@ -6,7 +6,7 @@ import { exec as execPromise } from 'child-process-promise';
 import { retry } from 'ts-retry-promise';
 import { join } from 'path';
 import { sleep } from '../src/helpers';
-import HDWalletProvider from '@truffle/hdwallet-provider';
+import HDWalletProvider from 'truffle-hdwallet-provider';
 import Web3 from 'web3';
 import { Driver as EthereumPosDriver } from '@orbs-network/orbs-ethereum-contracts-v2';
 import BN from 'bn.js';
@@ -31,6 +31,8 @@ export class TestEnvironment {
       RunLoopPollTimeSeconds: 1,
       VchainMetricsPollTimeSeconds: 1,
       VchainReputationsPollTimeSeconds: 1,
+      EthereumBalancePollTimeSeconds: 1,
+      EthereumPendingTxPollTimeSeconds: 1,
       OrbsReputationsContract: 'MockCommittee',
       VchainUptimeRequiredSeconds: 2,
       VchainSyncThresholdSeconds: 5 * 60,
@@ -39,6 +41,8 @@ export class TestEnvironment {
       FailToSyncVcsTimeoutSeconds: 24 * 60 * 60,
       ElectionsStaleUpdateSeconds: 7 * 24 * 60 * 60,
       ElectionsRefreshWindowSeconds: 2 * 60 * 60,
+      InvalidReputationGraceSeconds: 6 * 60 * 60,
+      VoteOutValiditySeconds: 7 * 24 * 60 * 60,
       ElectionsAuditOnly: false,
     };
   }

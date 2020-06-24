@@ -1,7 +1,7 @@
 import test from 'ava';
 import { State } from './state';
 import { getCurrentClockTime } from '../helpers';
-import { calcVchainSyncStatus } from './statemachine-vcsync';
+import { calcVchainSyncStatus } from './logic-vcsync';
 import { exampleConfig } from '../config.example';
 
 // example state reflects all vcs in sync

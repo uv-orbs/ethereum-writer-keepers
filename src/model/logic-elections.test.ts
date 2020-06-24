@@ -1,13 +1,13 @@
 import test from 'ava';
 import { State } from './state';
-import { shouldNotifyReadyToSync, shouldNotifyReadyForCommittee } from './selectors-elections';
+import { shouldNotifyReadyToSync, shouldNotifyReadyForCommittee } from './logic-elections';
 import { exampleConfig } from '../config.example';
 import { getCurrentClockTime } from '../helpers';
 
 // example state reflects operational eth state and standbys full (5) and not stale
 function getExampleState() {
   const exampleState = new State();
-  exampleState.EthereumWriteStatus = 'operational';
+  exampleState.EthereumSyncStatus = 'operational';
   exampleState.ManagementRefTime = getCurrentClockTime() - 3 * 60;
   exampleState.ManagementCurrentStandbys = [
     { EthAddress: 's1' },
@@ -114,16 +114,16 @@ test('shouldNotifyReadyToSync: only when ethereum state is operational', (t) => 
   state.VchainSyncStatus = 'exist-not-in-sync';
   t.true(shouldNotifyReadyToSync(state, exampleConfig));
 
-  state.EthereumWriteStatus = 'out-of-sync';
+  state.EthereumSyncStatus = 'out-of-sync';
   t.false(shouldNotifyReadyToSync(state, exampleConfig));
 
-  state.EthereumWriteStatus = 'tx-pending';
+  state.EthereumSyncStatus = 'tx-pending';
   t.false(shouldNotifyReadyToSync(state, exampleConfig));
 
-  state.EthereumWriteStatus = 'need-reset';
+  state.EthereumSyncStatus = 'need-reset';
   t.false(shouldNotifyReadyToSync(state, exampleConfig));
 
-  state.EthereumWriteStatus = 'operational';
+  state.EthereumSyncStatus = 'operational';
   t.true(shouldNotifyReadyToSync(state, exampleConfig));
 });
 
@@ -216,15 +216,15 @@ test('shouldNotifyReadyForCommittee: only when ethereum state is operational', (
   };
   t.true(shouldNotifyReadyForCommittee(state, exampleConfig));
 
-  state.EthereumWriteStatus = 'out-of-sync';
+  state.EthereumSyncStatus = 'out-of-sync';
   t.false(shouldNotifyReadyForCommittee(state, exampleConfig));
 
-  state.EthereumWriteStatus = 'tx-pending';
+  state.EthereumSyncStatus = 'tx-pending';
   t.false(shouldNotifyReadyForCommittee(state, exampleConfig));
 
-  state.EthereumWriteStatus = 'need-reset';
+  state.EthereumSyncStatus = 'need-reset';
   t.false(shouldNotifyReadyForCommittee(state, exampleConfig));
 
-  state.EthereumWriteStatus = 'operational';
+  state.EthereumSyncStatus = 'operational';
   t.true(shouldNotifyReadyForCommittee(state, exampleConfig));
 });

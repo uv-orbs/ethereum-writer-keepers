@@ -17,8 +17,8 @@ export async function readManagementStatus(endpoint: string, myOrbsAddress: stri
   state.ManagementCurrentStandbys = response.Payload.CurrentStandbys;
 
   const myEthAddress = findEthFromOrbsAddress(myOrbsAddress, state);
-  state.ManagementInCommittee = response.Payload.CurrentCommittee.some((n) => n.EthAddress == myEthAddress);
-  state.ManagementIsStandby = response.Payload.CurrentStandbys.some((n) => n.EthAddress == myEthAddress);
+  state.ManagementInCommittee = response.Payload.CurrentCommittee.some((node) => node.EthAddress == myEthAddress);
+  state.ManagementIsStandby = response.Payload.CurrentStandbys.some((node) => node.EthAddress == myEthAddress);
   state.ManagementMyElectionStatus = response.Payload.CurrentElectionsStatus[myEthAddress];
   state.ManagementOthersElectionStatus = response.Payload.CurrentElectionsStatus;
   delete state.ManagementOthersElectionStatus[myEthAddress];
