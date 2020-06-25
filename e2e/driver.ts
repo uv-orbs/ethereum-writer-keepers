@@ -171,14 +171,15 @@ export class TestEnvironment {
   }
 
   // inspired by https://github.com/applitools/docker-compose-mocha/blob/master/lib/get-logs-for-service.js
-  async catFileInService(serviceName: string, filePath: string) {
+  async catJsonInService(serviceName: string, filePath: string) {
     return await retry(
       async () => {
-        return (
+        const data = (
           await execPromise(
             `docker-compose -p ${this.envName} -f "${this.pathToDockerCompose}" exec -T ${serviceName} cat "${filePath}"`
           )
         ).stdout;
+        return JSON.parse(data);
       },
       { retries: 10, delay: 300 }
     );

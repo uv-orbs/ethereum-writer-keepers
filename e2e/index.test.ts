@@ -2,7 +2,14 @@ import test from 'ava';
 import { TestEnvironment } from './driver';
 import { join } from 'path';
 import { sleep } from '../src/helpers';
-import { deepDataMatcher, isValidEtherBalance, isPositiveNumber, isValidTimeRef, isValidBlock } from './deep-matcher';
+import {
+  deepDataMatcher,
+  isValidEtherBalance,
+  isPositiveNumber,
+  isValidTimeRef,
+  isValidBlock,
+  isNonEmptyString,
+} from './deep-matcher';
 
 const driver = new TestEnvironment(join(__dirname, 'docker-compose.yml'));
 driver.launchServices();
@@ -14,7 +21,7 @@ test.serial('[E2E] launches with one vchain out of sync -> sends ready-to-sync',
 
   await sleep(1000);
 
-  const status = JSON.parse(await driver.catFileInService('app', '/opt/orbs/status/status.json'));
+  const status = await driver.catJsonInService('app', '/opt/orbs/status/status.json');
   t.log('status:', JSON.stringify(status, null, 2));
 
   const errors = deepDataMatcher(status.Payload, {
@@ -82,7 +89,7 @@ test.serial('[E2E] all vchains synced -> sends ready-for-committee', async (t) =
   await driver.fetch('vchain-43', 8080, 'change-mock-state/synced');
   await sleep(3000);
 
-  const status = JSON.parse(await driver.catFileInService('app', '/opt/orbs/status/status.json'));
+  const status = await driver.catJsonInService('app', '/opt/orbs/status/status.json');
   t.log('status:', JSON.stringify(status, null, 2));
 
   const errors = deepDataMatcher(status.Payload, {
@@ -148,9 +155,9 @@ test.serial('[E2E] enter committee -> sends vote out for bad rep', async (t) => 
 
   t.log('telling mock to start showing the node in the committee');
   await driver.fetch('management-service', 8080, 'change-mock-state/in-committee');
-  await sleep(3000);
+  await sleep(4000);
 
-  const status = JSON.parse(await driver.catFileInService('app', '/opt/orbs/status/status.json'));
+  const status = await driver.catJsonInService('app', '/opt/orbs/status/status.json');
   t.log('status:', JSON.stringify(status, null, 2));
 
   const errors = deepDataMatcher(status.Payload, {
@@ -160,14 +167,24 @@ test.serial('[E2E] enter committee -> sends vote out for bad rep', async (t) => 
     EthereumBalanceLastPollTime: isValidTimeRef,
     EtherBalance: isValidEtherBalance,
     EthereumLastElectionsTx: {
+      LastPollTime: isValidTimeRef,
       Type: 'ready-for-committee',
       SendTime: isValidTimeRef,
+      Status: 'final',
+      TxHash: isNonEmptyString,
+      EthBlock: isValidBlock,
     },
     EthereumLastVoteOutTx: {
+      LastPollTime: isValidTimeRef,
       Type: 'vote-out',
       SendTime: isValidTimeRef,
+      Status: 'final',
+      TxHash: isNonEmptyString,
+      EthBlock: isValidBlock,
     },
-    EthereumLastVoteOutTime: {},
+    EthereumLastVoteOutTime: {
+      e16e965a4cc3fcd597ecdb9cd9ab8f3e6a750ac9: isValidTimeRef,
+    },
     VchainReputationsLastPollTime: isValidTimeRef,
     VchainReputations: {
       '42': {
