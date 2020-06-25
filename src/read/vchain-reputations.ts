@@ -35,15 +35,15 @@ function getEndpoint(virtualChainId: string, endpointSchema: string) {
 
 export function getOrbsClient(virtualChainId: string, endpointSchema: string, state: State) {
   // create client if needed (cached)
-  if (!state.OrbsClientPerVchain[virtualChainId]) {
-    state.OrbsClientPerVchain[virtualChainId] = new Orbs.Client(
+  if (!state.orbsClientPerVchain[virtualChainId]) {
+    state.orbsClientPerVchain[virtualChainId] = new Orbs.Client(
       getEndpoint(virtualChainId, endpointSchema),
       parseInt(virtualChainId),
       Orbs.NetworkType.NETWORK_TYPE_MAIN_NET,
-      new Orbs.LocalSigner(state.OrbsAccount)
+      new Orbs.LocalSigner(state.orbsAccount)
     );
   }
-  return state.OrbsClientPerVchain[virtualChainId];
+  return state.orbsClientPerVchain[virtualChainId];
 }
 
 async function fetchVchainReputations(client: Orbs.Client, contractName: string): Promise<VchainReputations> {

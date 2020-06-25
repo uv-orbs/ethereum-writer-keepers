@@ -2,82 +2,225 @@ import test from 'ava';
 import { TestEnvironment } from './driver';
 import { join } from 'path';
 import { sleep } from '../src/helpers';
+import { deepDataMatcher, isValidEtherBalance, isPositiveNumber, isValidTimeRef, isValidBlock } from './deep-matcher';
 
 const driver = new TestEnvironment(join(__dirname, 'docker-compose.yml'));
 driver.launchServices();
 
-test.serial('[E2E] app updates Timestamp, Status, Error in status.json', async (t) => {
+test.serial('[E2E] launches with one vchain out of sync -> sends ready-to-sync', async (t) => {
   t.log('started');
   driver.testLogger = t.log;
   t.timeout(60 * 1000);
 
-  const status1 = JSON.parse(await driver.catFileInService('app', '/opt/orbs/status/status.json'));
-  await sleep(2000);
-  const status2 = JSON.parse(await driver.catFileInService('app', '/opt/orbs/status/status.json'));
-
-  t.log('status1:', JSON.stringify(status1, null, 2));
-  t.log('status2:', JSON.stringify(status2, null, 2));
-
-  t.assert(new Date().getTime() - new Date(status2.Timestamp).getTime() < 10000);
-  t.assert(status2.Status.includes('EtherBalance ='));
-  t.falsy(status2.Error);
-  t.not(status1.Timestamp, status2.Timestamp);
-});
-
-test.serial('[E2E] app updates NumVirtualChains in status.json', async (t) => {
-  t.log('started');
-  driver.testLogger = t.log;
-  t.timeout(60 * 1000);
+  await sleep(1000);
 
   const status = JSON.parse(await driver.catFileInService('app', '/opt/orbs/status/status.json'));
-
   t.log('status:', JSON.stringify(status, null, 2));
 
-  t.is(status.Payload.NumVirtualChains, 1);
-});
+  const errors = deepDataMatcher(status.Payload, {
+    Uptime: isPositiveNumber,
+    EthereumSyncStatus: 'operational',
+    VchainSyncStatus: 'exist-not-in-sync',
+    EthereumBalanceLastPollTime: isValidTimeRef,
+    EtherBalance: isValidEtherBalance,
+    EthereumLastElectionsTx: {
+      Type: 'ready-to-sync',
+      SendTime: isValidTimeRef,
+    },
+    EthereumLastVoteOutTime: {},
+    VchainReputationsLastPollTime: isValidTimeRef,
+    VchainReputations: {
+      '42': {
+        '1111111111111111111111111111111111111111': 2,
+        '86544bdd6c8b957cd198252c45fa215fc3892126': 6,
+        '2222222222222222222222222222222222222222': 1,
+      },
+      '43': {},
+    },
+    VchainMetricsLastPollTime: isValidTimeRef,
+    VchainMetrics: {
+      '42': {
+        LastBlockHeight: isValidBlock,
+        LastBlockTime: isValidTimeRef,
+        UptimeSeconds: isPositiveNumber,
+      },
+      '43': {
+        LastBlockHeight: isValidBlock,
+        LastBlockTime: isValidTimeRef,
+        UptimeSeconds: isPositiveNumber,
+      },
+    },
+    ManagementLastPollTime: isValidTimeRef,
+    ManagementEthRefBlock: 3454,
+    ManagementInCommittee: false,
+    ManagementIsStandby: false,
+    ManagementMyElectionStatus: {
+      LastUpdateTime: isValidTimeRef,
+      ReadyToSync: false,
+      ReadyForCommittee: false,
+    },
+    TimeEnteredStandbyWithoutVcSync: 0,
+    TimeEnteredBadReputation: {},
+  });
+  t.deepEqual(errors, []);
 
-test.serial('[E2E] app updates EtherBalance in status.json', async (t) => {
-  t.log('started');
-  driver.testLogger = t.log;
-  t.timeout(60 * 1000);
-
-  const status = JSON.parse(await driver.catFileInService('app', '/opt/orbs/status/status.json'));
-
-  t.log('status:', JSON.stringify(status, null, 2));
-
-  t.assert(status.Payload.EtherBalance.startsWith('99'));
-});
-
-test.serial('[E2E] app sends vote out Ethereum transactions', async (t) => {
-  t.log('started');
-  driver.testLogger = t.log;
-  t.timeout(60 * 1000);
-
-  const events = await driver.ethereumPosDriver.elections.web3Contract.getPastEvents('BanningVote');
-
+  const events = await driver.ethereumPosDriver.elections.web3Contract.getPastEvents('ValidatorStatusUpdated');
   t.log('events:', JSON.stringify(events, null, 2));
 
-  t.assert(events.length > 0);
-  t.is(events[0].returnValues.voter, driver.nodeOrbsAddress);
-  t.deepEqual(events[0].returnValues.against, ['0x11f4d0A3c12e86B4b5F39B213F7E19D048276DAe']);
+  t.assert(events.length == 1);
+  t.is(events[0].returnValues.addr.toLowerCase(), '0x29ce860a2247d97160d6dfc087a15f41e2349087');
+  t.is(events[0].returnValues.readyToSync, true);
+  t.is(events[0].returnValues.readyForCommittee, false);
 });
 
-test.serial('[E2E] app queries Orbs contract', async (t) => {
+test.serial('[E2E] all vchains synced -> sends ready-for-committee', async (t) => {
   t.log('started');
   driver.testLogger = t.log;
   t.timeout(60 * 1000);
 
-  // await driver.gammaDriver.incrementCounter();
-  // await driver.gammaDriver.incrementCounter();
-  // await sleep(2000);
-  const status = JSON.parse(await driver.catFileInService('app', '/opt/orbs/status/status.json'));
+  t.log('telling mock to start showing vchain-43 as synced');
+  await driver.fetch('vchain-43', 8080, 'change-mock-state/synced');
+  await sleep(3000);
 
+  const status = JSON.parse(await driver.catFileInService('app', '/opt/orbs/status/status.json'));
   t.log('status:', JSON.stringify(status, null, 2));
 
-  t.deepEqual(status.Payload.VchainReputations, {
-    '42': {
-      '1111111111111111111111111111111111111111': 3,
-      '2222222222222222222222222222222222222222': 4,
+  const errors = deepDataMatcher(status.Payload, {
+    Uptime: isPositiveNumber,
+    EthereumSyncStatus: 'operational',
+    VchainSyncStatus: 'in-sync',
+    EthereumBalanceLastPollTime: isValidTimeRef,
+    EtherBalance: isValidEtherBalance,
+    EthereumLastElectionsTx: {
+      Type: 'ready-for-committee',
+      SendTime: isValidTimeRef,
+    },
+    EthereumLastVoteOutTime: {},
+    VchainReputationsLastPollTime: isValidTimeRef,
+    VchainReputations: {
+      '42': {
+        '1111111111111111111111111111111111111111': 2,
+        '86544bdd6c8b957cd198252c45fa215fc3892126': 6,
+        '2222222222222222222222222222222222222222': 1,
+      },
+      '43': {},
+    },
+    VchainMetricsLastPollTime: isValidTimeRef,
+    VchainMetrics: {
+      '42': {
+        LastBlockHeight: isValidBlock,
+        LastBlockTime: isValidTimeRef,
+        UptimeSeconds: isPositiveNumber,
+      },
+      '43': {
+        LastBlockHeight: isValidBlock,
+        LastBlockTime: isValidTimeRef,
+        UptimeSeconds: isPositiveNumber,
+      },
+    },
+    ManagementLastPollTime: isValidTimeRef,
+    ManagementEthRefBlock: 3454,
+    ManagementInCommittee: false,
+    ManagementIsStandby: false,
+    ManagementMyElectionStatus: {
+      LastUpdateTime: isValidTimeRef,
+      ReadyToSync: false,
+      ReadyForCommittee: false,
+    },
+    TimeEnteredStandbyWithoutVcSync: 0,
+    TimeEnteredBadReputation: {},
+  });
+  t.deepEqual(errors, []);
+
+  const events = await driver.ethereumPosDriver.elections.web3Contract.getPastEvents('ValidatorStatusUpdated');
+  t.log('last event:', JSON.stringify(events, null, 2));
+
+  t.assert(events.length == 1);
+  t.is(events[0].returnValues.addr.toLowerCase(), '0x29ce860a2247d97160d6dfc087a15f41e2349087');
+  t.is(events[0].returnValues.readyToSync, true);
+  t.is(events[0].returnValues.readyForCommittee, true);
+});
+
+test.serial('[E2E] enter committee -> sends vote out for bad rep', async (t) => {
+  t.log('started');
+  driver.testLogger = t.log;
+  t.timeout(60 * 1000);
+
+  t.log('telling mock to start showing the node in the committee');
+  await driver.fetch('management-service', 8080, 'change-mock-state/in-committee');
+  await sleep(3000);
+
+  const status = JSON.parse(await driver.catFileInService('app', '/opt/orbs/status/status.json'));
+  t.log('status:', JSON.stringify(status, null, 2));
+
+  const errors = deepDataMatcher(status.Payload, {
+    Uptime: isPositiveNumber,
+    EthereumSyncStatus: 'operational',
+    VchainSyncStatus: 'in-sync',
+    EthereumBalanceLastPollTime: isValidTimeRef,
+    EtherBalance: isValidEtherBalance,
+    EthereumLastElectionsTx: {
+      Type: 'ready-for-committee',
+      SendTime: isValidTimeRef,
+    },
+    EthereumLastVoteOutTx: {
+      Type: 'vote-out',
+      SendTime: isValidTimeRef,
+    },
+    EthereumLastVoteOutTime: {},
+    VchainReputationsLastPollTime: isValidTimeRef,
+    VchainReputations: {
+      '42': {
+        '1111111111111111111111111111111111111111': 2,
+        '86544bdd6c8b957cd198252c45fa215fc3892126': 6,
+        '2222222222222222222222222222222222222222': 1,
+      },
+      '43': {},
+    },
+    VchainMetricsLastPollTime: isValidTimeRef,
+    VchainMetrics: {
+      '42': {
+        LastBlockHeight: isValidBlock,
+        LastBlockTime: isValidTimeRef,
+        UptimeSeconds: isPositiveNumber,
+      },
+      '43': {
+        LastBlockHeight: isValidBlock,
+        LastBlockTime: isValidTimeRef,
+        UptimeSeconds: isPositiveNumber,
+      },
+    },
+    ManagementLastPollTime: isValidTimeRef,
+    ManagementEthRefBlock: 3454,
+    ManagementInCommittee: true,
+    ManagementIsStandby: false,
+    ManagementMyElectionStatus: {
+      LastUpdateTime: isValidTimeRef,
+      ReadyToSync: false,
+      ReadyForCommittee: false,
+    },
+    TimeEnteredStandbyWithoutVcSync: 0,
+    TimeEnteredBadReputation: {
+      '8a670ddc1910c27278ab7db2a148a0dccc6bf0f5': {
+        '42': 0,
+        '43': 0,
+      },
+      e16e965a4cc3fcd597ecdb9cd9ab8f3e6a750ac9: {
+        '42': isValidTimeRef,
+        '43': 0,
+      },
+      '29ce860a2247d97160d6dfc087a15f41e2349087': {
+        '42': 0,
+        '43': 0,
+      },
     },
   });
+  t.deepEqual(errors, []);
+
+  const events = await driver.ethereumPosDriver.elections.web3Contract.getPastEvents('VoteOut');
+  t.log('last event:', JSON.stringify(events, null, 2));
+
+  t.assert(events.length == 1);
+  t.is(events[0].returnValues.voter.toLowerCase(), '0x29ce860a2247d97160d6dfc087a15f41e2349087');
+  t.is(events[0].returnValues.against.toLowerCase(), '0xe16e965a4cc3fcd597ecdb9cd9ab8f3e6a750ac9');
 });

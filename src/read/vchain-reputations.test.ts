@@ -28,7 +28,7 @@ function getExampleState() {
 test('gets Orbs client', (t) => {
   const state = getExampleState();
   getOrbsClient('1000000', exampleVchainEndpointSchema, state);
-  t.assert(state.OrbsClientPerVchain['1000000']);
+  t.assert(state.orbsClientPerVchain['1000000']);
 });
 
 function getMockOrbsClient(result = Orbs.ExecutionResult.EXECUTION_RESULT_SUCCESS) {
@@ -45,8 +45,8 @@ function getMockOrbsClient(result = Orbs.ExecutionResult.EXECUTION_RESULT_SUCCES
 
 test('reads data from valid VchainReputations', async (t) => {
   const state = getExampleState();
-  state.OrbsClientPerVchain['1000000'] = (getMockOrbsClient() as unknown) as Orbs.Client;
-  state.OrbsClientPerVchain['1000001'] = (getMockOrbsClient() as unknown) as Orbs.Client;
+  state.orbsClientPerVchain['1000000'] = (getMockOrbsClient() as unknown) as Orbs.Client;
+  state.orbsClientPerVchain['1000001'] = (getMockOrbsClient() as unknown) as Orbs.Client;
   await readAllVchainReputations(exampleVchainEndpointSchema, 'bla', state);
 
   t.log('state:', jsonStringifyComplexTypes(state));
@@ -59,10 +59,10 @@ test('reads data from valid VchainReputations', async (t) => {
 
 test('invalid VchainReputations response from first vchain', async (t) => {
   const state = getExampleState();
-  state.OrbsClientPerVchain['1000000'] = (getMockOrbsClient(
+  state.orbsClientPerVchain['1000000'] = (getMockOrbsClient(
     Orbs.ExecutionResult.EXECUTION_RESULT_ERROR_UNEXPECTED
   ) as unknown) as Orbs.Client;
-  state.OrbsClientPerVchain['1000001'] = (getMockOrbsClient() as unknown) as Orbs.Client;
+  state.orbsClientPerVchain['1000001'] = (getMockOrbsClient() as unknown) as Orbs.Client;
   await readAllVchainReputations(exampleVchainEndpointSchema, 'bla', state);
 
   t.log('state:', jsonStringifyComplexTypes(state));

@@ -4,6 +4,12 @@ import { Configuration } from './config';
 import { State } from './model/state';
 import { writeStatusToDisk } from './write/status';
 import { readManagementStatus } from './read/management';
+import { readAllVchainReputations } from './read/vchain-reputations';
+import { readAllVchainMetrics } from './read/vchain-metrics';
+import { calcVchainSyncStatus } from './model/logic-vcsync';
+import { calcEthereumSyncStatus } from './model/logic-ethsync';
+import { shouldNotifyReadyForCommittee, shouldNotifyReadyToSync } from './model/logic-elections';
+import { getAllValidatorsToVoteOut } from './model/logic-voteout';
 import {
   readEtherBalance,
   initWeb3Client,
@@ -11,13 +17,6 @@ import {
   sendEthereumElectionsTransaction,
   sendEthereumVoteOutTransaction,
 } from './write/ethereum';
-import { OLDinitWeb3Client, OLDsendEthereumVoteOutTransaction } from './write/old-ethereum';
-import { readAllVchainReputations } from './read/vchain-reputations';
-import { readAllVchainMetrics } from './read/vchain-metrics';
-import { calcVchainSyncStatus } from './model/logic-vcsync';
-import { calcEthereumSyncStatus } from './model/logic-ethsync';
-import { shouldNotifyReadyForCommittee, shouldNotifyReadyToSync } from './model/logic-elections';
-import { getAllValidatorsToVoteOut } from './model/logic-voteout';
 
 // runs every 10 seconds in prod, 1 second in tests
 async function runLoopTick(config: Configuration, state: State) {
@@ -79,26 +78,22 @@ async function runLoopTick(config: Configuration, state: State) {
 
   // send ready-to-sync / ready-for-comittee if needed, we don't mind checking this often (10s)
   if (shouldNotifyReadyForCommittee(state, config)) {
+    Logger.log(`Decided to send ready-for-committee.`);
     await sendEthereumElectionsTransaction('ready-for-committee', config.NodeOrbsAddress, state);
   } else if (shouldNotifyReadyToSync(state, config)) {
+    Logger.log(`Decided to send ready-to-sync.`);
     await sendEthereumElectionsTransaction('ready-to-sync', config.NodeOrbsAddress, state);
   }
 
   // send vote outs if needed, we don't mind checking this often (10s)
   const toVoteOut = getAllValidatorsToVoteOut(state, config);
   if (toVoteOut.length > 0) {
+    Logger.log(`Decided to send vote outs against validators: ${toVoteOut.map((n) => n.EthAddress)}.`);
     await sendEthereumVoteOutTransaction(toVoteOut, config.NodeOrbsAddress, state);
   }
 
-  // TODO: remove
-  await OLDsendEthereumVoteOutTransaction(
-    ['0x11f4d0A3c12e86B4b5F39B213F7E19D048276DAe'],
-    config.NodeOrbsAddress,
-    state
-  );
-
   // write status.json file, we don't mind doing this often (10s)
-  writeStatusToDisk(config.StatusJsonPath, state);
+  writeStatusToDisk(config.StatusJsonPath, state, config);
 }
 
 export async function runLoop(config: Configuration) {
@@ -117,6 +112,5 @@ export async function runLoop(config: Configuration) {
 function initializeState(config: Configuration): State {
   const state = new State();
   initWeb3Client(config.EthereumEndpoint, config.EthereumElectionsContract, state);
-  OLDinitWeb3Client(config, state);
   return state;
 }

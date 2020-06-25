@@ -6,7 +6,7 @@ export function calcEthereumSyncStatus(state: State, config: EthereumWriteStatus
   if (state.EthereumSyncStatus == 'need-reset') return 'need-reset'; // stuck until node reset
   if (!isEthValid(state, config)) return 'out-of-sync';
   if (isAnyTxReverted(state)) return 'need-reset';
-  if (isVotedOut(state)) return 'need-reset';
+  if (isNewlyVotedOut(state)) return 'need-reset';
   if (isFailedToSyncVcs(state, config)) return 'need-reset';
   if (isAnyTxPending(state)) return 'tx-pending';
   return 'operational';
@@ -25,12 +25,12 @@ function isEthValid(state: State, config: EthereumWriteStatusParams): boolean {
   return true;
 }
 
-function isVotedOut(state: State): boolean {
-  if (state.ManagementMyElectionStatus?.ReadyToSync === false) {
-    Logger.error(`Found that we have been voted out since RTS is false, reset needed!`);
-    return true;
-  }
-  return false;
+function isNewlyVotedOut(state: State): boolean {
+  if (!state.ManagementMyElectionStatus) return false;
+  if (state.ManagementMyElectionStatus.ReadyToSync != false) return false;
+  if (state.ServiceLaunchTime > state.ManagementMyElectionStatus.LastUpdateTime) return false;
+  Logger.error(`Found that we have been newly voted out since RTS is false, reset needed!`);
+  return true;
 }
 
 function isFailedToSyncVcs(state: State, config: EthereumWriteStatusParams): boolean {

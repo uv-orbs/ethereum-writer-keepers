@@ -5,6 +5,7 @@ import { exec } from 'child_process';
 import { exec as execPromise } from 'child-process-promise';
 import { retry } from 'ts-retry-promise';
 import { join } from 'path';
+import fetch from 'node-fetch';
 import { sleep } from '../src/helpers';
 import HDWalletProvider from 'truffle-hdwallet-provider';
 import Web3 from 'web3';
@@ -42,7 +43,7 @@ export class TestEnvironment {
       FailToSyncVcsTimeoutSeconds: 24 * 60 * 60,
       ElectionsStaleUpdateSeconds: 7 * 24 * 60 * 60,
       ElectionsRefreshWindowSeconds: 2 * 60 * 60,
-      InvalidReputationGraceSeconds: 6 * 60 * 60,
+      InvalidReputationGraceSeconds: 1, // so we send vote outs quickly
       VoteOutValiditySeconds: 7 * 24 * 60 * 60,
       ElectionsAuditOnly: false,
     };
@@ -53,13 +54,13 @@ export class TestEnvironment {
     test.serial.before((t) => t.log('[E2E] driver launchServices() start'));
 
     // step 1 - launch ganache, management-service mock and gamma dockers
-    test.serial.before((t) => t.log('[E2E] launch ganache, management-service, vchain-42 dockers'));
+    test.serial.before((t) => t.log('[E2E] launch ganache, signer, management-service, vchain-42, vchain-43 dockers'));
     this.envName = dockerComposeTool(
       test.serial.before.bind(test.serial),
       test.serial.after.always.bind(test.serial.after),
       this.pathToDockerCompose,
       {
-        startOnlyTheseServices: ['ganache', 'signer', 'management-service', 'vchain-42'],
+        startOnlyTheseServices: ['ganache', 'signer', 'management-service', 'vchain-42', 'vchain-43'],
         containerCleanUp: false,
       } as any
     );
@@ -95,8 +96,13 @@ export class TestEnvironment {
       const stake = new BN(1000);
       await validator.stake(stake);
       await validator.registerAsValidator();
-      this.nodeOrbsAddress = validator.address;
+      this.nodeOrbsAddress = validator.orbsAddress;
       console.log(`[posv2] driver.nodeOrbsAddress = ${this.nodeOrbsAddress}`);
+      const peer = this.ethereumPosDriver.newParticipant();
+      await peer.stake(stake);
+      await peer.registerAsValidator();
+      await peer.notifyReadyForCommittee();
+      console.log(`[posv2] peer ethAddress for vote outs = ${peer.address}`);
     });
 
     // step 4 - deploy Orbs contracts to gamma
@@ -173,6 +179,22 @@ export class TestEnvironment {
             `docker-compose -p ${this.envName} -f "${this.pathToDockerCompose}" exec -T ${serviceName} cat "${filePath}"`
           )
         ).stdout;
+      },
+      { retries: 10, delay: 300 }
+    );
+  }
+
+  async fetch(serviceName: string, port: number, path: string) {
+    const addr = await getAddressForService(this.envName, this.pathToDockerCompose, serviceName, port);
+    return await retry(
+      async () => {
+        const response = await fetch(`http://${addr}/${path}`);
+        const body = await response.text();
+        try {
+          return JSON.parse(body);
+        } catch (e) {
+          throw new Error(`invalid response: \n${body}`);
+        }
       },
       { retries: 10, delay: 300 }
     );

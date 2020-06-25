@@ -1,0 +1,9 @@
+FROM node:12-alpine
+
+COPY vchain-43/*.json ./
+COPY vchain-43/*.js ./
+
+RUN npm install
+
+CMD [ "node", "index.js" ]
+EXPOSE 8080

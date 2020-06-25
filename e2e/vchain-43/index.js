@@ -5,16 +5,11 @@ const port = 8080;
 
 let mockState = 'init';
 
-app.get('/status', (req, res) => {
-  const data = JSON.parse(fs.readFileSync('./status1.json'));
+app.get('/metrics', (req, res) => {
+  const data = JSON.parse(fs.readFileSync('./metrics1.json'));
 
-  data.Payload.CurrentRefTime = getCurrentClockTime() - 600;
-  
-  if (mockState == 'in-committee') {
-    data.Payload.CurrentCommittee.push({
-      EthAddress: '29ce860a2247d97160d6dfc087a15f41e2349087',
-      Weight: 20000,
-    });
+  if (mockState == 'synced') {
+    data['BlockStorage.LastCommitted.TimeNano'].Value = getCurrentClockTime() * 1e9;
   }
   
   res.send(JSON.stringify(data));
@@ -26,7 +21,7 @@ app.get('/change-mock-state/:state', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-app.listen(port, () => console.log('Mock management-service started.'));
+app.listen(port, () => console.log('Mock vchain started.'));
 
 // returns UTC clock time in seconds (similar to unix timestamp / Ethereum block time / RefTime)
 function getCurrentClockTime() {

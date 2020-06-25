@@ -13,8 +13,8 @@ import { sleep } from '../helpers';
 test('initializes web3 and contracts', (t) => {
   const state = new State();
   initWeb3Client('http://ganache:7545', '0xf8B352100dE45D2668768290504DC89e85766E02', state);
-  t.assert(state.Web3);
-  t.assert(state.EthereumElectionsContract);
+  t.assert(state.web3);
+  t.assert(state.ethereumElectionsContract);
 });
 
 function getMockElectionsContract(successful = true) {
@@ -53,7 +53,7 @@ function getMockElectionsContract(successful = true) {
 
 test('sendEthereumElectionsTransaction ready-to-sync successful', async (t) => {
   const state = new State();
-  state.EthereumElectionsContract = (getMockElectionsContract() as unknown) as Contract;
+  state.ethereumElectionsContract = (getMockElectionsContract() as unknown) as Contract;
   await sendEthereumElectionsTransaction('ready-to-sync', 'sender', state);
 
   if (!state.EthereumLastElectionsTx) throw new Error(`EthereumLastElectionsTx not defined`);
@@ -68,7 +68,7 @@ test('sendEthereumElectionsTransaction ready-to-sync successful', async (t) => {
 
 test('sendEthereumElectionsTransaction ready-for-committee successful', async (t) => {
   const state = new State();
-  state.EthereumElectionsContract = (getMockElectionsContract() as unknown) as Contract;
+  state.ethereumElectionsContract = (getMockElectionsContract() as unknown) as Contract;
   await sendEthereumElectionsTransaction('ready-for-committee', 'sender', state);
 
   if (!state.EthereumLastElectionsTx) throw new Error(`EthereumLastElectionsTx not defined`);
@@ -83,7 +83,7 @@ test('sendEthereumElectionsTransaction ready-for-committee successful', async (t
 
 test('sendEthereumElectionsTransaction fails', async (t) => {
   const state = new State();
-  state.EthereumElectionsContract = (getMockElectionsContract(false) as unknown) as Contract;
+  state.ethereumElectionsContract = (getMockElectionsContract(false) as unknown) as Contract;
   await t.throwsAsync(async () => {
     await sendEthereumElectionsTransaction('ready-to-sync', 'sender', state);
   });
@@ -93,7 +93,7 @@ test('sendEthereumElectionsTransaction fails', async (t) => {
 test('sendEthereumVoteOutTransaction successful', async (t) => {
   const state = new State();
   state.ManagementRefTime = 99999;
-  state.EthereumElectionsContract = (getMockElectionsContract() as unknown) as Contract;
+  state.ethereumElectionsContract = (getMockElectionsContract() as unknown) as Contract;
   await sendEthereumVoteOutTransaction([{ EthAddress: 'abc', Weight: 10 }], 'sender', state);
 
   if (!state.EthereumLastVoteOutTx) throw new Error(`EthereumLastElectionsTx not defined`);
@@ -111,14 +111,14 @@ test('sendEthereumVoteOutTransaction successful', async (t) => {
 
 test('sendEthereumVoteOutTransaction with no targets', async (t) => {
   const state = new State();
-  state.EthereumElectionsContract = (getMockElectionsContract() as unknown) as Contract;
+  state.ethereumElectionsContract = (getMockElectionsContract() as unknown) as Contract;
   await sendEthereumVoteOutTransaction([], 'sender', state);
   t.falsy(state.EthereumLastVoteOutTx);
 });
 
 test('sendEthereumVoteOutTransaction fails', async (t) => {
   const state = new State();
-  state.EthereumElectionsContract = (getMockElectionsContract(false) as unknown) as Contract;
+  state.ethereumElectionsContract = (getMockElectionsContract(false) as unknown) as Contract;
   await t.throwsAsync(async () => {
     await sendEthereumVoteOutTransaction([{ EthAddress: 'abc', Weight: 10 }], 'sender', state);
   });
@@ -160,7 +160,7 @@ function getExampleEthereumTxStatus(arr: number[]): EthereumTxStatus {
 
 test('readPendingTransactionStatus on pending tx that still has no txHash', async (t) => {
   const state = new State();
-  state.Web3 = (getMockWeb3Client(false, false) as unknown) as Web3;
+  state.web3 = (getMockWeb3Client(false, false) as unknown) as Web3;
   const arr: number[] = [];
   state.EthereumLastElectionsTx = getExampleEthereumTxStatus(arr);
   state.EthereumLastElectionsTx.TxHash = '';
@@ -172,7 +172,7 @@ test('readPendingTransactionStatus on pending tx that still has no txHash', asyn
 
 test('readPendingTransactionStatus on pending tx that has txHash but no block', async (t) => {
   const state = new State();
-  state.Web3 = (getMockWeb3Client(false, false) as unknown) as Web3;
+  state.web3 = (getMockWeb3Client(false, false) as unknown) as Web3;
   const arr: number[] = [];
   state.EthereumLastElectionsTx = getExampleEthereumTxStatus(arr);
   await readPendingTransactionStatus(state.EthereumLastElectionsTx, state);
@@ -184,7 +184,7 @@ test('readPendingTransactionStatus on pending tx that has txHash but no block', 
 
 test('readPendingTransactionStatus on pending tx that becomes committed in block', async (t) => {
   const state = new State();
-  state.Web3 = (getMockWeb3Client(true, false) as unknown) as Web3;
+  state.web3 = (getMockWeb3Client(true, false) as unknown) as Web3;
   const arr: number[] = [];
   state.EthereumLastElectionsTx = getExampleEthereumTxStatus(arr);
   await readPendingTransactionStatus(state.EthereumLastElectionsTx, state);
@@ -197,7 +197,7 @@ test('readPendingTransactionStatus on pending tx that becomes committed in block
 
 test('readPendingTransactionStatus on pending tx that becomes reverted in block', async (t) => {
   const state = new State();
-  state.Web3 = (getMockWeb3Client(true, true) as unknown) as Web3;
+  state.web3 = (getMockWeb3Client(true, true) as unknown) as Web3;
   const arr: number[] = [];
   state.EthereumLastElectionsTx = getExampleEthereumTxStatus(arr);
   await readPendingTransactionStatus(state.EthereumLastElectionsTx, state);
@@ -210,7 +210,7 @@ test('readPendingTransactionStatus on pending tx that becomes reverted in block'
 
 test('readPendingTransactionStatus on pending tx that has block but not final', async (t) => {
   const state = new State();
-  state.Web3 = (getMockWeb3Client(true, false) as unknown) as Web3;
+  state.web3 = (getMockWeb3Client(true, false) as unknown) as Web3;
   state.ManagementEthRefBlock = 100;
   const arr: number[] = [];
   state.EthereumLastElectionsTx = getExampleEthereumTxStatus(arr);
@@ -224,7 +224,7 @@ test('readPendingTransactionStatus on pending tx that has block but not final', 
 
 test('readPendingTransactionStatus on pending tx that becomes final', async (t) => {
   const state = new State();
-  state.Web3 = (getMockWeb3Client(true, false) as unknown) as Web3;
+  state.web3 = (getMockWeb3Client(true, false) as unknown) as Web3;
   state.ManagementEthRefBlock = 122;
   const arr: number[] = [];
   state.EthereumLastElectionsTx = getExampleEthereumTxStatus(arr);

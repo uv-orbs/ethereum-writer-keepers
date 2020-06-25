@@ -42,7 +42,14 @@
     },
     "CurrentVirtualChains": {
       "42": {
-        "Expiration": 1592409043,
+        "Expiration": 1602409043,
+        "GenesisRefTime": 1592409043,
+        "IdentityType": 0,
+        "RolloutGroup": "main",
+        "Tier": "defaultTier"
+      },
+      "43": {
+        "Expiration": 1602409043,
         "GenesisRefTime": 1592409043,
         "IdentityType": 0,
         "RolloutGroup": "main",
@@ -86,8 +93,8 @@
     "CurrentElectionsStatus": {
       "29ce860a2247d97160d6dfc087a15f41e2349087": {
         "LastUpdateTime": 1592409043,
-        "ReadyToSync": true,
-        "ReadyForCommittee": true
+        "ReadyToSync": false,
+        "ReadyForCommittee": false
       },
       "e16e965a4cc3fcd597ecdb9cd9ab8f3e6a750ac9": {
         "LastUpdateTime": 1592409043,
@@ -96,7 +103,7 @@
       },
       "51baa09f2f7dfc7a0f65886b68720958d389cac7": {
         "LastUpdateTime": 1592409043,
-        "ReadyToSync": true,
+        "ReadyToSync": false,
         "ReadyForCommittee": false
       },
       "8a670ddc1910c27278ab7db2a148a0dccc6bf0f5": {

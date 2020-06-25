@@ -1,9 +1,12 @@
 import Web3 from 'web3';
 import { Contract } from 'web3-eth-contract';
-import { Contracts } from '@orbs-network/orbs-ethereum-contracts-v2/release/typings/contracts';
 import * as Orbs from 'orbs-client-sdk';
+import { getCurrentClockTime } from '../helpers';
 
 export class State {
+  // not updated
+  ServiceLaunchTime = getCurrentClockTime(); // UTC seconds
+
   // updated by read/management.ts
   ManagementLastPollTime = 0; // UTC seconds
   ManagementRefTime = 0; // UTC seconds
@@ -37,24 +40,20 @@ export class State {
   EthereumSyncStatus: EthereumSyncStatusEnum = 'out-of-sync';
 
   // updated by model/logic-ethsync.ts
-  TimeEnteredStandbyWithoutVcSync = 0;
+  TimeEnteredStandbyWithoutVcSync = 0; // UTC seconds
 
   // updated by model/logic-voteout.ts
   TimeEnteredBadReputation: { [EthAddress: string]: BadReputationSince } = {};
 
-  // TODO: remove all next ones from state (they're not serializable)
+  // non-serializable objects (lowercase)
 
   // ethereum clients - updated by write/ethereum.ts
-  Web3?: Web3;
-  EthereumElectionsContract?: Contract;
+  web3?: Web3;
+  ethereumElectionsContract?: Contract;
 
   // orbs clients - updated by read/vchain-reputations.ts
-  OrbsAccount = Orbs.createAccount();
-  OrbsClientPerVchain: { [VirtualChainId: string]: Orbs.Client } = {};
-
-  // OLD ethereum - TODO remove
-  OLDWeb3?: Web3;
-  OLDEthereumElectionsContract?: Contracts['Elections'];
+  orbsAccount = Orbs.createAccount();
+  orbsClientPerVchain: { [VirtualChainId: string]: Orbs.Client } = {};
 }
 
 // helpers
