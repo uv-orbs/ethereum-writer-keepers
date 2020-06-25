@@ -4,6 +4,13 @@ services:
         build:
             context: .
             dockerfile: ./Dockerfile-app.test
+    signer:
+        image: orbsnetwork/signer:experimental
+        ports:
+            - 7777:7777
+        volumes:
+            - ./signer/keys.json:/run/secrets/keys.json
+        command: /opt/orbs/orbs-signer -listen :7777 -config /run/secrets/keys.json
     management-service:
         build:
             context: .

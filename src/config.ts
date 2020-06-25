@@ -1,6 +1,7 @@
 export interface Configuration {
   ManagementServiceEndpoint: string;
   EthereumEndpoint: string;
+  SignerEndpoint: string;
   EthereumElectionsContract: string;
   NodeOrbsAddress: string;
   VirtualChainEndpointSchema: string;
@@ -50,6 +51,9 @@ export function validateConfiguration(config: Configuration) {
   }
   if (!config.EthereumEndpoint) {
     throw new Error(`EthereumEndpoint is empty in config.`);
+  }
+  if (!config.SignerEndpoint) {
+    throw new Error(`SignerEndpoint is empty in config.`);
   }
   if (!config.EthereumElectionsContract) {
     throw new Error(`EthereumElectionsContract is empty in config.`);

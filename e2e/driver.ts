@@ -25,6 +25,7 @@ export class TestEnvironment {
     return {
       ManagementServiceEndpoint: 'http://management-service:8080',
       EthereumEndpoint: 'http://ganache:7545',
+      SignerEndpoint: 'http://signer:7777',
       EthereumElectionsContract: this.ethereumPosDriver.elections.address,
       NodeOrbsAddress: this.nodeOrbsAddress.substr(2).toLowerCase(), // remove "0x",
       VirtualChainEndpointSchema: 'http://vchain-{{ID}}:8080',
@@ -58,7 +59,7 @@ export class TestEnvironment {
       test.serial.after.always.bind(test.serial.after),
       this.pathToDockerCompose,
       {
-        startOnlyTheseServices: ['ganache', 'management-service', 'vchain-42'],
+        startOnlyTheseServices: ['ganache', 'signer', 'management-service', 'vchain-42'],
         containerCleanUp: false,
       } as any
     );
@@ -114,7 +115,16 @@ export class TestEnvironment {
       try {
         unlinkSync(configFilePath);
       } catch (err) {}
-      writeFileSync(configFilePath, JSON.stringify(this.getAppConfig()));
+      const config = this.getAppConfig();
+      if (require('./signer/keys.json')['node-address'] != config.NodeOrbsAddress) {
+        throw new Error(
+          `Incorrect address in ./signer/keys.json, use address ${config.NodeOrbsAddress} with private key ${(this
+            .ethereumPosDriver.web3.currentProvider as any).wallets['0x' + config.NodeOrbsAddress]._privKey.toString(
+            'hex'
+          )}`
+        );
+      }
+      writeFileSync(configFilePath, JSON.stringify(config));
     });
 
     // step 6 - launch app docker
