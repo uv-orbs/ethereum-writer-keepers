@@ -2,6 +2,7 @@ import Web3 from 'web3';
 import { Contract } from 'web3-eth-contract';
 import * as Orbs from 'orbs-client-sdk';
 import { getCurrentClockTime } from '../helpers';
+import Signer from 'orbs-signer-client';
 
 export class State {
   // not updated
@@ -49,6 +50,7 @@ export class State {
 
   // ethereum clients - updated by write/ethereum.ts
   web3?: Web3;
+  signer?: Signer;
   ethereumElectionsContract?: Contract;
 
   // orbs clients - updated by read/vchain-reputations.ts
@@ -78,7 +80,7 @@ export interface EthereumTxStatus {
   LastPollTime: number; // UTC seconds
   Type: 'ready-to-sync' | 'ready-for-committee' | 'vote-out';
   SendTime: number; // UTC seconds
-  Status: 'pending' | 'final' | 'revert'; // final according to ManagementEthRefBlock
+  Status: 'pending' | 'final' | 'failed' | 'revert'; // final according to ManagementEthRefBlock
   TxHash: string;
   EthBlock: number;
   OnFinal?: () => void;

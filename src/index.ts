@@ -10,6 +10,7 @@ import { calcVchainSyncStatus } from './model/logic-vcsync';
 import { calcEthereumSyncStatus } from './model/logic-ethsync';
 import { shouldNotifyReadyForCommittee, shouldNotifyReadyToSync } from './model/logic-elections';
 import { getAllValidatorsToVoteOut } from './model/logic-voteout';
+import Signer from 'orbs-signer-client';
 import {
   readEtherBalance,
   initWeb3Client,
@@ -112,5 +113,6 @@ export async function runLoop(config: Configuration) {
 function initializeState(config: Configuration): State {
   const state = new State();
   initWeb3Client(config.EthereumEndpoint, config.EthereumElectionsContract, state);
+  state.signer = new Signer(config.SignerEndpoint);
   return state;
 }

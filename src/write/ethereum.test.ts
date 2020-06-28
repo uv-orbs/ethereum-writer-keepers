@@ -9,6 +9,7 @@ import {
   readPendingTransactionStatus,
 } from './ethereum';
 import { sleep } from '../helpers';
+import Signer from 'orbs-signer-client';
 
 test('initializes web3 and contracts', (t) => {
   const state = new State();
@@ -17,117 +18,17 @@ test('initializes web3 and contracts', (t) => {
   t.assert(state.ethereumElectionsContract);
 });
 
-function getMockElectionsContract(successful = true) {
-  return {
-    methods: {
-      notifyReadyToSync: () => {
-        return {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          send: (_opts: any, callback: any) => {
-            if (successful) callback(null, '123');
-            else callback(new Error('oh no'));
-          },
-        };
-      },
-      notifyReadyForCommittee: () => {
-        return {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          send: (_opts: any, callback: any) => {
-            if (successful) callback(null, '456');
-            else callback(new Error('oh no'));
-          },
-        };
-      },
-      voteOut: () => {
-        return {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          send: (_opts: any, callback: any) => {
-            if (successful) callback(null, '789');
-            else callback(new Error('oh no'));
-          },
-        };
-      },
-    },
-  };
-}
-
-test('sendEthereumElectionsTransaction ready-to-sync successful', async (t) => {
-  const state = new State();
-  state.ethereumElectionsContract = (getMockElectionsContract() as unknown) as Contract;
-  await sendEthereumElectionsTransaction('ready-to-sync', 'sender', state);
-
-  if (!state.EthereumLastElectionsTx) throw new Error(`EthereumLastElectionsTx not defined`);
-  t.is(state.EthereumLastElectionsTx.LastPollTime, 0);
-  t.is(state.EthereumLastElectionsTx.Type, 'ready-to-sync');
-  t.assert(state.EthereumLastElectionsTx.SendTime > 1400000000);
-  t.is(state.EthereumLastElectionsTx.Status, 'pending');
-  t.is(state.EthereumLastElectionsTx.TxHash, '123');
-  t.is(state.EthereumLastElectionsTx.EthBlock, 0);
-  t.falsy(state.EthereumLastElectionsTx.OnFinal);
-});
-
-test('sendEthereumElectionsTransaction ready-for-committee successful', async (t) => {
-  const state = new State();
-  state.ethereumElectionsContract = (getMockElectionsContract() as unknown) as Contract;
-  await sendEthereumElectionsTransaction('ready-for-committee', 'sender', state);
-
-  if (!state.EthereumLastElectionsTx) throw new Error(`EthereumLastElectionsTx not defined`);
-  t.is(state.EthereumLastElectionsTx.LastPollTime, 0);
-  t.is(state.EthereumLastElectionsTx.Type, 'ready-for-committee');
-  t.assert(state.EthereumLastElectionsTx.SendTime > 1400000000);
-  t.is(state.EthereumLastElectionsTx.Status, 'pending');
-  t.is(state.EthereumLastElectionsTx.TxHash, '456');
-  t.is(state.EthereumLastElectionsTx.EthBlock, 0);
-  t.falsy(state.EthereumLastElectionsTx.OnFinal);
-});
-
-test('sendEthereumElectionsTransaction fails', async (t) => {
-  const state = new State();
-  state.ethereumElectionsContract = (getMockElectionsContract(false) as unknown) as Contract;
-  await t.throwsAsync(async () => {
-    await sendEthereumElectionsTransaction('ready-to-sync', 'sender', state);
-  });
-  t.falsy(state.EthereumLastElectionsTx);
-});
-
-test('sendEthereumVoteOutTransaction successful', async (t) => {
-  const state = new State();
-  state.ManagementRefTime = 99999;
-  state.ethereumElectionsContract = (getMockElectionsContract() as unknown) as Contract;
-  await sendEthereumVoteOutTransaction([{ EthAddress: 'abc', Weight: 10 }], 'sender', state);
-
-  if (!state.EthereumLastVoteOutTx) throw new Error(`EthereumLastElectionsTx not defined`);
-  t.is(state.EthereumLastVoteOutTx.LastPollTime, 0);
-  t.is(state.EthereumLastVoteOutTx.Type, 'vote-out');
-  t.assert(state.EthereumLastVoteOutTx.SendTime > 1400000000);
-  t.is(state.EthereumLastVoteOutTx.Status, 'pending');
-  t.is(state.EthereumLastVoteOutTx.TxHash, '789');
-  t.is(state.EthereumLastVoteOutTx.EthBlock, 0);
-  t.truthy(state.EthereumLastVoteOutTx.OnFinal);
-  t.falsy(state.EthereumLastVoteOutTime['abc']);
-  state.EthereumLastVoteOutTx.OnFinal?.();
-  t.is(state.EthereumLastVoteOutTime['abc'], 99999);
-});
-
-test('sendEthereumVoteOutTransaction with no targets', async (t) => {
-  const state = new State();
-  state.ethereumElectionsContract = (getMockElectionsContract() as unknown) as Contract;
-  await sendEthereumVoteOutTransaction([], 'sender', state);
-  t.falsy(state.EthereumLastVoteOutTx);
-});
-
-test('sendEthereumVoteOutTransaction fails', async (t) => {
-  const state = new State();
-  state.ethereumElectionsContract = (getMockElectionsContract(false) as unknown) as Contract;
-  await t.throwsAsync(async () => {
-    await sendEthereumVoteOutTransaction([{ EthAddress: 'abc', Weight: 10 }], 'sender', state);
-  });
-  t.falsy(state.EthereumLastVoteOutTx);
-});
-
 function getMockWeb3Client(committed = true, reverted = false) {
   return {
     eth: {
+      getTransactionCount: async () => {
+        await sleep(0);
+        return 17;
+      },
+      sendSignedTransaction: async () => {
+        await sleep(0);
+        if (!committed) throw new Error('send error');
+      },
       getTransaction: async () => {
         await sleep(0);
         if (!committed) return { blockNumber: null };
@@ -142,6 +43,150 @@ function getMockWeb3Client(committed = true, reverted = false) {
     },
   };
 }
+
+function getMockElectionsContract() {
+  return {
+    options: {
+      address: '0xaddress',
+    },
+    methods: {
+      notifyReadyToSync: () => {
+        return { encodeABI: () => '0xencodedAbi' };
+      },
+      notifyReadyForCommittee: () => {
+        return { encodeABI: () => '0xencodedAbi' };
+      },
+      voteOut: () => {
+        return { encodeABI: () => '0xencodedAbi' };
+      },
+    },
+  };
+}
+
+function getMockSigner(successful = true) {
+  return {
+    sign: async () => {
+      await sleep(0);
+      if (!successful) return {};
+      return {
+        rawTransaction: '0xrawTx',
+        transactionHash: '0xtxHash',
+      };
+    },
+  };
+}
+
+test('sendEthereumElectionsTransaction ready-to-sync successful', async (t) => {
+  const state = new State();
+  state.web3 = (getMockWeb3Client() as unknown) as Web3;
+  state.signer = (getMockSigner() as unknown) as Signer;
+  state.ethereumElectionsContract = (getMockElectionsContract() as unknown) as Contract;
+  await sendEthereumElectionsTransaction('ready-to-sync', 'sender', state);
+
+  if (!state.EthereumLastElectionsTx) throw new Error(`EthereumLastElectionsTx not defined`);
+  t.is(state.EthereumLastElectionsTx.LastPollTime, 0);
+  t.is(state.EthereumLastElectionsTx.Type, 'ready-to-sync');
+  t.assert(state.EthereumLastElectionsTx.SendTime > 1400000000);
+  t.is(state.EthereumLastElectionsTx.Status, 'pending');
+  t.is(state.EthereumLastElectionsTx.TxHash, '0xtxHash');
+  t.is(state.EthereumLastElectionsTx.EthBlock, 0);
+  t.falsy(state.EthereumLastElectionsTx.OnFinal);
+});
+
+test('sendEthereumElectionsTransaction ready-for-committee successful', async (t) => {
+  const state = new State();
+  state.web3 = (getMockWeb3Client() as unknown) as Web3;
+  state.signer = (getMockSigner() as unknown) as Signer;
+  state.ethereumElectionsContract = (getMockElectionsContract() as unknown) as Contract;
+  await sendEthereumElectionsTransaction('ready-for-committee', 'sender', state);
+
+  if (!state.EthereumLastElectionsTx) throw new Error(`EthereumLastElectionsTx not defined`);
+  t.is(state.EthereumLastElectionsTx.LastPollTime, 0);
+  t.is(state.EthereumLastElectionsTx.Type, 'ready-for-committee');
+  t.assert(state.EthereumLastElectionsTx.SendTime > 1400000000);
+  t.is(state.EthereumLastElectionsTx.Status, 'pending');
+  t.is(state.EthereumLastElectionsTx.TxHash, '0xtxHash');
+  t.is(state.EthereumLastElectionsTx.EthBlock, 0);
+  t.falsy(state.EthereumLastElectionsTx.OnFinal);
+});
+
+test('sendEthereumElectionsTransaction fails on send', async (t) => {
+  const state = new State();
+  state.web3 = (getMockWeb3Client(false) as unknown) as Web3;
+  state.signer = (getMockSigner() as unknown) as Signer;
+  state.ethereumElectionsContract = (getMockElectionsContract() as unknown) as Contract;
+  await sendEthereumElectionsTransaction('ready-to-sync', 'sender', state);
+
+  if (!state.EthereumLastElectionsTx) throw new Error(`EthereumLastElectionsTx not defined`);
+  t.assert(state.EthereumLastElectionsTx.SendTime > 1400000000);
+  t.is(state.EthereumLastElectionsTx.Status, 'failed');
+});
+
+test('sendEthereumElectionsTransaction fails on sign', async (t) => {
+  const state = new State();
+  state.web3 = (getMockWeb3Client() as unknown) as Web3;
+  state.signer = (getMockSigner(false) as unknown) as Signer;
+  state.ethereumElectionsContract = (getMockElectionsContract() as unknown) as Contract;
+  await sendEthereumElectionsTransaction('ready-to-sync', 'sender', state);
+
+  if (!state.EthereumLastElectionsTx) throw new Error(`EthereumLastElectionsTx not defined`);
+  t.assert(state.EthereumLastElectionsTx.SendTime > 1400000000);
+  t.is(state.EthereumLastElectionsTx.Status, 'failed');
+});
+
+test('sendEthereumVoteOutTransaction successful', async (t) => {
+  const state = new State();
+  state.ManagementRefTime = 99999;
+  state.web3 = (getMockWeb3Client() as unknown) as Web3;
+  state.signer = (getMockSigner() as unknown) as Signer;
+  state.ethereumElectionsContract = (getMockElectionsContract() as unknown) as Contract;
+  await sendEthereumVoteOutTransaction([{ EthAddress: 'abc', Weight: 10 }], 'sender', state);
+
+  if (!state.EthereumLastVoteOutTx) throw new Error(`EthereumLastVoteOutTx not defined`);
+  t.is(state.EthereumLastVoteOutTx.LastPollTime, 0);
+  t.is(state.EthereumLastVoteOutTx.Type, 'vote-out');
+  t.assert(state.EthereumLastVoteOutTx.SendTime > 1400000000);
+  t.is(state.EthereumLastVoteOutTx.Status, 'pending');
+  t.is(state.EthereumLastVoteOutTx.TxHash, '0xtxHash');
+  t.is(state.EthereumLastVoteOutTx.EthBlock, 0);
+  t.truthy(state.EthereumLastVoteOutTx.OnFinal);
+  t.falsy(state.EthereumLastVoteOutTime['abc']);
+  state.EthereumLastVoteOutTx.OnFinal?.();
+  t.is(state.EthereumLastVoteOutTime['abc'], 99999);
+});
+
+test('sendEthereumVoteOutTransaction with no targets', async (t) => {
+  const state = new State();
+  state.web3 = (getMockWeb3Client() as unknown) as Web3;
+  state.signer = (getMockSigner() as unknown) as Signer;
+  state.ethereumElectionsContract = (getMockElectionsContract() as unknown) as Contract;
+  await sendEthereumVoteOutTransaction([], 'sender', state);
+  t.falsy(state.EthereumLastVoteOutTx);
+});
+
+test('sendEthereumVoteOutTransaction fails on send', async (t) => {
+  const state = new State();
+  state.web3 = (getMockWeb3Client(false) as unknown) as Web3;
+  state.signer = (getMockSigner() as unknown) as Signer;
+  state.ethereumElectionsContract = (getMockElectionsContract() as unknown) as Contract;
+  await sendEthereumVoteOutTransaction([{ EthAddress: 'abc', Weight: 10 }], 'sender', state);
+
+  if (!state.EthereumLastVoteOutTx) throw new Error(`EthereumLastVoteOutTx not defined`);
+  t.assert(state.EthereumLastVoteOutTx.SendTime > 1400000000);
+  t.is(state.EthereumLastVoteOutTx.Status, 'failed');
+});
+
+test('sendEthereumVoteOutTransaction fails on sign', async (t) => {
+  const state = new State();
+  state.web3 = (getMockWeb3Client() as unknown) as Web3;
+  state.signer = (getMockSigner(false) as unknown) as Signer;
+  state.ethereumElectionsContract = (getMockElectionsContract() as unknown) as Contract;
+  await sendEthereumVoteOutTransaction([{ EthAddress: 'abc', Weight: 10 }], 'sender', state);
+
+  if (!state.EthereumLastVoteOutTx) throw new Error(`EthereumLastVoteOutTx not defined`);
+  t.assert(state.EthereumLastVoteOutTx.SendTime > 1400000000);
+  t.is(state.EthereumLastVoteOutTx.Status, 'failed');
+});
 
 // reflects a tx status for a pending tx that already has tx hash but no block number
 function getExampleEthereumTxStatus(arr: number[]): EthereumTxStatus {

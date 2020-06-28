@@ -194,7 +194,7 @@ export class TestEnvironment {
         try {
           return JSON.parse(body);
         } catch (e) {
-          throw new Error(`invalid response: \n${body}`);
+          throw new Error(`invalid response:\n${body}`);
         }
       },
       { retries: 10, delay: 300 }

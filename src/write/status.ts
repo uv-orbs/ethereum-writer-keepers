@@ -5,6 +5,7 @@ import { ensureFileDirectoryExists, JsonResponse, getCurrentClockTime } from '..
 import { Configuration } from '../config';
 
 const MINIMUM_ALLOWED_ETH_BALANCE_WEI = BigInt('20000000000000000');
+const TX_SEND_FAILURE_TIMEOUT = 24 * 60 * 60; // seconds
 
 export function writeStatusToDisk(filePath: string, state: State, config: Configuration) {
   const status: JsonResponse = {
@@ -70,6 +71,14 @@ function getErrorText(state: State) {
   }
   if (state.EthereumSyncStatus == 'out-of-sync') {
     res.push(`Eth is out of sync.`);
+  }
+  const electionsTxFailedAgo = getCurrentClockTime() - (state.EthereumLastElectionsTx?.SendTime ?? 0);
+  if (state.EthereumLastElectionsTx?.Status == 'failed' && electionsTxFailedAgo < TX_SEND_FAILURE_TIMEOUT) {
+    res.push(`Elections tx failed ${electionsTxFailedAgo} seconds ago.`);
+  }
+  const voteOutTxFailedAgo = getCurrentClockTime() - (state.EthereumLastVoteOutTx?.SendTime ?? 0);
+  if (state.EthereumLastVoteOutTx?.Status == 'failed' && voteOutTxFailedAgo < TX_SEND_FAILURE_TIMEOUT) {
+    res.push(`Vote out tx failed ${voteOutTxFailedAgo} seconds ago.`);
   }
   return res.join(' ');
 }

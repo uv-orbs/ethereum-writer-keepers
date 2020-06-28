@@ -1,15 +1,12 @@
 import * as Logger from '../logger';
 import { State, EthereumTxStatus, CommitteeMember } from '../model/state';
-import HDWalletProvider from 'truffle-hdwallet-provider';
 import Web3 from 'web3';
-import { provider } from 'web3-core';
 import { compiledContracts } from '@orbs-network/orbs-ethereum-contracts-v2/release/compiled-contracts';
-import { getCurrentClockTime } from '../helpers';
+import { getCurrentClockTime, jsonStringifyComplexTypes } from '../helpers';
 
-export async function sendEthereumElectionsTransaction(type: Type, senderAddress: string, state: State) {
+export async function sendEthereumElectionsTransaction(type: Type, nodeOrbsAddress: string, state: State) {
   if (!state.ethereumElectionsContract) throw new Error('Cannot send tx until contract object is initialized.');
 
-  const senderAddressString = `0x${senderAddress}`;
   const contractMethod =
     type == 'ready-to-sync'
       ? state.ethereumElectionsContract.methods.notifyReadyToSync
@@ -24,34 +21,25 @@ export async function sendEthereumElectionsTransaction(type: Type, senderAddress
     EthBlock: 0,
   };
 
-  return new Promise((resolve, reject) => {
-    contractMethod().send(
-      {
-        from: senderAddressString,
-        // TODO: complete me gasPrice: '1',
-        // TODO: complete me gas: 1,
-      },
-      (err: Error, txHash: string) => {
-        if (err) {
-          Logger.error(`Failed sending ${type} transaction: ${err.message}.`);
-          state.EthereumLastElectionsTx = undefined;
-          return reject(err);
-        }
-        Logger.log(`${type} transaction sent with txHash ${txHash}.`);
-        if (state.EthereumLastElectionsTx) state.EthereumLastElectionsTx.TxHash = txHash;
-        return resolve();
-      }
-    );
-  });
+  try {
+    const encodedAbi = contractMethod().encodeABI() as string;
+    const contractAddress = state.ethereumElectionsContract.options.address;
+    const senderAddress = `0x${nodeOrbsAddress}`;
+    const txHash = await signAndSendTransaction(encodedAbi, contractAddress, senderAddress, state);
+    state.EthereumLastElectionsTx.TxHash = txHash;
+    Logger.log(`${type} transaction sent with txHash ${txHash}.`);
+  } catch (err) {
+    Logger.error(`Failed sending ${type} transaction: ${err.stack}`);
+    state.EthereumLastElectionsTx.Status = 'failed';
+  }
 }
 
-export async function sendEthereumVoteOutTransaction(to: CommitteeMember[], senderAddress: string, state: State) {
+export async function sendEthereumVoteOutTransaction(to: CommitteeMember[], nodeOrbsAddress: string, state: State) {
   if (!state.ethereumElectionsContract) throw new Error('Cannot send tx until contract object is initialized.');
 
   if (to.length == 0) return;
   const ethAddress = to[0].EthAddress;
-  const ethAddressString = `0x${ethAddress}`;
-  const senderAddressString = `0x${senderAddress}`;
+  const ethAddressForAbi = `0x${ethAddress}`;
   const contractMethod = state.ethereumElectionsContract.methods.voteOut;
 
   state.EthereumLastVoteOutTx = {
@@ -64,25 +52,17 @@ export async function sendEthereumVoteOutTransaction(to: CommitteeMember[], send
     OnFinal: () => (state.EthereumLastVoteOutTime[ethAddress] = state.ManagementRefTime),
   };
 
-  return new Promise((resolve, reject) => {
-    contractMethod(ethAddressString).send(
-      {
-        from: senderAddressString,
-        // TODO: complete me gasPrice: '1',
-        // TODO: complete me gas: 1,
-      },
-      (err: Error, txHash: string) => {
-        if (err) {
-          Logger.error(`Failed sending vote out transaction: ${err.message}.`);
-          state.EthereumLastVoteOutTx = undefined;
-          return reject(err);
-        }
-        Logger.log(`Vote out transaction against ${ethAddress} sent with txHash ${txHash}.`);
-        if (state.EthereumLastVoteOutTx) state.EthereumLastVoteOutTx.TxHash = txHash;
-        return resolve();
-      }
-    );
-  });
+  try {
+    const encodedAbi = contractMethod(ethAddressForAbi).encodeABI() as string;
+    const contractAddress = state.ethereumElectionsContract.options.address;
+    const senderAddress = `0x${nodeOrbsAddress}`;
+    const txHash = await signAndSendTransaction(encodedAbi, contractAddress, senderAddress, state);
+    state.EthereumLastVoteOutTx.TxHash = txHash;
+    Logger.log(`Vote out transaction against ${ethAddress} sent with txHash ${txHash}.`);
+  } catch (err) {
+    Logger.error(`Failed sending vote out transaction: ${err.stack}`);
+    state.EthereumLastVoteOutTx.Status = 'failed';
+  }
 }
 
 export async function readPendingTransactionStatus(status: EthereumTxStatus | undefined, state: State) {
@@ -145,16 +125,39 @@ type Type = 'ready-to-sync' | 'ready-for-committee';
 
 export function initWeb3Client(ethereumEndpoint: string, electionsContractAddress: string, state: State) {
   // init web3
-  const provider = (new HDWalletProvider(
-    'vanish junk genuine web seminar cook absurd royal ability series taste method identify elevator liquid',
-    ethereumEndpoint,
-    0,
-    100,
-    false
-  ) as unknown) as provider; // TODO: support signer service
-  state.web3 = new Web3(provider);
+  state.web3 = new Web3(ethereumEndpoint);
+  // TODO: state.web3.eth.transactionPollingTimeout = 0.01;
+  // TODO:  do we need to disable web3 receipt polling explicitly?
 
   // init contracts
   const electionsAbi = compiledContracts.Elections.abi;
   state.ethereumElectionsContract = new state.web3.eth.Contract(electionsAbi, electionsContractAddress);
+}
+
+async function signAndSendTransaction(
+  encodedAbi: string,
+  contractAddress: string,
+  senderAddress: string,
+  state: State
+): Promise<string> {
+  if (!state.web3) throw new Error('Cannot send tx until web3 client is initialized.');
+  if (!state.signer) throw new Error('Cannot send tx until signer is initialized.');
+
+  const nonce = await state.web3.eth.getTransactionCount(senderAddress);
+
+  const txObject = {
+    from: senderAddress,
+    to: contractAddress,
+    // TODO: complete me gasPrice: '1',
+    // TODO: complete me gas: 1,
+    gas: '0x7FFFFFFF',
+    data: encodedAbi,
+    nonce: nonce,
+  };
+  const { rawTransaction, transactionHash } = await state.signer.sign(txObject);
+  if (!rawTransaction || !transactionHash)
+    throw new Error(`Could not sign tx object: ${jsonStringifyComplexTypes(txObject)}.`);
+
+  await state.web3.eth.sendSignedTransaction(rawTransaction);
+  return transactionHash;
 }
