@@ -16,7 +16,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit --skipLibCheck",
-    "lint": "eslint . --ext .js,.ts,.tsx -f codeframe",
+    "lint": "eslint . --ext .ts,.tsx -f codeframe",
     "pretest": "npm run typecheck && npm run lint",
     "clean": "rimraf ./dist/",
     "prebuild": "npm run clean",
