@@ -19,13 +19,13 @@ import {
   sendEthereumVoteOutTransaction,
 } from './write/ethereum';
 
-// runs every 10 seconds in prod, 1 second in tests
+// runs every 20 seconds in prod, 1 second in tests
 async function runLoopTick(config: Configuration, state: State) {
   Logger.log('Run loop waking up.');
 
   // read all data
 
-  // refresh all info from management-service, we don't mind doing this often (10s)
+  // refresh all info from management-service, we don't mind doing this often (20s)
   await readManagementStatus(config.ManagementServiceEndpoint, config.NodeOrbsAddress, state);
 
   // refresh all vchain metrics to see if they're live and in sync, rate according to config
@@ -77,7 +77,7 @@ async function runLoopTick(config: Configuration, state: State) {
 
   // write all data
 
-  // send ready-to-sync / ready-for-comittee if needed, we don't mind checking this often (10s)
+  // send ready-to-sync / ready-for-comittee if needed, we don't mind checking this often (20s)
   if (shouldNotifyReadyForCommittee(state, config)) {
     Logger.log(`Decided to send ready-for-committee.`);
     await sendEthereumElectionsTransaction('ready-for-committee', config.NodeOrbsAddress, state);
@@ -86,14 +86,14 @@ async function runLoopTick(config: Configuration, state: State) {
     await sendEthereumElectionsTransaction('ready-to-sync', config.NodeOrbsAddress, state);
   }
 
-  // send vote outs if needed, we don't mind checking this often (10s)
+  // send vote outs if needed, we don't mind checking this often (20s)
   const toVoteOut = getAllValidatorsToVoteOut(state, config);
   if (toVoteOut.length > 0) {
     Logger.log(`Decided to send vote outs against validators: ${toVoteOut.map((n) => n.EthAddress)}.`);
     await sendEthereumVoteOutTransaction(toVoteOut, config.NodeOrbsAddress, state);
   }
 
-  // write status.json file, we don't mind doing this often (10s)
+  // write status.json file, we don't mind doing this often (20s)
   writeStatusToDisk(config.StatusJsonPath, state, config);
 }
 
