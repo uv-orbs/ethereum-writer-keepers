@@ -72,10 +72,11 @@ test('validator starts having bad reputation in one vc until voted out', (t) => 
   t.deepEqual(getAllValidatorsToVoteOut(state, exampleConfig), [{ EthAddress: 'e3', Weight: 10 }]);
 
   state.EthereumLastVoteOutTime['e3'] = getCurrentClockTime() - 2 * 24 * 60 * 60;
-  state.ManagementOthersElectionStatus['e3'] = {
+  state.ManagementOthersElectionsStatus['e3'] = {
     LastUpdateTime: getCurrentClockTime() - 1 * 24 * 60 * 60,
     ReadyToSync: true,
     ReadyForCommittee: true,
+    TimeToStale: 6 * 24 * 60 * 60,
   };
   t.deepEqual(getAllValidatorsToVoteOut(state, exampleConfig), [{ EthAddress: 'e3', Weight: 10 }]);
 });

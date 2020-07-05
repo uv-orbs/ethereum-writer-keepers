@@ -14,6 +14,8 @@ import {
 const driver = new TestEnvironment(join(__dirname, 'docker-compose.yml'));
 driver.launchServices();
 
+// node is OrbsAddress 16fcf728f8dc3f687132f2157d8379c021a08c12, EthAddress 29ce860a2247d97160d6dfc087a15f41e2349087
+// node was voted out, so "ReadyToSync": false, also the node is not standby
 test.serial('[E2E] launches with one vchain out of sync -> sends ready-to-sync', async (t) => {
   t.log('started');
   driver.testLogger = t.log;

@@ -16,8 +16,8 @@ export class State {
   ManagementVirtualChains: { [VirtualChainId: string]: ManagementVirtualChain } = {};
   ManagementInCommittee = false;
   ManagementIsStandby = false;
-  ManagementMyElectionStatus?: ManagementElectionsStatus;
-  ManagementOthersElectionStatus: { [EthAddress: string]: ManagementElectionsStatus } = {};
+  ManagementMyElectionsStatus?: ManagementElectionsStatus;
+  ManagementOthersElectionsStatus: { [EthAddress: string]: ManagementElectionsStatus | undefined } = {};
   ManagementCurrentCommittee: CommitteeMember[] = [];
   ManagementCurrentStandbys: { EthAddress: string }[] = [];
 
@@ -100,4 +100,5 @@ export interface ManagementElectionsStatus {
   LastUpdateTime: number;
   ReadyToSync: boolean;
   ReadyForCommittee: boolean;
+  TimeToStale: number;
 }

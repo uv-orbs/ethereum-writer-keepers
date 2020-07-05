@@ -7,8 +7,8 @@ export function shouldNotifyReadyToSync(state: State, config: EthereumElectionsP
   if (state.EthereumSyncStatus != 'operational') return false;
 
   if (
-    !(state.ManagementIsStandby || state.ManagementInCommittee) &&
-    (isUpdateStale(state, config) || isStandbyAvailable(state, config)) &&
+    !(state.ManagementIsStandby || state.ManagementInCommittee) && // we only refresh standby nodes that are in-sync
+    (isMyUpdateStale(state, config) || isStandbyAvailable(state)) &&
     state.VchainSyncStatus == 'exist-not-in-sync'
   ) {
     Logger.log(
@@ -20,7 +20,7 @@ export function shouldNotifyReadyToSync(state: State, config: EthereumElectionsP
   if (
     config.ElectionsAuditOnly &&
     state.ManagementIsStandby &&
-    isUpdateStale(state, config) &&
+    isMyUpdateStale(state, config) &&
     state.VchainSyncStatus == 'in-sync'
   ) {
     Logger.log(
@@ -39,7 +39,7 @@ export function shouldNotifyReadyForCommittee(state: State, config: EthereumElec
 
   if (
     !state.ManagementInCommittee &&
-    (!state.ManagementMyElectionStatus || state.ManagementMyElectionStatus.ReadyForCommittee == false)
+    (!state.ManagementMyElectionsStatus || state.ManagementMyElectionsStatus.ReadyForCommittee == false)
   ) {
     Logger.log(
       `shouldNotifyReadyForCommittee because node that the world thinks is not ready for committee, and is now ready.`
@@ -49,9 +49,9 @@ export function shouldNotifyReadyForCommittee(state: State, config: EthereumElec
 
   if (
     state.ManagementIsStandby &&
-    state.ManagementMyElectionStatus &&
-    state.ManagementMyElectionStatus.ReadyForCommittee == true &&
-    isUpdateStale(state, config)
+    state.ManagementMyElectionsStatus &&
+    state.ManagementMyElectionsStatus.ReadyForCommittee == true &&
+    isMyUpdateStale(state, config)
   ) {
     Logger.log(`shouldNotifyReadyForCommittee because consensus node refresh - in standby, in sync and stale.`);
     return true;
@@ -63,29 +63,24 @@ export function shouldNotifyReadyForCommittee(state: State, config: EthereumElec
 // helpers
 
 export interface EthereumElectionsParams {
-  ElectionsStaleUpdateSeconds: number;
   ElectionsRefreshWindowSeconds: number;
   ElectionsAuditOnly: boolean;
 }
 
-function isUpdateStale(state: State, config: EthereumElectionsParams): boolean {
-  if (!state.ManagementMyElectionStatus) return true;
-  if (state.ManagementMyElectionStatus.ReadyToSync != true) return true; // TODO: verify with odedw
-  const nowEth = state.ManagementRefTime;
-  const lastUpdate = state.ManagementMyElectionStatus.LastUpdateTime;
-  if (nowEth - lastUpdate + config.ElectionsRefreshWindowSeconds > config.ElectionsStaleUpdateSeconds) return true;
+function isMyUpdateStale(state: State, config: EthereumElectionsParams): boolean {
+  if (!state.ManagementMyElectionsStatus) return true;
+  if (state.ManagementMyElectionsStatus.ReadyToSync != true) return true; // TODO: verify with odedw
+  if (state.ManagementMyElectionsStatus.TimeToStale < config.ElectionsRefreshWindowSeconds) return true;
   return false;
 }
 
-function isStandbyAvailable(state: State, config: EthereumElectionsParams): boolean {
+function isStandbyAvailable(state: State): boolean {
   // no enough standbys
   if (state.ManagementCurrentStandbys.length < MAX_STANDBYS) return true;
   // or one of the standbys is stale
   for (const node of state.ManagementCurrentStandbys) {
-    if (!state.ManagementOthersElectionStatus[node.EthAddress]) return true;
-    const nowEth = state.ManagementRefTime;
-    const lastUpdate = state.ManagementOthersElectionStatus[node.EthAddress].LastUpdateTime;
-    if (nowEth - lastUpdate > config.ElectionsStaleUpdateSeconds) return true;
+    const timeToStale = state.ManagementOthersElectionsStatus[node.EthAddress]?.TimeToStale ?? 0;
+    if (timeToStale <= 0) return true;
   }
   return false;
 }

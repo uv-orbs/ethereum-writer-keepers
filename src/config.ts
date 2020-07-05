@@ -17,7 +17,6 @@ export interface Configuration {
   VchainOutOfSyncThresholdSeconds: number;
   EthereumSyncRequirementSeconds: number;
   FailToSyncVcsTimeoutSeconds: number;
-  ElectionsStaleUpdateSeconds: number;
   ElectionsRefreshWindowSeconds: number;
   InvalidReputationGraceSeconds: number;
   VoteOutValiditySeconds: number;
@@ -38,7 +37,6 @@ export const defaultConfiguration = {
   VchainOutOfSyncThresholdSeconds: 60 * 60,
   EthereumSyncRequirementSeconds: 20 * 60,
   FailToSyncVcsTimeoutSeconds: 24 * 60 * 60,
-  ElectionsStaleUpdateSeconds: 7 * 24 * 60 * 60,
   ElectionsRefreshWindowSeconds: 2 * 60 * 60,
   InvalidReputationGraceSeconds: 6 * 60 * 60,
   VoteOutValiditySeconds: 7 * 24 * 60 * 60,
@@ -138,12 +136,6 @@ export function validateConfiguration(config: Configuration) {
   }
   if (typeof config.FailToSyncVcsTimeoutSeconds != 'number') {
     throw new Error(`FailToSyncVcsTimeoutSeconds is not a number.`);
-  }
-  if (!config.ElectionsStaleUpdateSeconds) {
-    throw new Error(`ElectionsStaleUpdateSeconds is empty or zero.`);
-  }
-  if (typeof config.ElectionsStaleUpdateSeconds != 'number') {
-    throw new Error(`ElectionsStaleUpdateSeconds is not a number.`);
   }
   if (!config.ElectionsRefreshWindowSeconds) {
     throw new Error(`ElectionsRefreshWindowSeconds is empty or zero.`);

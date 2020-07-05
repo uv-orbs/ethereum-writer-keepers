@@ -28,7 +28,7 @@ export function writeStatusToDisk(filePath: string, state: State, config: Config
       ManagementEthRefBlock: state.ManagementEthRefBlock,
       ManagementInCommittee: state.ManagementInCommittee,
       ManagementIsStandby: state.ManagementIsStandby,
-      ManagementMyElectionStatus: state.ManagementMyElectionStatus,
+      ManagementMyElectionStatus: state.ManagementMyElectionsStatus,
       TimeEnteredStandbyWithoutVcSync: state.TimeEnteredStandbyWithoutVcSync,
       TimeEnteredBadReputation: state.TimeEnteredBadReputation,
       Config: config,

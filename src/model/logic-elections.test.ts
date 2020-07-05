@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import test from 'ava';
 import { State } from './state';
 import { shouldNotifyReadyToSync, shouldNotifyReadyForCommittee } from './logic-elections';
 import { exampleConfig } from '../config.example';
 import { getCurrentClockTime } from '../helpers';
+
+const STALE_UPDATE_GRACE = 7 * 24 * 60 * 60;
 
 // example state reflects operational eth state and standbys full (5) and not stale
 function getExampleState() {
@@ -16,31 +19,36 @@ function getExampleState() {
     { EthAddress: 's4' },
     { EthAddress: 's5' },
   ];
-  exampleState.ManagementOthersElectionStatus = {
+  exampleState.ManagementOthersElectionsStatus = {
     s1: {
-      LastUpdateTime: getCurrentClockTime() - 10,
+      LastUpdateTime: getCurrentClockTime(),
       ReadyToSync: true,
       ReadyForCommittee: false,
+      TimeToStale: STALE_UPDATE_GRACE,
     },
     s2: {
-      LastUpdateTime: getCurrentClockTime() - 10,
+      LastUpdateTime: getCurrentClockTime(),
       ReadyToSync: true,
       ReadyForCommittee: false,
+      TimeToStale: STALE_UPDATE_GRACE,
     },
     s3: {
-      LastUpdateTime: getCurrentClockTime() - 10,
+      LastUpdateTime: getCurrentClockTime(),
       ReadyToSync: true,
       ReadyForCommittee: false,
+      TimeToStale: STALE_UPDATE_GRACE,
     },
     s4: {
-      LastUpdateTime: getCurrentClockTime() - 10,
+      LastUpdateTime: getCurrentClockTime(),
       ReadyToSync: true,
       ReadyForCommittee: false,
+      TimeToStale: STALE_UPDATE_GRACE,
     },
     s5: {
-      LastUpdateTime: getCurrentClockTime() - 10,
+      LastUpdateTime: getCurrentClockTime(),
       ReadyToSync: true,
       ReadyForCommittee: false,
+      TimeToStale: STALE_UPDATE_GRACE,
     },
   };
   return exampleState;
@@ -58,24 +66,27 @@ test('shouldNotifyReadyToSync: new node with standbys full', (t) => {
   state.VchainSyncStatus = 'exist-not-in-sync';
   t.true(shouldNotifyReadyToSync(state, exampleConfig));
 
-  state.ManagementMyElectionStatus = {
+  state.ManagementMyElectionsStatus = {
     LastUpdateTime: getCurrentClockTime() - 2 * 24 * 60 * 60,
     ReadyToSync: true,
     ReadyForCommittee: false,
+    TimeToStale: STALE_UPDATE_GRACE - 2 * 24 * 60 * 60,
   };
   t.false(shouldNotifyReadyToSync(state, exampleConfig));
 
-  state.ManagementMyElectionStatus = {
+  state.ManagementMyElectionsStatus = {
     LastUpdateTime: getCurrentClockTime() - 20 * 24 * 60 * 60,
     ReadyToSync: true,
     ReadyForCommittee: false,
+    TimeToStale: 0,
   };
   t.true(shouldNotifyReadyToSync(state, exampleConfig));
 
-  state.ManagementMyElectionStatus = {
+  state.ManagementMyElectionsStatus = {
     LastUpdateTime: getCurrentClockTime() - 2 * 24 * 60 * 60,
     ReadyToSync: false,
     ReadyForCommittee: false,
+    TimeToStale: STALE_UPDATE_GRACE - 2 * 24 * 60 * 60,
   };
   t.true(shouldNotifyReadyToSync(state, exampleConfig));
 
@@ -92,17 +103,18 @@ test('shouldNotifyReadyToSync: new node with standbys full', (t) => {
 test('shouldNotifyReadyToSync: standby slot becomes available', (t) => {
   const state = getExampleState();
   state.VchainSyncStatus = 'exist-not-in-sync';
-  state.ManagementMyElectionStatus = {
+  state.ManagementMyElectionsStatus = {
     LastUpdateTime: getCurrentClockTime() - 2 * 24 * 60 * 60,
     ReadyToSync: true,
     ReadyForCommittee: false,
+    TimeToStale: STALE_UPDATE_GRACE - 2 * 24 * 60 * 60,
   };
   t.false(shouldNotifyReadyToSync(state, exampleConfig));
 
-  state.ManagementOthersElectionStatus['s1'].LastUpdateTime = getCurrentClockTime() - 8 * 24 * 60 * 60;
+  state.ManagementOthersElectionsStatus['s1']!.TimeToStale = 0;
   t.true(shouldNotifyReadyToSync(state, exampleConfig));
 
-  state.ManagementOthersElectionStatus['s1'].LastUpdateTime = getCurrentClockTime() - 10;
+  state.ManagementOthersElectionsStatus['s1']!.TimeToStale = STALE_UPDATE_GRACE;
   t.false(shouldNotifyReadyToSync(state, exampleConfig));
 
   state.ManagementCurrentStandbys.pop();
@@ -137,17 +149,19 @@ test('shouldNotifyReadyToSync: audit-only keeps position in standby', (t) => {
   t.false(shouldNotifyReadyToSync(state, getAuditConfig()));
 
   state.VchainSyncStatus = 'in-sync';
-  state.ManagementMyElectionStatus = {
+  state.ManagementMyElectionsStatus = {
     LastUpdateTime: getCurrentClockTime() - 2 * 24 * 60 * 60,
     ReadyToSync: true,
     ReadyForCommittee: false,
+    TimeToStale: STALE_UPDATE_GRACE - 2 * 24 * 60 * 60,
   };
   t.false(shouldNotifyReadyToSync(state, getAuditConfig()));
 
-  state.ManagementMyElectionStatus = {
+  state.ManagementMyElectionsStatus = {
     LastUpdateTime: getCurrentClockTime() - 20 * 24 * 60 * 60,
     ReadyToSync: true,
     ReadyForCommittee: false,
+    TimeToStale: 0,
   };
   t.true(shouldNotifyReadyToSync(state, getAuditConfig()));
 });
@@ -169,17 +183,19 @@ test('shouldNotifyReadyForCommittee: new node finished syncing', (t) => {
   t.false(shouldNotifyReadyForCommittee(state, exampleConfig));
 
   state.ManagementInCommittee = false;
-  state.ManagementMyElectionStatus = {
+  state.ManagementMyElectionsStatus = {
     LastUpdateTime: getCurrentClockTime() - 2 * 24 * 60 * 60,
     ReadyToSync: true,
     ReadyForCommittee: true,
+    TimeToStale: STALE_UPDATE_GRACE - 2 * 24 * 60 * 60,
   };
   t.false(shouldNotifyReadyForCommittee(state, exampleConfig));
 
-  state.ManagementMyElectionStatus = {
+  state.ManagementMyElectionsStatus = {
     LastUpdateTime: getCurrentClockTime() - 2 * 24 * 60 * 60,
     ReadyToSync: true,
     ReadyForCommittee: false,
+    TimeToStale: STALE_UPDATE_GRACE - 2 * 24 * 60 * 60,
   };
   t.true(shouldNotifyReadyForCommittee(state, exampleConfig));
 });
@@ -188,17 +204,19 @@ test('shouldNotifyReadyForCommittee: standby in sync going stale', (t) => {
   const state = getExampleState();
   state.ManagementIsStandby = true;
   state.VchainSyncStatus = 'in-sync';
-  state.ManagementMyElectionStatus = {
+  state.ManagementMyElectionsStatus = {
     LastUpdateTime: getCurrentClockTime() - 2 * 24 * 60 * 60,
     ReadyToSync: true,
     ReadyForCommittee: true,
+    TimeToStale: STALE_UPDATE_GRACE - 2 * 24 * 60 * 60,
   };
   t.false(shouldNotifyReadyForCommittee(state, exampleConfig));
 
-  state.ManagementMyElectionStatus = {
+  state.ManagementMyElectionsStatus = {
     LastUpdateTime: getCurrentClockTime() - 20 * 24 * 60 * 60,
     ReadyToSync: true,
     ReadyForCommittee: true,
+    TimeToStale: 0,
   };
   t.true(shouldNotifyReadyForCommittee(state, exampleConfig));
 
@@ -209,10 +227,11 @@ test('shouldNotifyReadyForCommittee: only when ethereum state is operational', (
   const state = getExampleState();
   state.ManagementIsStandby = true;
   state.VchainSyncStatus = 'in-sync';
-  state.ManagementMyElectionStatus = {
+  state.ManagementMyElectionsStatus = {
     LastUpdateTime: getCurrentClockTime() - 20 * 24 * 60 * 60,
     ReadyToSync: true,
     ReadyForCommittee: true,
+    TimeToStale: 0,
   };
   t.true(shouldNotifyReadyForCommittee(state, exampleConfig));
 

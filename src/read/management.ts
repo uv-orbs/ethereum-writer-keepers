@@ -1,7 +1,8 @@
+import _ from 'lodash';
 import * as Logger from '../logger';
 import { State } from '../model/state';
 import fetch from 'node-fetch';
-import { Decoder, decodeString, num, object, record, bool, str, array } from 'ts-json-decode';
+import { Decoder, decodeString, num, object, record, bool, str, array, maybe } from 'ts-json-decode';
 import { getCurrentClockTime } from '../helpers';
 import { findEthFromOrbsAddress } from '../model/helpers';
 
@@ -11,17 +12,17 @@ export async function readManagementStatus(endpoint: string, myOrbsAddress: stri
 
   state.ManagementRefTime = response.Payload.CurrentRefTime;
   state.ManagementEthRefBlock = response.Payload.CurrentRefBlock;
-  state.ManagementEthToOrbsAddress = response.Payload.CurrentOrbsAddress;
   state.ManagementVirtualChains = response.Payload.CurrentVirtualChains;
   state.ManagementCurrentCommittee = response.Payload.CurrentCommittee;
-  state.ManagementCurrentStandbys = response.Payload.CurrentStandbys;
+  state.ManagementCurrentStandbys = _.filter(response.Payload.CurrentCandidates, (node) => node.IsStandby);
+  state.ManagementEthToOrbsAddress = _.mapValues(response.Payload.Guardians, (node) => node.OrbsAddress);
 
   const myEthAddress = findEthFromOrbsAddress(myOrbsAddress, state);
   state.ManagementInCommittee = response.Payload.CurrentCommittee.some((node) => node.EthAddress == myEthAddress);
-  state.ManagementIsStandby = response.Payload.CurrentStandbys.some((node) => node.EthAddress == myEthAddress);
-  state.ManagementMyElectionStatus = response.Payload.CurrentElectionsStatus[myEthAddress];
-  state.ManagementOthersElectionStatus = response.Payload.CurrentElectionsStatus;
-  delete state.ManagementOthersElectionStatus[myEthAddress];
+  state.ManagementIsStandby = state.ManagementCurrentStandbys.some((node) => node.EthAddress == myEthAddress);
+  state.ManagementMyElectionsStatus = response.Payload.Guardians[myEthAddress]?.ElectionsStatus;
+  state.ManagementOthersElectionsStatus = _.mapValues(response.Payload.Guardians, (node) => node.ElectionsStatus);
+  delete state.ManagementOthersElectionsStatus[myEthAddress];
 
   // last to be after all possible exceptions and processing delays
   state.ManagementLastPollTime = getCurrentClockTime();
@@ -48,13 +49,16 @@ interface ManagementStatusResponse {
     CurrentRefTime: number;
     CurrentRefBlock: number;
     CurrentCommittee: { EthAddress: string; Weight: number }[];
-    CurrentOrbsAddress: { [EthAddress: string]: string };
-    CurrentStandbys: { EthAddress: string }[];
-    CurrentElectionsStatus: {
+    CurrentCandidates: { EthAddress: string; IsStandby: boolean }[];
+    Guardians: {
       [EthAddress: string]: {
-        LastUpdateTime: number;
-        ReadyToSync: boolean;
-        ReadyForCommittee: boolean;
+        OrbsAddress: string;
+        ElectionsStatus?: {
+          LastUpdateTime: number;
+          ReadyToSync: boolean;
+          ReadyForCommittee: boolean;
+          TimeToStale: number;
+        };
       };
     };
     CurrentVirtualChains: {
@@ -79,17 +83,23 @@ const managementStatusResponseDecoder: Decoder<ManagementStatusResponse> = objec
         Weight: num,
       })
     ),
-    CurrentOrbsAddress: record(str),
-    CurrentStandbys: array(
+    CurrentCandidates: array(
       object({
         EthAddress: str,
+        IsStandby: bool,
       })
     ),
-    CurrentElectionsStatus: record(
+    Guardians: record(
       object({
-        LastUpdateTime: num,
-        ReadyToSync: bool,
-        ReadyForCommittee: bool,
+        OrbsAddress: str,
+        ElectionsStatus: maybe(
+          object({
+            LastUpdateTime: num,
+            ReadyToSync: bool,
+            ReadyForCommittee: bool,
+            TimeToStale: num,
+          })
+        ),
       })
     ),
     CurrentVirtualChains: record(

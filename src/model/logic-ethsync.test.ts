@@ -56,15 +56,30 @@ test('tx reverted becomes stuck until reset', (t) => {
 test('voted out becomes stuck until reset', (t) => {
   const now = getCurrentClockTime();
   const state = getExampleState();
-  state.ManagementMyElectionStatus = { ReadyToSync: false, ReadyForCommittee: false, LastUpdateTime: now - 60 };
+  state.ManagementMyElectionsStatus = {
+    ReadyToSync: false,
+    ReadyForCommittee: false,
+    LastUpdateTime: now - 60,
+    TimeToStale: 7 * 24 * 60 * 60,
+  };
   state.EthereumSyncStatus = calcEthereumSyncStatus(state, exampleConfig);
   t.is(state.EthereumSyncStatus, 'operational'); // since wakes up after an old vote out
 
-  state.ManagementMyElectionStatus = { ReadyToSync: false, ReadyForCommittee: false, LastUpdateTime: now + 60 };
+  state.ManagementMyElectionsStatus = {
+    ReadyToSync: false,
+    ReadyForCommittee: false,
+    LastUpdateTime: now + 60,
+    TimeToStale: 7 * 24 * 60 * 60,
+  };
   state.EthereumSyncStatus = calcEthereumSyncStatus(state, exampleConfig);
   t.is(state.EthereumSyncStatus, 'need-reset'); // since the vote out is after launch time
 
-  state.ManagementMyElectionStatus = { ReadyToSync: true, ReadyForCommittee: true, LastUpdateTime: now + 60 };
+  state.ManagementMyElectionsStatus = {
+    ReadyToSync: true,
+    ReadyForCommittee: true,
+    LastUpdateTime: now + 60,
+    TimeToStale: 7 * 24 * 60 * 60,
+  };
   state.EthereumSyncStatus = calcEthereumSyncStatus(state, exampleConfig);
   t.is(state.EthereumSyncStatus, 'need-reset');
 });

@@ -61,7 +61,7 @@ function noPendingVoteOut(ethAddress: string, state: State, config: VoteOutParam
   const nowEth = state.ManagementRefTime;
   const lastVoteOut = state.EthereumLastVoteOutTime[ethAddress] ?? 0;
   if (nowEth - lastVoteOut > config.VoteOutValiditySeconds) return true;
-  const lastReadyForCommittee = state.ManagementOthersElectionStatus[ethAddress]?.LastUpdateTime ?? 0;
+  const lastReadyForCommittee = state.ManagementOthersElectionsStatus[ethAddress]?.LastUpdateTime ?? 0;
   if (lastReadyForCommittee > lastVoteOut) return true;
   return false;
 }

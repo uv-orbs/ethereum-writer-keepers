@@ -26,9 +26,9 @@ function isEthValid(state: State, config: EthereumWriteStatusParams): boolean {
 }
 
 function isNewlyVotedOut(state: State): boolean {
-  if (!state.ManagementMyElectionStatus) return false;
-  if (state.ManagementMyElectionStatus.ReadyToSync != false) return false;
-  if (state.ServiceLaunchTime > state.ManagementMyElectionStatus.LastUpdateTime) return false;
+  if (!state.ManagementMyElectionsStatus) return false;
+  if (state.ManagementMyElectionsStatus.ReadyToSync != false) return false;
+  if (state.ServiceLaunchTime > state.ManagementMyElectionsStatus.LastUpdateTime) return false;
   Logger.error(`Found that we have been newly voted out since RTS is false, reset needed!`);
   return true;
 }

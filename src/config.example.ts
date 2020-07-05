@@ -19,7 +19,6 @@ export const exampleConfig: Configuration = {
   VchainOutOfSyncThresholdSeconds: 60 * 60,
   EthereumSyncRequirementSeconds: 20 * 60,
   FailToSyncVcsTimeoutSeconds: 24 * 60 * 60,
-  ElectionsStaleUpdateSeconds: 7 * 24 * 60 * 60,
   ElectionsRefreshWindowSeconds: 2 * 60 * 60,
   InvalidReputationGraceSeconds: 6 * 60 * 60,
   VoteOutValiditySeconds: 7 * 24 * 60 * 60,

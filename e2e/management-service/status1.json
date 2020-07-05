@@ -8,16 +8,30 @@
     "CurrentCommittee": [
       {
         "EthAddress": "8a670ddc1910c27278ab7db2a148a0dccc6bf0f5",
-        "Weight": 40000
+        "Weight": 40000,
+        "Name": "Validator3"
       },
       {
         "EthAddress": "e16e965a4cc3fcd597ecdb9cd9ab8f3e6a750ac9",
-        "Weight": 30000
+        "Weight": 30000,
+        "Name": "Validator1"
       }
     ],
-    "CurrentStandbys": [
+    "CurrentCandidates": [
       {
-        "EthAddress": "cb6642be414696f77336dae06fed3775f08de0ea"
+        "EthAddress": "cb6642be414696f77336dae06fed3775f08de0ea",
+        "IsStandby": true,
+        "Name": "Validator4"
+      },
+      {
+        "EthAddress": "51baa09f2f7dfc7a0f65886b68720958d389cac7",
+        "IsStandby": false,
+        "Name": "Validator2"
+      },
+      {
+        "EthAddress": "29ce860a2247d97160d6dfc087a15f41e2349087",
+        "IsStandby": false,
+        "Name": "Validator0"
       }
     ],
     "CurrentImageVersions": {
@@ -76,45 +90,81 @@
         "Port": 0
       }
     ],
-    "CurrentIp": {
-      "29ce860a2247d97160d6dfc087a15f41e2349087": "41.206.134.10",
-      "e16e965a4cc3fcd597ecdb9cd9ab8f3e6a750ac9": "225.110.150.90",
-      "51baa09f2f7dfc7a0f65886b68720958d389cac7": "81.186.160.159",
-      "8a670ddc1910c27278ab7db2a148a0dccc6bf0f5": "138.103.13.220",
-      "cb6642be414696f77336dae06fed3775f08de0ea": "203.102.66.190"
-    },
-    "CurrentOrbsAddress": {
-      "29ce860a2247d97160d6dfc087a15f41e2349087": "16fcf728f8dc3f687132f2157d8379c021a08c12",
-      "e16e965a4cc3fcd597ecdb9cd9ab8f3e6a750ac9": "86544bdd6c8b957cd198252c45fa215fc3892126",
-      "51baa09f2f7dfc7a0f65886b68720958d389cac7": "174dc3b45bdbbc32aa0b95e64d0247ce99b08f69",
-      "8a670ddc1910c27278ab7db2a148a0dccc6bf0f5": "7c2300d32ebf4a6ae9edf95f4f57ab5a07488c2e",
-      "cb6642be414696f77336dae06fed3775f08de0ea": "33546759bdcfb5c753a4102b86b3e73e714d5213"
-    },
-    "CurrentElectionsStatus": {
+    "Guardians": {
       "29ce860a2247d97160d6dfc087a15f41e2349087": {
-        "LastUpdateTime": 1592409043,
-        "ReadyToSync": false,
-        "ReadyForCommittee": false
+        "EthAddress": "29ce860a2247d97160d6dfc087a15f41e2349087",
+        "OrbsAddress": "16fcf728f8dc3f687132f2157d8379c021a08c12",
+        "Ip": "41.206.134.10",
+        "EffectiveStake": 10000,
+        "ElectionsStatus": {
+          "LastUpdateTime": 1592409043,
+          "ReadyToSync": false,
+          "ReadyForCommittee": false,
+          "TimeToStale": 5000
+        },
+        "Name": "Validator0",
+        "Website": "Validator0-website",
+        "Contact": "Validator0-contact"
       },
       "e16e965a4cc3fcd597ecdb9cd9ab8f3e6a750ac9": {
-        "LastUpdateTime": 1592409043,
-        "ReadyToSync": true,
-        "ReadyForCommittee": true
+        "EthAddress": "e16e965a4cc3fcd597ecdb9cd9ab8f3e6a750ac9",
+        "OrbsAddress": "86544bdd6c8b957cd198252c45fa215fc3892126",
+        "Ip": "225.110.150.90",
+        "EffectiveStake": 20000,
+        "ElectionsStatus": {
+          "LastUpdateTime": 1592409043,
+          "ReadyToSync": true,
+          "ReadyForCommittee": true,
+          "TimeToStale": 604800
+        },
+        "Name": "Validator1",
+        "Website": "Validator1-website",
+        "Contact": "Validator1-contact"
       },
       "51baa09f2f7dfc7a0f65886b68720958d389cac7": {
-        "LastUpdateTime": 1592409043,
-        "ReadyToSync": false,
-        "ReadyForCommittee": false
+        "EthAddress": "51baa09f2f7dfc7a0f65886b68720958d389cac7",
+        "OrbsAddress": "174dc3b45bdbbc32aa0b95e64d0247ce99b08f69",
+        "Ip": "81.186.160.159",
+        "EffectiveStake": 30000,
+        "ElectionsStatus": {
+          "LastUpdateTime": 1592409043,
+          "ReadyToSync": false,
+          "ReadyForCommittee": false,
+          "TimeToStale": 86400
+        },
+        "Name": "Validator2",
+        "Website": "Validator2-website",
+        "Contact": "Validator2-contact"
       },
       "8a670ddc1910c27278ab7db2a148a0dccc6bf0f5": {
-        "LastUpdateTime": 1592409043,
-        "ReadyToSync": true,
-        "ReadyForCommittee": true
+        "EthAddress": "8a670ddc1910c27278ab7db2a148a0dccc6bf0f5",
+        "OrbsAddress": "7c2300d32ebf4a6ae9edf95f4f57ab5a07488c2e",
+        "Ip": "138.103.13.220",
+        "EffectiveStake": 40000,
+        "ElectionsStatus": {
+          "LastUpdateTime": 1592409043,
+          "ReadyToSync": true,
+          "ReadyForCommittee": true,
+          "TimeToStale": 604800
+        },
+        "Name": "Validator3",
+        "Website": "Validator3-website",
+        "Contact": "Validator3-contact"
       },
       "cb6642be414696f77336dae06fed3775f08de0ea": {
-        "LastUpdateTime": 1592409043,
-        "ReadyToSync": true,
-        "ReadyForCommittee": false
+        "EthAddress": "cb6642be414696f77336dae06fed3775f08de0ea",
+        "OrbsAddress": "33546759bdcfb5c753a4102b86b3e73e714d5213",
+        "Ip": "203.102.66.190",
+        "EffectiveStake": 50000,
+        "ElectionsStatus": {
+          "LastUpdateTime": 1592409043,
+          "ReadyToSync": true,
+          "ReadyForCommittee": false,
+          "TimeToStale": 0
+        },
+        "Name": "Validator4",
+        "Website": "Validator4-website",
+        "Contact": "Validator4-contact"
       }
     },
     "ProtocolVersionEvents": {
