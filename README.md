@@ -4,7 +4,7 @@ Node service to send Ethereum transactions for elections lifecycle (like auto vo
 
 ## Install dev environment
 
-* Make sure [Node.js](https://nodejs.org/) is installed (min 12.13.0).
+* Make sure [Node.js](https://nodejs.org/) is installed (min 12.14.0).
 
   * Install with `brew install node`, check version with `node -v`.
 
