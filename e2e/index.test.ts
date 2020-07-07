@@ -32,9 +32,12 @@ test.serial('[E2E] launches with one vchain out of sync -> sends ready-to-sync',
     VchainSyncStatus: 'exist-not-in-sync',
     EthereumBalanceLastPollTime: isValidTimeRef,
     EtherBalance: isValidEtherBalance,
+    EthereumConsecutiveTxTimeouts: 0,
     EthereumLastElectionsTx: {
       Type: 'ready-to-sync',
       SendTime: isValidTimeRef,
+      GasPriceStrategy: 'discount',
+      GasPrice: 30000000000,
     },
     EthereumLastVoteOutTime: {},
     VchainReputationsLastPollTime: isValidTimeRef,
@@ -89,7 +92,7 @@ test.serial('[E2E] all vchains synced -> sends ready-for-committee', async (t) =
 
   t.log('telling mock to start showing vchain-43 as synced');
   await driver.fetch('vchain-43', 8080, 'change-mock-state/synced');
-  await sleep(3000);
+  await sleep(4000);
 
   const status = await driver.catJsonInService('app', '/opt/orbs/status/status.json');
   t.log('status:', JSON.stringify(status, null, 2));
@@ -100,9 +103,12 @@ test.serial('[E2E] all vchains synced -> sends ready-for-committee', async (t) =
     VchainSyncStatus: 'in-sync',
     EthereumBalanceLastPollTime: isValidTimeRef,
     EtherBalance: isValidEtherBalance,
+    EthereumConsecutiveTxTimeouts: 0,
     EthereumLastElectionsTx: {
       Type: 'ready-for-committee',
       SendTime: isValidTimeRef,
+      GasPriceStrategy: 'discount',
+      GasPrice: 30000000000,
     },
     EthereumLastVoteOutTime: {},
     VchainReputationsLastPollTime: isValidTimeRef,
@@ -157,7 +163,7 @@ test.serial('[E2E] enter committee -> sends vote out for bad rep', async (t) => 
 
   t.log('telling mock to start showing the node in the committee');
   await driver.fetch('management-service', 8080, 'change-mock-state/in-committee');
-  await sleep(4000);
+  await sleep(5000);
 
   const status = await driver.catJsonInService('app', '/opt/orbs/status/status.json');
   t.log('status:', JSON.stringify(status, null, 2));
@@ -168,10 +174,13 @@ test.serial('[E2E] enter committee -> sends vote out for bad rep', async (t) => 
     VchainSyncStatus: 'in-sync',
     EthereumBalanceLastPollTime: isValidTimeRef,
     EtherBalance: isValidEtherBalance,
+    EthereumConsecutiveTxTimeouts: 0,
     EthereumLastElectionsTx: {
       LastPollTime: isValidTimeRef,
       Type: 'ready-for-committee',
       SendTime: isValidTimeRef,
+      GasPriceStrategy: 'discount',
+      GasPrice: 30000000000,
       Status: 'final',
       TxHash: isNonEmptyString,
       EthBlock: isValidBlock,
@@ -180,6 +189,8 @@ test.serial('[E2E] enter committee -> sends vote out for bad rep', async (t) => 
       LastPollTime: isValidTimeRef,
       Type: 'vote-out',
       SendTime: isValidTimeRef,
+      GasPriceStrategy: 'discount',
+      GasPrice: 30000000000,
       Status: 'final',
       TxHash: isNonEmptyString,
       EthBlock: isValidBlock,

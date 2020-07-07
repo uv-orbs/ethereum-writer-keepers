@@ -43,7 +43,7 @@ async function runLoopTick(config: Configuration, state: State) {
     getCurrentClockTime() - (state.EthereumLastElectionsTx?.LastPollTime ?? 0) >
     config.EthereumPendingTxPollTimeSeconds
   ) {
-    await readPendingTransactionStatus(state.EthereumLastElectionsTx, state);
+    await readPendingTransactionStatus(state.EthereumLastElectionsTx, state, config);
   }
 
   // refresh pending ethereum transactions status for vote outs, rate according to config
@@ -51,7 +51,7 @@ async function runLoopTick(config: Configuration, state: State) {
     getCurrentClockTime() - (state.EthereumLastVoteOutTx?.LastPollTime ?? 0) >
     config.EthereumPendingTxPollTimeSeconds
   ) {
-    await readPendingTransactionStatus(state.EthereumLastVoteOutTx, state);
+    await readPendingTransactionStatus(state.EthereumLastVoteOutTx, state, config);
   }
 
   // warn if we have low ether to pay tx fees, rate according to config
@@ -80,17 +80,17 @@ async function runLoopTick(config: Configuration, state: State) {
   // send ready-to-sync / ready-for-comittee if needed, we don't mind checking this often (20s)
   if (shouldNotifyReadyForCommittee(state, config)) {
     Logger.log(`Decided to send ready-for-committee.`);
-    await sendEthereumElectionsTransaction('ready-for-committee', config.NodeOrbsAddress, state);
+    await sendEthereumElectionsTransaction('ready-for-committee', config.NodeOrbsAddress, state, config);
   } else if (shouldNotifyReadyToSync(state, config)) {
     Logger.log(`Decided to send ready-to-sync.`);
-    await sendEthereumElectionsTransaction('ready-to-sync', config.NodeOrbsAddress, state);
+    await sendEthereumElectionsTransaction('ready-to-sync', config.NodeOrbsAddress, state, config);
   }
 
   // send vote outs if needed, we don't mind checking this often (20s)
   const toVoteOut = getAllValidatorsToVoteOut(state, config);
   if (toVoteOut.length > 0) {
     Logger.log(`Decided to send vote outs against validators: ${toVoteOut.map((n) => n.EthAddress)}.`);
-    await sendEthereumVoteOutTransaction(toVoteOut, config.NodeOrbsAddress, state);
+    await sendEthereumVoteOutTransaction(toVoteOut, config.NodeOrbsAddress, state, config);
   }
 
   // write status.json file, we don't mind doing this often (20s)

@@ -2,7 +2,7 @@ import * as Logger from '../logger';
 import { EthereumSyncStatusEnum, State } from './state';
 import { getCurrentClockTime } from '../helpers';
 
-export function calcEthereumSyncStatus(state: State, config: EthereumWriteStatusParams): EthereumSyncStatusEnum {
+export function calcEthereumSyncStatus(state: State, config: EthereumSyncStatusParams): EthereumSyncStatusEnum {
   if (state.EthereumSyncStatus == 'need-reset') return 'need-reset'; // stuck until node reset
   if (!isEthValid(state, config)) return 'out-of-sync';
   if (isAnyTxReverted(state)) return 'need-reset';
@@ -14,12 +14,12 @@ export function calcEthereumSyncStatus(state: State, config: EthereumWriteStatus
 
 // helpers
 
-export interface EthereumWriteStatusParams {
+export interface EthereumSyncStatusParams {
   EthereumSyncRequirementSeconds: number;
   FailToSyncVcsTimeoutSeconds: number;
 }
 
-function isEthValid(state: State, config: EthereumWriteStatusParams): boolean {
+function isEthValid(state: State, config: EthereumSyncStatusParams): boolean {
   const now = getCurrentClockTime();
   if (now - state.ManagementRefTime > config.EthereumSyncRequirementSeconds) return false;
   return true;
@@ -33,7 +33,7 @@ function isNewlyVotedOut(state: State): boolean {
   return true;
 }
 
-function isFailedToSyncVcs(state: State, config: EthereumWriteStatusParams): boolean {
+function isFailedToSyncVcs(state: State, config: EthereumSyncStatusParams): boolean {
   const now = getCurrentClockTime();
 
   // maintain a helper state variable to see how long we're in failed to sync

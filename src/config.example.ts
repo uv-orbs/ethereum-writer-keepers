@@ -23,4 +23,8 @@ export const exampleConfig: Configuration = {
   InvalidReputationGraceSeconds: 6 * 60 * 60,
   VoteOutValiditySeconds: 7 * 24 * 60 * 60,
   ElectionsAuditOnly: false,
+  EthereumDiscountGasPriceFactor: 0.75,
+  EthereumDiscountTxTimeoutSeconds: 60 * 60,
+  EthereumNonDiscountTxTimeoutSeconds: 10 * 60,
+  EthereumMaxGasPrice: 150000000000, // 150 gwei
 };

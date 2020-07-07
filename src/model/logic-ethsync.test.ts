@@ -33,6 +33,8 @@ test('tx reverted becomes stuck until reset', (t) => {
   state.EthereumLastElectionsTx = {
     Status: 'revert',
     SendTime: 123,
+    GasPriceStrategy: 'discount',
+    GasPrice: 30000000000,
     TxHash: 'abc',
     EthBlock: 456,
     Type: 'ready-to-sync',
@@ -44,6 +46,8 @@ test('tx reverted becomes stuck until reset', (t) => {
   state.EthereumLastElectionsTx = {
     Status: 'final',
     SendTime: 123,
+    GasPriceStrategy: 'discount',
+    GasPrice: 30000000000,
     TxHash: 'abc',
     EthBlock: 456,
     Type: 'ready-to-sync',
@@ -166,6 +170,8 @@ test('pending tx then final then another pending', (t) => {
   state.EthereumLastElectionsTx = {
     Status: 'pending',
     SendTime: 123,
+    GasPriceStrategy: 'discount',
+    GasPrice: 30000000000,
     TxHash: 'abc',
     EthBlock: 456,
     Type: 'ready-to-sync',
@@ -177,6 +183,8 @@ test('pending tx then final then another pending', (t) => {
   state.EthereumLastElectionsTx = {
     Status: 'final',
     SendTime: 123,
+    GasPriceStrategy: 'discount',
+    GasPrice: 30000000000,
     TxHash: 'abc',
     EthBlock: 456,
     Type: 'ready-to-sync',
@@ -188,6 +196,8 @@ test('pending tx then final then another pending', (t) => {
   state.EthereumLastElectionsTx = {
     Status: 'pending',
     SendTime: 123,
+    GasPriceStrategy: 'discount',
+    GasPrice: 30000000000,
     TxHash: 'abc',
     EthBlock: 456,
     Type: 'ready-to-sync',
@@ -206,6 +216,8 @@ test('eth out of sync masks pending tx', (t) => {
   state.EthereumLastElectionsTx = {
     Status: 'pending',
     SendTime: 123,
+    GasPriceStrategy: 'discount',
+    GasPrice: 30000000000,
     TxHash: 'abc',
     EthBlock: 456,
     Type: 'ready-to-sync',

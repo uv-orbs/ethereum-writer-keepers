@@ -21,6 +21,10 @@ export interface Configuration {
   InvalidReputationGraceSeconds: number;
   VoteOutValiditySeconds: number;
   ElectionsAuditOnly: boolean;
+  EthereumDiscountGasPriceFactor: number;
+  EthereumDiscountTxTimeoutSeconds: number;
+  EthereumNonDiscountTxTimeoutSeconds: number;
+  EthereumMaxGasPrice: number; // in wei (below 2^54 so number is ok)
 }
 
 export const defaultConfiguration = {
@@ -41,6 +45,10 @@ export const defaultConfiguration = {
   InvalidReputationGraceSeconds: 6 * 60 * 60,
   VoteOutValiditySeconds: 7 * 24 * 60 * 60,
   ElectionsAuditOnly: false,
+  EthereumDiscountGasPriceFactor: 0.75,
+  EthereumDiscountTxTimeoutSeconds: 60 * 60,
+  EthereumNonDiscountTxTimeoutSeconds: 10 * 60,
+  EthereumMaxGasPrice: 150000000000, // 150 gwei
 };
 
 export function validateConfiguration(config: Configuration) {
@@ -157,5 +165,29 @@ export function validateConfiguration(config: Configuration) {
   }
   if (typeof config.ElectionsAuditOnly != 'boolean') {
     throw new Error(`ElectionsAuditOnly is not found or not a boolean.`);
+  }
+  if (!config.EthereumDiscountGasPriceFactor) {
+    throw new Error(`EthereumDiscountGasPriceFactor is empty or zero.`);
+  }
+  if (typeof config.EthereumDiscountGasPriceFactor != 'number') {
+    throw new Error(`EthereumDiscountGasPriceFactor is not a number.`);
+  }
+  if (!config.EthereumDiscountTxTimeoutSeconds) {
+    throw new Error(`EthereumDiscountTxTimeoutSeconds is empty or zero.`);
+  }
+  if (typeof config.EthereumDiscountTxTimeoutSeconds != 'number') {
+    throw new Error(`EthereumDiscountTxTimeoutSeconds is not a number.`);
+  }
+  if (!config.EthereumNonDiscountTxTimeoutSeconds) {
+    throw new Error(`EthereumNonDiscountTxTimeoutSeconds is empty or zero.`);
+  }
+  if (typeof config.EthereumNonDiscountTxTimeoutSeconds != 'number') {
+    throw new Error(`EthereumNonDiscountTxTimeoutSeconds is not a number.`);
+  }
+  if (!config.EthereumMaxGasPrice) {
+    throw new Error(`EthereumMaxGasPrice is empty or zero.`);
+  }
+  if (typeof config.EthereumMaxGasPrice != 'number') {
+    throw new Error(`EthereumMaxGasPrice is not a number.`);
   }
 }

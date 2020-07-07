@@ -5,6 +5,7 @@ import { ensureFileDirectoryExists, JsonResponse, getCurrentClockTime } from '..
 import { Configuration } from '../config';
 
 const MINIMUM_ALLOWED_ETH_BALANCE_WEI = BigInt('20000000000000000');
+const TX_CONSECUTIVE_TIMEOUTS = 10;
 const TX_SEND_FAILURE_TIMEOUT = 24 * 60 * 60; // seconds
 
 export function writeStatusToDisk(filePath: string, state: State, config: Configuration) {
@@ -17,6 +18,7 @@ export function writeStatusToDisk(filePath: string, state: State, config: Config
       VchainSyncStatus: state.VchainSyncStatus,
       EthereumBalanceLastPollTime: state.EthereumBalanceLastPollTime,
       EtherBalance: state.EtherBalance,
+      EthereumConsecutiveTxTimeouts: state.EthereumConsecutiveTxTimeouts,
       EthereumLastElectionsTx: state.EthereumLastElectionsTx,
       EthereumLastVoteOutTx: state.EthereumLastVoteOutTx,
       EthereumLastVoteOutTime: state.EthereumLastVoteOutTime,
@@ -72,12 +74,15 @@ function getErrorText(state: State) {
   if (state.EthereumSyncStatus == 'out-of-sync') {
     res.push(`Eth is out of sync.`);
   }
+  if (state.EthereumConsecutiveTxTimeouts > TX_CONSECUTIVE_TIMEOUTS) {
+    res.push(`Too many pending tx timeouts: ${state.EthereumConsecutiveTxTimeouts}.`)
+  }
   const electionsTxFailedAgo = getCurrentClockTime() - (state.EthereumLastElectionsTx?.SendTime ?? 0);
-  if (state.EthereumLastElectionsTx?.Status == 'failed' && electionsTxFailedAgo < TX_SEND_FAILURE_TIMEOUT) {
+  if (state.EthereumLastElectionsTx?.Status == 'failed-send' && electionsTxFailedAgo < TX_SEND_FAILURE_TIMEOUT) {
     res.push(`Elections tx failed ${electionsTxFailedAgo} seconds ago.`);
   }
   const voteOutTxFailedAgo = getCurrentClockTime() - (state.EthereumLastVoteOutTx?.SendTime ?? 0);
-  if (state.EthereumLastVoteOutTx?.Status == 'failed' && voteOutTxFailedAgo < TX_SEND_FAILURE_TIMEOUT) {
+  if (state.EthereumLastVoteOutTx?.Status == 'failed-send' && voteOutTxFailedAgo < TX_SEND_FAILURE_TIMEOUT) {
     res.push(`Vote out tx failed ${voteOutTxFailedAgo} seconds ago.`);
   }
   return res.join(' ');

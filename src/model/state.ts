@@ -35,6 +35,7 @@ export class State {
   EthereumLastVoteOutTime: { [EthAddress: string]: number } = {};
   EthereumBalanceLastPollTime = 0; // UTC seconds
   EtherBalance = ''; // string in wei
+  EthereumConsecutiveTxTimeouts = 0;
 
   // updated by index.ts
   VchainSyncStatus: VchainSyncStatusEnum = 'not-exist';
@@ -76,11 +77,15 @@ export interface VchainMetrics {
   UptimeSeconds: number;
 }
 
+export type GasPriceStrategy = 'discount' | 'recommended';
+
 export interface EthereumTxStatus {
   LastPollTime: number; // UTC seconds
   Type: 'ready-to-sync' | 'ready-for-committee' | 'vote-out';
   SendTime: number; // UTC seconds
-  Status: 'pending' | 'final' | 'failed' | 'revert'; // final according to ManagementEthRefBlock
+  GasPriceStrategy: GasPriceStrategy;
+  GasPrice: number; // wei
+  Status: 'pending' | 'final' | 'failed-send' | 'timeout' | 'removed-from-pool' | 'revert'; // final according to ManagementEthRefBlock
   TxHash: string;
   EthBlock: number;
   OnFinal?: () => void;
