@@ -76,7 +76,7 @@ function getErrorText(state: State) {
     res.push(`Eth is out of sync.`);
   }
   if (state.EthereumConsecutiveTxTimeouts > TX_CONSECUTIVE_TIMEOUTS) {
-    res.push(`Too many pending tx timeouts: ${state.EthereumConsecutiveTxTimeouts}.`)
+    res.push(`Too many pending tx timeouts: ${state.EthereumConsecutiveTxTimeouts}.`);
   }
   const electionsTxFailedAgo = getCurrentClockTime() - (state.EthereumLastElectionsTx?.SendTime ?? 0);
   if (state.EthereumLastElectionsTx?.Status == 'failed-send' && electionsTxFailedAgo < TX_SEND_FAILURE_TIMEOUT) {

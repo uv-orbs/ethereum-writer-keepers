@@ -12,8 +12,8 @@ import { shouldNotifyReadyForCommittee, shouldNotifyReadyToSync } from './model/
 import { getAllValidatorsToVoteOut } from './model/logic-voteout';
 import Signer from 'orbs-signer-client';
 import {
-  readEtherBalance,
   initWeb3Client,
+  readEtherBalance,
   readPendingTransactionStatus,
   sendEthereumElectionsTransaction,
   sendEthereumVoteOutTransaction,

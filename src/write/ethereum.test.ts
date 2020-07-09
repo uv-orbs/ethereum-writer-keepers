@@ -1,13 +1,13 @@
 import test from 'ava';
-import Web3 from 'web3';
-import { State, EthereumTxStatus } from '../model/state';
-import { Contract } from 'web3-eth-contract';
 import {
   initWeb3Client,
   sendEthereumElectionsTransaction,
   sendEthereumVoteOutTransaction,
   readPendingTransactionStatus,
 } from './ethereum';
+import Web3 from 'web3';
+import { State, EthereumTxStatus } from '../model/state';
+import { Contract } from 'web3-eth-contract';
 import { sleep, getCurrentClockTime } from '../helpers';
 import Signer from 'orbs-signer-client';
 import { exampleConfig } from '../config.example';
