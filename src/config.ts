@@ -1,9 +1,9 @@
 export interface Configuration {
-  ManagementServiceEndpoint: string;
-  EthereumEndpoint: string;
-  SignerEndpoint: string;
-  EthereumElectionsContract: string;
-  NodeOrbsAddress: string;
+  ManagementServiceEndpoint: string; // does not have default
+  EthereumEndpoint: string; // does not have default
+  SignerEndpoint: string; // does not have default
+  EthereumElectionsContract: string; // does not have default
+  NodeOrbsAddress: string; // does not have default
   VirtualChainEndpointSchema: string;
   StatusJsonPath: string;
   RunLoopPollTimeSeconds: number;
