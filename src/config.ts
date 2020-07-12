@@ -19,7 +19,7 @@ export interface Configuration {
   FailToSyncVcsTimeoutSeconds: number;
   ElectionsRefreshWindowSeconds: number;
   InvalidReputationGraceSeconds: number;
-  VoteOutValiditySeconds: number;
+  VoteUnreadyValiditySeconds: number;
   ElectionsAuditOnly: boolean;
   EthereumDiscountGasPriceFactor: number;
   EthereumDiscountTxTimeoutSeconds: number;
@@ -43,7 +43,7 @@ export const defaultConfiguration = {
   FailToSyncVcsTimeoutSeconds: 24 * 60 * 60,
   ElectionsRefreshWindowSeconds: 2 * 60 * 60,
   InvalidReputationGraceSeconds: 6 * 60 * 60,
-  VoteOutValiditySeconds: 7 * 24 * 60 * 60,
+  VoteUnreadyValiditySeconds: 7 * 24 * 60 * 60,
   ElectionsAuditOnly: false,
   EthereumDiscountGasPriceFactor: 0.75,
   EthereumDiscountTxTimeoutSeconds: 60 * 60,
@@ -157,11 +157,11 @@ export function validateConfiguration(config: Configuration) {
   if (typeof config.InvalidReputationGraceSeconds != 'number') {
     throw new Error(`InvalidReputationGraceSeconds is not a number.`);
   }
-  if (!config.VoteOutValiditySeconds) {
-    throw new Error(`VoteOutValiditySeconds is empty or zero.`);
+  if (!config.VoteUnreadyValiditySeconds) {
+    throw new Error(`VoteUnreadyValiditySeconds is empty or zero.`);
   }
-  if (typeof config.VoteOutValiditySeconds != 'number') {
-    throw new Error(`VoteOutValiditySeconds is not a number.`);
+  if (typeof config.VoteUnreadyValiditySeconds != 'number') {
+    throw new Error(`VoteUnreadyValiditySeconds is not a number.`);
   }
   if (typeof config.ElectionsAuditOnly != 'boolean') {
     throw new Error(`ElectionsAuditOnly is not found or not a boolean.`);

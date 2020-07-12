@@ -6,27 +6,27 @@ import { calcMedianInPlace } from './helpers';
 const INVALID_REPUTATION_THRESHOLD = 4;
 const VALID_REPUTATION_THRESHOLD = 2;
 
-export function getAllValidatorsToVoteOut(state: State, config: VoteOutParams): CommitteeMember[] {
+export function getAllGuardiansToVoteUnready(state: State, config: VoteUnreadyParams): CommitteeMember[] {
   if (state.EthereumSyncStatus != 'operational') return [];
   if (state.VchainSyncStatus != 'in-sync') return [];
   if (!state.ManagementInCommittee) return [];
-  return state.ManagementCurrentCommittee.filter((validator) => shouldBeVotedOut(validator, state, config));
+  return state.ManagementCurrentCommittee.filter((guardian) => shouldBeVotedUnready(guardian, state, config));
 }
 
-function shouldBeVotedOut(validator: CommitteeMember, state: State, config: VoteOutParams): boolean {
-  if (!noPendingVoteOut(validator.EthAddress, state, config)) return false;
-  if (hasLongBadReputationInAnyVc(validator.EthAddress, state, config)) return true;
+function shouldBeVotedUnready(guardian: CommitteeMember, state: State, config: VoteUnreadyParams): boolean {
+  if (!noPendingVoteUnready(guardian.EthAddress, state, config)) return false;
+  if (hasLongBadReputationInAnyVc(guardian.EthAddress, state, config)) return true;
   return false;
 }
 
 // helpers
 
-export interface VoteOutParams {
+export interface VoteUnreadyParams {
   InvalidReputationGraceSeconds: number;
-  VoteOutValiditySeconds: number;
+  VoteUnreadyValiditySeconds: number;
 }
 
-function hasLongBadReputationInAnyVc(ethAddress: string, state: State, config: VoteOutParams): boolean {
+function hasLongBadReputationInAnyVc(ethAddress: string, state: State, config: VoteUnreadyParams): boolean {
   const now = getCurrentClockTime();
   const orbsAddress = state.ManagementEthToOrbsAddress[ethAddress];
   if (!orbsAddress) return false;
@@ -57,12 +57,12 @@ function isBadReputation(orbsAddress: string, reputations: VchainReputations): b
   return true;
 }
 
-function noPendingVoteOut(ethAddress: string, state: State, config: VoteOutParams): boolean {
+function noPendingVoteUnready(ethAddress: string, state: State, config: VoteUnreadyParams): boolean {
   const nowEth = state.ManagementRefTime;
-  const lastVoteOut = state.EthereumLastVoteOutTime[ethAddress] ?? 0;
-  if (nowEth - lastVoteOut > config.VoteOutValiditySeconds) return true;
+  const lastVoteUnready = state.EthereumLastVoteUnreadyTime[ethAddress] ?? 0;
+  if (nowEth - lastVoteUnready > config.VoteUnreadyValiditySeconds) return true;
   const lastReadyForCommittee = state.ManagementOthersElectionsStatus[ethAddress]?.LastUpdateTime ?? 0;
-  if (lastReadyForCommittee > lastVoteOut) return true;
+  if (lastReadyForCommittee > lastVoteUnready) return true;
   return false;
 }
 

@@ -15,7 +15,7 @@ const driver = new TestEnvironment(join(__dirname, 'docker-compose.yml'));
 driver.launchServices();
 
 // node is OrbsAddress 16fcf728f8dc3f687132f2157d8379c021a08c12, EthAddress 29ce860a2247d97160d6dfc087a15f41e2349087
-// node was voted out, so "ReadyToSync": false, also the node is not standby
+// node was voted unready, so "ReadyToSync": false, also the node is not standby
 test.serial('[E2E] launches with one vchain out of sync -> sends ready-to-sync', async (t) => {
   t.log('started');
   driver.testLogger = t.log;
@@ -40,7 +40,7 @@ test.serial('[E2E] launches with one vchain out of sync -> sends ready-to-sync',
       GasPriceStrategy: 'discount',
       GasPrice: 30000000000,
     },
-    EthereumLastVoteOutTime: {},
+    EthereumLastVoteUnreadyTime: {},
     VchainReputationsLastPollTime: isValidTimeRef,
     VchainReputations: {
       '42': {
@@ -77,7 +77,7 @@ test.serial('[E2E] launches with one vchain out of sync -> sends ready-to-sync',
   });
   t.deepEqual(errors, []);
 
-  const events = await driver.ethereumPosDriver.elections.web3Contract.getPastEvents('ValidatorStatusUpdated');
+  const events = await driver.ethereumPosDriver.elections.web3Contract.getPastEvents('GuardianStatusUpdated');
   t.log('events:', JSON.stringify(events, null, 2));
 
   t.assert(events.length == 1);
@@ -112,7 +112,7 @@ test.serial('[E2E] all vchains synced -> sends ready-for-committee', async (t) =
       GasPriceStrategy: 'discount',
       GasPrice: 30000000000,
     },
-    EthereumLastVoteOutTime: {},
+    EthereumLastVoteUnreadyTime: {},
     VchainReputationsLastPollTime: isValidTimeRef,
     VchainReputations: {
       '42': {
@@ -149,7 +149,7 @@ test.serial('[E2E] all vchains synced -> sends ready-for-committee', async (t) =
   });
   t.deepEqual(errors, []);
 
-  const events = await driver.ethereumPosDriver.elections.web3Contract.getPastEvents('ValidatorStatusUpdated');
+  const events = await driver.ethereumPosDriver.elections.web3Contract.getPastEvents('GuardianStatusUpdated');
   t.log('last event:', JSON.stringify(events, null, 2));
 
   t.assert(events.length == 1);
@@ -158,7 +158,7 @@ test.serial('[E2E] all vchains synced -> sends ready-for-committee', async (t) =
   t.is(events[0].returnValues.readyForCommittee, true);
 });
 
-test.serial('[E2E] enter committee -> sends vote out for bad rep', async (t) => {
+test.serial('[E2E] enter committee -> sends vote unready for bad rep', async (t) => {
   t.log('started');
   driver.testLogger = t.log;
   t.timeout(60 * 1000);
@@ -188,9 +188,9 @@ test.serial('[E2E] enter committee -> sends vote out for bad rep', async (t) => 
       TxHash: isNonEmptyString,
       EthBlock: isValidBlock,
     },
-    EthereumLastVoteOutTx: {
+    EthereumLastVoteUnreadyTx: {
       LastPollTime: isValidTimeRef,
-      Type: 'vote-out',
+      Type: 'vote-unready',
       SendTime: isValidTimeRef,
       GasPriceStrategy: 'discount',
       GasPrice: 30000000000,
@@ -198,7 +198,7 @@ test.serial('[E2E] enter committee -> sends vote out for bad rep', async (t) => 
       TxHash: isNonEmptyString,
       EthBlock: isValidBlock,
     },
-    EthereumLastVoteOutTime: {
+    EthereumLastVoteUnreadyTime: {
       e16e965a4cc3fcd597ecdb9cd9ab8f3e6a750ac9: isValidTimeRef,
     },
     VchainReputationsLastPollTime: isValidTimeRef,
@@ -250,10 +250,10 @@ test.serial('[E2E] enter committee -> sends vote out for bad rep', async (t) => 
   });
   t.deepEqual(errors, []);
 
-  const events = await driver.ethereumPosDriver.elections.web3Contract.getPastEvents('VoteOut');
+  const events = await driver.ethereumPosDriver.elections.web3Contract.getPastEvents('VoteUnreadyCasted');
   t.log('last event:', JSON.stringify(events, null, 2));
 
   t.assert(events.length == 1);
   t.is(events[0].returnValues.voter.toLowerCase(), '0x29ce860a2247d97160d6dfc087a15f41e2349087');
-  t.is(events[0].returnValues.against.toLowerCase(), '0xe16e965a4cc3fcd597ecdb9cd9ab8f3e6a750ac9');
+  t.is(events[0].returnValues.subject.toLowerCase(), '0xe16e965a4cc3fcd597ecdb9cd9ab8f3e6a750ac9');
 });

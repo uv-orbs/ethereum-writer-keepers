@@ -32,8 +32,8 @@ export async function sendEthereumElectionsTransaction(
 
   const contractMethod =
     type == 'ready-to-sync'
-      ? state.ethereumElectionsContract.methods.notifyReadyToSync
-      : state.ethereumElectionsContract.methods.notifyReadyForCommittee;
+      ? state.ethereumElectionsContract.methods.readyToSync
+      : state.ethereumElectionsContract.methods.readyForCommittee;
   const gasPriceStrategy = getGasPriceStrategy(state.EthereumLastElectionsTx);
   const gasPrice = await calcGasPrice(gasPriceStrategy, state, config);
 
@@ -61,7 +61,7 @@ export async function sendEthereumElectionsTransaction(
   }
 }
 
-export async function sendEthereumVoteOutTransaction(
+export async function sendEthereumVoteUnreadyTransaction(
   to: CommitteeMember[],
   nodeOrbsAddress: string,
   state: State,
@@ -72,20 +72,20 @@ export async function sendEthereumVoteOutTransaction(
   if (to.length == 0) return;
   const ethAddress = to[0].EthAddress;
   const ethAddressForAbi = `0x${ethAddress}`;
-  const contractMethod = state.ethereumElectionsContract.methods.voteOut;
-  const gasPriceStrategy = getGasPriceStrategy(state.EthereumLastVoteOutTx);
+  const contractMethod = state.ethereumElectionsContract.methods.voteUnready;
+  const gasPriceStrategy = getGasPriceStrategy(state.EthereumLastVoteUnreadyTx);
   const gasPrice = await calcGasPrice(gasPriceStrategy, state, config);
 
-  state.EthereumLastVoteOutTx = {
+  state.EthereumLastVoteUnreadyTx = {
     LastPollTime: 0,
-    Type: 'vote-out',
+    Type: 'vote-unready',
     SendTime: getCurrentClockTime(),
     GasPriceStrategy: gasPriceStrategy,
     GasPrice: gasPrice,
     Status: 'pending',
     TxHash: '',
     EthBlock: 0,
-    OnFinal: () => (state.EthereumLastVoteOutTime[ethAddress] = state.ManagementRefTime),
+    OnFinal: () => (state.EthereumLastVoteUnreadyTime[ethAddress] = state.ManagementRefTime),
   };
 
   try {
@@ -93,11 +93,11 @@ export async function sendEthereumVoteOutTransaction(
     const contractAddress = state.ethereumElectionsContract.options.address;
     const senderAddress = `0x${nodeOrbsAddress}`;
     const txHash = await signAndSendTransaction(encodedAbi, contractAddress, senderAddress, gasPrice, state);
-    state.EthereumLastVoteOutTx.TxHash = txHash;
-    Logger.log(`Vote out transaction against ${ethAddress} sent with txHash ${txHash}.`);
+    state.EthereumLastVoteUnreadyTx.TxHash = txHash;
+    Logger.log(`vote unready transaction against ${ethAddress} sent with txHash ${txHash}.`);
   } catch (err) {
-    Logger.error(`Failed sending vote out transaction: ${err.stack}`);
-    state.EthereumLastVoteOutTx.Status = 'failed-send';
+    Logger.error(`Failed sending vote unready transaction: ${err.stack}`);
+    state.EthereumLastVoteUnreadyTx.Status = 'failed-send';
   }
 }
 

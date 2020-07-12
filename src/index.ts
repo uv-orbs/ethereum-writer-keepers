@@ -9,14 +9,14 @@ import { readAllVchainMetrics } from './read/vchain-metrics';
 import { calcVchainSyncStatus } from './model/logic-vcsync';
 import { calcEthereumSyncStatus } from './model/logic-ethsync';
 import { shouldNotifyReadyForCommittee, shouldNotifyReadyToSync } from './model/logic-elections';
-import { getAllValidatorsToVoteOut } from './model/logic-voteout';
+import { getAllGuardiansToVoteUnready } from './model/logic-voteunready';
 import Signer from 'orbs-signer-client';
 import {
   initWeb3Client,
   readEtherBalance,
   readPendingTransactionStatus,
   sendEthereumElectionsTransaction,
-  sendEthereumVoteOutTransaction,
+  sendEthereumVoteUnreadyTransaction,
 } from './write/ethereum';
 
 // runs every 20 seconds in prod, 1 second in tests
@@ -33,7 +33,7 @@ async function runLoopTick(config: Configuration, state: State) {
     await readAllVchainMetrics(config.VirtualChainEndpointSchema, state);
   }
 
-  // refresh all vchain reputations to prepare for vote outs, rate according to config
+  // refresh all vchain reputations to prepare for vote unreadys, rate according to config
   if (getCurrentClockTime() - state.VchainReputationsLastPollTime > config.VchainReputationsPollTimeSeconds) {
     await readAllVchainReputations(config.VirtualChainEndpointSchema, config.OrbsReputationsContract, state);
   }
@@ -46,12 +46,12 @@ async function runLoopTick(config: Configuration, state: State) {
     await readPendingTransactionStatus(state.EthereumLastElectionsTx, state, config);
   }
 
-  // refresh pending ethereum transactions status for vote outs, rate according to config
+  // refresh pending ethereum transactions status for vote unreadys, rate according to config
   if (
-    getCurrentClockTime() - (state.EthereumLastVoteOutTx?.LastPollTime ?? 0) >
+    getCurrentClockTime() - (state.EthereumLastVoteUnreadyTx?.LastPollTime ?? 0) >
     config.EthereumPendingTxPollTimeSeconds
   ) {
-    await readPendingTransactionStatus(state.EthereumLastVoteOutTx, state, config);
+    await readPendingTransactionStatus(state.EthereumLastVoteUnreadyTx, state, config);
   }
 
   // warn if we have low ether to pay tx fees, rate according to config
@@ -86,11 +86,11 @@ async function runLoopTick(config: Configuration, state: State) {
     await sendEthereumElectionsTransaction('ready-to-sync', config.NodeOrbsAddress, state, config);
   }
 
-  // send vote outs if needed, we don't mind checking this often (20s)
-  const toVoteOut = getAllValidatorsToVoteOut(state, config);
-  if (toVoteOut.length > 0) {
-    Logger.log(`Decided to send vote outs against validators: ${toVoteOut.map((n) => n.EthAddress)}.`);
-    await sendEthereumVoteOutTransaction(toVoteOut, config.NodeOrbsAddress, state, config);
+  // send vote unreadys if needed, we don't mind checking this often (20s)
+  const toVoteUnready = getAllGuardiansToVoteUnready(state, config);
+  if (toVoteUnready.length > 0) {
+    Logger.log(`Decided to send vote unreadys against validators: ${toVoteUnready.map((n) => n.EthAddress)}.`);
+    await sendEthereumVoteUnreadyTransaction(toVoteUnready, config.NodeOrbsAddress, state, config);
   }
 
   // write status.json file, we don't mind doing this often (20s)

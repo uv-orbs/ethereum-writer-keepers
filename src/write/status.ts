@@ -21,8 +21,8 @@ export function writeStatusToDisk(filePath: string, state: State, config: Config
       EtherBalance: state.EtherBalance,
       EthereumConsecutiveTxTimeouts: state.EthereumConsecutiveTxTimeouts,
       EthereumLastElectionsTx: state.EthereumLastElectionsTx,
-      EthereumLastVoteOutTx: state.EthereumLastVoteOutTx,
-      EthereumLastVoteOutTime: state.EthereumLastVoteOutTime,
+      EthereumLastVoteUnreadyTx: state.EthereumLastVoteUnreadyTx,
+      EthereumLastVoteUnreadyTime: state.EthereumLastVoteUnreadyTime,
       VchainReputationsLastPollTime: state.VchainReputationsLastPollTime,
       VchainReputations: state.VchainReputations,
       VchainMetricsLastPollTime: state.VchainMetricsLastPollTime,
@@ -82,9 +82,9 @@ function getErrorText(state: State) {
   if (state.EthereumLastElectionsTx?.Status == 'failed-send' && electionsTxFailedAgo < TX_SEND_FAILURE_TIMEOUT) {
     res.push(`Elections tx failed ${electionsTxFailedAgo} seconds ago.`);
   }
-  const voteOutTxFailedAgo = getCurrentClockTime() - (state.EthereumLastVoteOutTx?.SendTime ?? 0);
-  if (state.EthereumLastVoteOutTx?.Status == 'failed-send' && voteOutTxFailedAgo < TX_SEND_FAILURE_TIMEOUT) {
-    res.push(`Vote out tx failed ${voteOutTxFailedAgo} seconds ago.`);
+  const voteUnreadyTxFailedAgo = getCurrentClockTime() - (state.EthereumLastVoteUnreadyTx?.SendTime ?? 0);
+  if (state.EthereumLastVoteUnreadyTx?.Status == 'failed-send' && voteUnreadyTxFailedAgo < TX_SEND_FAILURE_TIMEOUT) {
+    res.push(`vote unready tx failed ${voteUnreadyTxFailedAgo} seconds ago.`);
   }
   return res.join(' ');
 }

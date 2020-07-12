@@ -1,6 +1,6 @@
 # Ethereum Writer Service
 
-Node service to send Ethereum transactions for elections lifecycle (like auto vote out).
+Node service to send Ethereum transactions for elections lifecycle (like auto vote unready).
 
 ## Install dev environment
 

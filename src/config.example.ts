@@ -21,7 +21,7 @@ export const exampleConfig: Configuration = {
   FailToSyncVcsTimeoutSeconds: 24 * 60 * 60,
   ElectionsRefreshWindowSeconds: 2 * 60 * 60,
   InvalidReputationGraceSeconds: 6 * 60 * 60,
-  VoteOutValiditySeconds: 7 * 24 * 60 * 60,
+  VoteUnreadyValiditySeconds: 7 * 24 * 60 * 60,
   ElectionsAuditOnly: false,
   EthereumDiscountGasPriceFactor: 0.75,
   EthereumDiscountTxTimeoutSeconds: 60 * 60,

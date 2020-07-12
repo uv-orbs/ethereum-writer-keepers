@@ -31,8 +31,8 @@ export class State {
 
   // updated by write/ethereum.ts
   EthereumLastElectionsTx?: EthereumTxStatus;
-  EthereumLastVoteOutTx?: EthereumTxStatus;
-  EthereumLastVoteOutTime: { [EthAddress: string]: number } = {};
+  EthereumLastVoteUnreadyTx?: EthereumTxStatus;
+  EthereumLastVoteUnreadyTime: { [EthAddress: string]: number } = {};
   EthereumBalanceLastPollTime = 0; // UTC seconds
   EtherBalance = ''; // string in wei
   EthereumConsecutiveTxTimeouts = 0;
@@ -81,7 +81,7 @@ export type GasPriceStrategy = 'discount' | 'recommended';
 
 export interface EthereumTxStatus {
   LastPollTime: number; // UTC seconds
-  Type: 'ready-to-sync' | 'ready-for-committee' | 'vote-out';
+  Type: 'ready-to-sync' | 'ready-for-committee' | 'vote-unready';
   SendTime: number; // UTC seconds
   GasPriceStrategy: GasPriceStrategy;
   GasPrice: number; // wei

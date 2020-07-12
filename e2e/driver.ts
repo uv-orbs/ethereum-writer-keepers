@@ -42,8 +42,8 @@ export class TestEnvironment {
       EthereumSyncRequirementSeconds: 20 * 60,
       FailToSyncVcsTimeoutSeconds: 24 * 60 * 60,
       ElectionsRefreshWindowSeconds: 2 * 60 * 60,
-      InvalidReputationGraceSeconds: 1, // so we send vote outs quickly
-      VoteOutValiditySeconds: 7 * 24 * 60 * 60,
+      InvalidReputationGraceSeconds: 1, // so we send vote unreadys quickly
+      VoteUnreadyValiditySeconds: 7 * 24 * 60 * 60,
       ElectionsAuditOnly: false,
       EthereumDiscountGasPriceFactor: 0.75,
       EthereumDiscountTxTimeoutSeconds: 60 * 60,
@@ -93,19 +93,19 @@ export class TestEnvironment {
           );
         },
       });
-      // create the validator, give some stake (above minimum of 100) and register
+      // create the guardian, give some stake (above minimum of 100) and register
       console.log(`[posv2] about to set up initial node`);
-      const validator = this.ethereumPosDriver.newParticipant();
+      const guardian = this.ethereumPosDriver.newParticipant();
       const stake = new BN(1000);
-      await validator.stake(stake);
-      await validator.registerAsValidator();
-      this.nodeOrbsAddress = validator.orbsAddress;
+      await guardian.stake(stake);
+      await guardian.registerAsGuardian();
+      this.nodeOrbsAddress = guardian.orbsAddress;
       console.log(`[posv2] driver.nodeOrbsAddress = ${this.nodeOrbsAddress}`);
       const peer = this.ethereumPosDriver.newParticipant();
       await peer.stake(stake);
-      await peer.registerAsValidator();
-      await peer.notifyReadyForCommittee();
-      console.log(`[posv2] peer ethAddress for vote outs = ${peer.address}`);
+      await peer.registerAsGuardian();
+      await peer.readyForCommittee();
+      console.log(`[posv2] peer ethAddress for vote unreadys = ${peer.address}`);
     });
 
     // step 4 - deploy Orbs contracts to gamma
