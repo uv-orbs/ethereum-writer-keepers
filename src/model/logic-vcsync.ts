@@ -3,8 +3,8 @@ import { getCurrentClockTime } from '../helpers';
 
 export function calcVchainSyncStatus(state: State, config: VchainSyncStatusParams): VchainSyncStatusEnum {
   if (!doAllVcsExist(state, config)) return 'not-exist';
-  if (areAllVcsNear(state, config)) return 'in-sync';
-  if (isAnyVcFar(state, config)) return 'exist-not-in-sync';
+  if (areAllLiveVcsNear(state, config)) return 'in-sync';
+  if (isAnyLiveVcFar(state, config)) return 'exist-not-in-sync';
   return state.VchainSyncStatus; // don't change the state
 }
 
@@ -23,18 +23,28 @@ function doAllVcsExist(state: State, config: VchainSyncStatusParams): boolean {
   return true;
 }
 
-function areAllVcsNear(state: State, config: VchainSyncStatusParams): boolean {
+function areAllLiveVcsNear(state: State, config: VchainSyncStatusParams): boolean {
   const now = getCurrentClockTime();
-  for (const [, metrics] of Object.entries(state.VchainMetrics)) {
+  for (const [vcId, metrics] of Object.entries(state.VchainMetrics)) {
+    if (!isVcLive(vcId, state, config)) continue;
     if (now - metrics.LastBlockTime > config.VchainSyncThresholdSeconds) return false;
   }
   return true;
 }
 
-function isAnyVcFar(state: State, config: VchainSyncStatusParams): boolean {
+function isAnyLiveVcFar(state: State, config: VchainSyncStatusParams): boolean {
   const now = getCurrentClockTime();
-  for (const [, metrics] of Object.entries(state.VchainMetrics)) {
+  for (const [vcId, metrics] of Object.entries(state.VchainMetrics)) {
+    if (!isVcLive(vcId, state, config)) continue;
     if (now - metrics.LastBlockTime > config.VchainOutOfSyncThresholdSeconds) return true;
   }
   return false;
+}
+
+function isVcLive(vcId: string, state: State, config: VchainSyncStatusParams): boolean {
+  if (!state.ManagementVirtualChains[vcId]) return false;
+  const nowEth = state.ManagementRefTime;
+  const genesisTime = state.ManagementVirtualChains[vcId].GenesisRefTime;
+  if (nowEth - genesisTime < config.VchainSyncThresholdSeconds) return false;
+  return true;
 }
