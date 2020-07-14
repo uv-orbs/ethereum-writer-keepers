@@ -4,7 +4,7 @@ import { getOrbsClient, readAllVchainReputations } from './vchain-reputations';
 import * as Orbs from 'orbs-client-sdk';
 import { jsonStringifyComplexTypes, getCurrentClockTime } from '../helpers';
 
-const exampleVchainEndpointSchema = 'http://vchain-{{ID}}:8080';
+const exampleVchainEndpointSchema = 'http://chain-{{ID}}:8080';
 
 function getExampleState() {
   const exampleState = new State();

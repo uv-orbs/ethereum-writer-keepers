@@ -29,7 +29,7 @@ export class TestEnvironment {
       SignerEndpoint: 'http://signer:7777',
       EthereumElectionsContract: this.ethereumPosDriver.elections.address,
       NodeOrbsAddress: this.nodeOrbsAddress.substr(2).toLowerCase(), // remove "0x",
-      VirtualChainEndpointSchema: 'http://vchain-{{ID}}:8080',
+      VirtualChainEndpointSchema: 'http://chain-{{ID}}:8080',
       RunLoopPollTimeSeconds: 1,
       VchainMetricsPollTimeSeconds: 1,
       VchainReputationsPollTimeSeconds: 1,
@@ -57,13 +57,13 @@ export class TestEnvironment {
     test.serial.before((t) => t.log('[E2E] driver launchServices() start'));
 
     // step 1 - launch ganache, management-service mock and gamma dockers
-    test.serial.before((t) => t.log('[E2E] launch ganache, signer, management-service, vchain-42, vchain-43 dockers'));
+    test.serial.before((t) => t.log('[E2E] launch ganache, signer, management-service, chain-42, chain-43 dockers'));
     this.envName = dockerComposeTool(
       test.serial.before.bind(test.serial),
       test.serial.after.always.bind(test.serial.after),
       this.pathToDockerCompose,
       {
-        startOnlyTheseServices: ['ganache', 'signer', 'management-service', 'vchain-42', 'vchain-43'],
+        startOnlyTheseServices: ['ganache', 'signer', 'management-service', 'chain-42', 'chain-43'],
         containerCleanUp: false,
       } as any
     );
@@ -113,7 +113,7 @@ export class TestEnvironment {
       t.log('[E2E] deploy Orbs contracts to gamma');
       t.timeout(60 * 1000);
       // note that gamma virtual chain id is always hard-coded as 42
-      const gammaAddress = await getAddressForService(this.envName, this.pathToDockerCompose, 'vchain-42', 8080);
+      const gammaAddress = await getAddressForService(this.envName, this.pathToDockerCompose, 'chain-42', 8080);
       this.gammaDriver = await new GammaDriver().init(`http://localhost:${portFromAddress(gammaAddress)}`, 42);
     });
 

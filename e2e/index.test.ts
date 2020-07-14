@@ -91,8 +91,8 @@ test.serial('[E2E] all vchains synced -> sends ready-for-committee', async (t) =
   driver.testLogger = t.log;
   t.timeout(60 * 1000);
 
-  t.log('telling mock to start showing vchain-43 as synced');
-  await driver.fetch('vchain-43', 8080, 'change-mock-state/synced');
+  t.log('telling mock to start showing chain-43 as synced');
+  await driver.fetch('chain-43', 8080, 'change-mock-state/synced');
   await sleep(4000);
 
   const status = await driver.catJsonInService('app', '/opt/orbs/status/status.json');

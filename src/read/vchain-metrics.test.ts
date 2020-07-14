@@ -4,7 +4,7 @@ import { State } from '../model/state';
 import { getEndpoint, readAllVchainMetrics } from './vchain-metrics';
 import { jsonStringifyComplexTypes, getCurrentClockTime } from '../helpers';
 
-const exampleVchainEndpointSchema = 'http://vchain-{{ID}}:8080';
+const exampleVchainEndpointSchema = 'http://chain-{{ID}}:8080';
 const vchainMetricsPath = '/metrics';
 // prefer json string in these tests since TimeNano is a big number
 const validVchainMetricsResponse = `{

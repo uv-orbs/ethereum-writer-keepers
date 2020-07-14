@@ -22,13 +22,13 @@ services:
         ports:
             - 7545
         command: -p 7545 -i 5777 -a 100 --gasLimit 0x7FFFFFFF --gasPrice 40000000000 -m  "vanish junk genuine web seminar cook absurd royal ability series taste method identify elevator liquid"
-    vchain-42:
+    chain-42:
         image: orbsnetwork/gamma:experimental
         ports:
             - 8080
-    vchain-43:
+    chain-43:
         build:
             context: .
-            dockerfile: ./Dockerfile-vchain-43.test
+            dockerfile: ./Dockerfile-chain-43.test
         ports:
             - 8080
