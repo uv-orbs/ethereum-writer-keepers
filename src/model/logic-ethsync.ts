@@ -55,10 +55,15 @@ function isAnyTxReverted(state: State): boolean {
     Logger.error(`Found an elections tx ${state.EthereumLastElectionsTx.TxHash} that is reverted, reset needed!`);
     return true;
   }
+  if (state.EthereumLastVoteUnreadyTx?.Status === 'revert') {
+    Logger.error(`Found a vote unready tx ${state.EthereumLastVoteUnreadyTx.TxHash} that is reverted, reset needed!`);
+    return true;
+  }
   return false;
 }
 
 function isAnyTxPending(state: State): boolean {
   if (state.EthereumLastElectionsTx?.Status === 'pending') return true;
+  if (state.EthereumLastVoteUnreadyTx?.Status === 'pending') return true;
   return false;
 }
