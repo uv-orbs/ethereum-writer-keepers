@@ -54,7 +54,7 @@ export async function signAndSendTransaction(
     from: senderAddress,
     to: contractAddress,
     gasPrice: gasPrice,
-    gas: '0x7FFFFFFF', // TODO: fix with real value
+    gas: 10000000, // TODO: fix with real value
     data: encodedAbi,
     nonce: nonce,
   };
