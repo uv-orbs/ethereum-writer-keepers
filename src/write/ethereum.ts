@@ -14,7 +14,11 @@ import { compiledContracts } from '@orbs-network/orbs-ethereum-contracts-v2/rele
 
 export function initWeb3Client(ethereumEndpoint: string, electionsContractAddress: string, state: State) {
   // init web3
-  state.web3 = new Web3(ethereumEndpoint);
+  state.web3 = new Web3(
+    new Web3.providers.HttpProvider(ethereumEndpoint, {
+      keepAlive: true,
+    })
+  );
   // TODO: state.web3.eth.transactionPollingTimeout = 0.01;
   // TODO:  do we need to disable web3 receipt polling explicitly?
   // init contracts

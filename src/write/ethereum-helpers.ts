@@ -1,6 +1,10 @@
 import * as Logger from '../logger';
 import { State, EthereumTxStatus, GasPriceStrategy } from '../model/state';
-import { getCurrentClockTime, jsonStringifyComplexTypes } from '../helpers';
+import { getCurrentClockTime, jsonStringifyComplexTypes, toNumber } from '../helpers';
+import { TransactionConfig } from 'web3-core';
+
+const GAS_LIMIT_ESTIMATE_EXTRA = 100000;
+const GAS_LIMIT_HARD_LIMIT = 2000000;
 
 export type Type = 'ready-to-sync' | 'ready-for-committee';
 
@@ -50,14 +54,24 @@ export async function signAndSendTransaction(
 
   const nonce = await state.web3.eth.getTransactionCount(senderAddress, 'latest'); // ignore pending pool
 
-  const txObject = {
+  const txObject: TransactionConfig = {
     from: senderAddress,
     to: contractAddress,
     gasPrice: gasPrice,
-    gas: 10000000, // TODO: fix with real value
     data: encodedAbi,
     nonce: nonce,
   };
+
+  let gasLimit = toNumber(await state.web3.eth.estimateGas(txObject));
+  if (gasLimit <= 0) throw new Error(`Cannot estimate gas for tx with data ${encodedAbi}`);
+  gasLimit += GAS_LIMIT_ESTIMATE_EXTRA;
+  if (gasLimit > GAS_LIMIT_HARD_LIMIT) {
+    throw new Error(`Gas limit estimate ${gasLimit} over hard limit ${GAS_LIMIT_HARD_LIMIT}`);
+  }
+  txObject.gas = gasLimit;
+
+  Logger.log(`About to sign and send tx object: ${jsonStringifyComplexTypes(txObject)}.`);
+
   const { rawTransaction, transactionHash } = await state.signer.sign(txObject);
   if (!rawTransaction || !transactionHash) {
     throw new Error(`Could not sign tx object: ${jsonStringifyComplexTypes(txObject)}.`);
