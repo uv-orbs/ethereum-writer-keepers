@@ -63,10 +63,12 @@ export async function signAndSendTransaction(
   };
 
   let gasLimit = toNumber(await state.web3.eth.estimateGas(txObject));
-  if (gasLimit <= 0) throw new Error(`Cannot estimate gas for tx with data ${encodedAbi}`);
+  if (gasLimit <= 0) {
+    throw new Error(`Cannot estimate gas for tx with data ${encodedAbi}.`);
+  }
   gasLimit += GAS_LIMIT_ESTIMATE_EXTRA;
   if (gasLimit > GAS_LIMIT_HARD_LIMIT) {
-    throw new Error(`Gas limit estimate ${gasLimit} over hard limit ${GAS_LIMIT_HARD_LIMIT}`);
+    throw new Error(`Gas limit estimate ${gasLimit} over hard limit ${GAS_LIMIT_HARD_LIMIT}.`);
   }
   txObject.gas = gasLimit;
 
