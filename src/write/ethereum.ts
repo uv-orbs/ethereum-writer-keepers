@@ -19,8 +19,9 @@ export function initWeb3Client(ethereumEndpoint: string, electionsContractAddres
       keepAlive: true,
     })
   );
-  // TODO: state.web3.eth.transactionPollingTimeout = 0.01;
-  // TODO:  do we need to disable web3 receipt polling explicitly?
+  state.web3.eth.transactionBlockTimeout = 0; // to stop web3 from polling pending tx
+  state.web3.eth.transactionPollingTimeout = 0; // to stop web3 from polling pending tx
+  state.web3.eth.transactionConfirmationBlocks = 1; // to stop web3 from polling pending tx
   // init contracts
   const electionsAbi = compiledContracts.Elections.abi;
   state.ethereumElectionsContract = new state.web3.eth.Contract(electionsAbi, electionsContractAddress);

@@ -77,7 +77,7 @@ export class TestEnvironment {
     // step 3 - deploy ethereum PoS contracts to ganache
     test.serial.before(async (t) => {
       t.log('[E2E] deploy ethereum PoS contracts to ganache');
-      t.timeout(60 * 1000);
+      t.timeout(5 * 60 * 1000);
       const ganacheAddress = await getAddressForService(this.envName, this.pathToDockerCompose, 'ganache', 7545);
       console.log(`[posv2] about to deploy contracts`);
       this.ethereumPosDriver = await EthereumPosDriver.new({
