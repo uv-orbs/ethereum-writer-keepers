@@ -19,6 +19,28 @@ import {
   sendEthereumVoteUnreadyTransaction,
 } from './write/ethereum';
 
+export async function runLoop(config: Configuration) {
+  const state = initializeState(config);
+  for (;;) {
+    try {
+      // rest (to make sure we don't retry too aggressively on exceptions)
+      await sleep(config.RunLoopPollTimeSeconds * 1000);
+
+      // main business logic
+      await runLoopTick(config, state);
+
+      // write status.json file, we don't mind doing this often (20s)
+      writeStatusToDisk(config.StatusJsonPath, state, config);
+    } catch (err) {
+      Logger.log('Exception thrown during runLoop, going back to sleep:');
+      Logger.error(err.stack);
+
+      // always write status.json file (and pass the error)
+      writeStatusToDisk(config.StatusJsonPath, state, config, err);
+    }
+  }
+}
+
 // runs every 20 seconds in prod, 1 second in tests
 async function runLoopTick(config: Configuration, state: State) {
   Logger.log('Run loop waking up.');
@@ -92,23 +114,9 @@ async function runLoopTick(config: Configuration, state: State) {
     Logger.log(`Decided to send vote unreadys against validators: ${toVoteUnready.map((n) => n.EthAddress)}.`);
     await sendEthereumVoteUnreadyTransaction(toVoteUnready, config.NodeOrbsAddress, state, config);
   }
-
-  // write status.json file, we don't mind doing this often (20s)
-  writeStatusToDisk(config.StatusJsonPath, state, config);
 }
 
-export async function runLoop(config: Configuration) {
-  const state = initializeState(config);
-  for (;;) {
-    try {
-      await sleep(config.RunLoopPollTimeSeconds * 1000);
-      await runLoopTick(config, state);
-    } catch (err) {
-      Logger.log('Exception thrown during runLoop, going back to sleep:');
-      Logger.error(err.stack);
-    }
-  }
-}
+// helpers
 
 function initializeState(config: Configuration): State {
   const state = new State();

@@ -63,3 +63,15 @@ test.serial('contains all payload fields', (t) => {
     Config: exampleConfig,
   });
 });
+
+test.serial('displays error if one is passed to it', (t) => {
+  const state = new State();
+  mockFs({ ['./status/status.json']: '' });
+  const err = new Error('oh no!');
+  writeStatusToDisk('./status/status.json', state, exampleConfig, err);
+
+  const writtenContents = JSON.parse(readFileSync('./status/status.json').toString());
+  t.log('result:', JSON.stringify(writtenContents, null, 2));
+
+  t.assert(writtenContents.Error.includes('oh no!'));
+});

@@ -8,7 +8,7 @@ const MINIMUM_ALLOWED_ETH_BALANCE_WEI = BigInt('20000000000000000');
 const TX_CONSECUTIVE_TIMEOUTS = 10;
 const TX_SEND_FAILURE_TIMEOUT = 24 * 60 * 60; // seconds
 
-export function writeStatusToDisk(filePath: string, state: State, config: Configuration) {
+export function writeStatusToDisk(filePath: string, state: State, config: Configuration, err?: Error) {
   const status: JsonResponse = {
     Status: getStatusText(state),
     Timestamp: new Date().toISOString(),
@@ -39,7 +39,7 @@ export function writeStatusToDisk(filePath: string, state: State, config: Config
   };
 
   // include error field if found errors
-  const errorText = getErrorText(state);
+  const errorText = getErrorText(state, err);
   if (errorText) {
     status.Error = errorText;
   }
@@ -64,7 +64,7 @@ function getStatusText(state: State) {
   return res.join(', ');
 }
 
-function getErrorText(state: State) {
+function getErrorText(state: State, err?: Error) {
   const res = [];
   if (state.EthereumSyncStatus == 'need-reset') {
     res.push(`Service requires reset.`);
@@ -85,6 +85,9 @@ function getErrorText(state: State) {
   const voteUnreadyTxFailedAgo = getCurrentClockTime() - (state.EthereumLastVoteUnreadyTx?.SendTime ?? 0);
   if (state.EthereumLastVoteUnreadyTx?.Status == 'failed-send' && voteUnreadyTxFailedAgo < TX_SEND_FAILURE_TIMEOUT) {
     res.push(`vote unready tx failed ${voteUnreadyTxFailedAgo} seconds ago.`);
+  }
+  if (err) {
+    res.push(`Error: ${err.message}.`);
   }
   return res.join(' ');
 }
