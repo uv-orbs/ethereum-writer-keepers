@@ -12,11 +12,13 @@ function getExampleState() {
     LastBlockHeight: 5000,
     UptimeSeconds: 3000,
     LastBlockTime: getCurrentClockTime() - 35,
+    LastCommitTime: -1,
   };
   exampleState.VchainMetrics['1001'] = {
     LastBlockHeight: 5000,
     UptimeSeconds: 3000,
     LastBlockTime: getCurrentClockTime() - 42,
+    LastCommitTime: -1,
   };
   exampleState.ManagementVirtualChains['1000'] = getPostGenesisVc();
   exampleState.ManagementVirtualChains['1001'] = getPostGenesisVc();
@@ -88,6 +90,7 @@ test('in sync ignores newly created vc that is not live yet', (t) => {
     LastBlockHeight: 0,
     UptimeSeconds: 10,
     LastBlockTime: 0,
+    LastCommitTime: -1,
   };
   state.ManagementVirtualChains['1002'] = getPreGenesisVc();
   state.VchainSyncStatus = calcVchainSyncStatus(state, exampleConfig);
@@ -105,6 +108,7 @@ test('zero vcs and then a newly created vc that is not live yet', (t) => {
     LastBlockHeight: 0,
     UptimeSeconds: 10,
     LastBlockTime: 0,
+    LastCommitTime: -1,
   };
   state.ManagementVirtualChains['1000'] = getPreGenesisVc();
   state.VchainSyncStatus = calcVchainSyncStatus(state, exampleConfig);

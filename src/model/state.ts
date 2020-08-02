@@ -73,8 +73,9 @@ export type CommitteeMember = { EthAddress: string; Weight: number };
 
 export interface VchainMetrics {
   LastBlockHeight: number;
-  LastBlockTime: number; // UTC seconds
+  LastBlockTime: number; // UTC seconds (latest contiguous block in the chain - when was it proposed/signed)
   UptimeSeconds: number;
+  LastCommitTime: number; // UTC seconds (latest block we synced - when did we sync it)
 }
 
 export type GasPriceStrategy = 'discount' | 'recommended';

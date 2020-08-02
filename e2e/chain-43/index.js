@@ -9,7 +9,7 @@ app.get('/metrics', (req, res) => {
   const data = JSON.parse(fs.readFileSync('./metrics1.json'));
 
   if (mockState == 'synced') {
-    data['BlockStorage.LastCommitted.TimeNano'].Value = getCurrentClockTime() * 1e9;
+    data.BlockStorage.InOrderBlock.BlockTime.Value = getCurrentClockTime() * 1e9;
   }
   
   res.send(JSON.stringify(data));
