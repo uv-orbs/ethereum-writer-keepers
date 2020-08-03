@@ -8,8 +8,10 @@ let mockState = 'init';
 app.get('/metrics', (req, res) => {
   const data = JSON.parse(fs.readFileSync('./metrics1.json'));
 
+  const now = getCurrentClockTime();
+  data.BlockStorage.LastCommit.Value = now * 1e9; // always still syncing
   if (mockState == 'synced') {
-    data.BlockStorage.InOrderBlock.BlockTime.Value = getCurrentClockTime() * 1e9;
+    data.BlockStorage.InOrderBlock.BlockTime.Value = now * 1e9;
   }
   
   res.send(JSON.stringify(data));
