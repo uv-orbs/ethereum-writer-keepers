@@ -14,6 +14,7 @@ export interface VchainSyncStatusParams {
   VchainUptimeRequiredSeconds: number;
   VchainSyncThresholdSeconds: number;
   VchainOutOfSyncThresholdSeconds: number;
+  VchainStuckThresholdSeconds: number;
 }
 
 function doAllVcsExist(state: State, config: VchainSyncStatusParams): boolean {
@@ -43,8 +44,18 @@ function isAnyLiveVcFar(state: State, config: VchainSyncStatusParams): boolean {
 
 function isVcLive(vcId: string, state: State, config: VchainSyncStatusParams): boolean {
   if (!state.ManagementVirtualChains[vcId]) return false;
+  if (isVcStuck(vcId, state, config)) return false;
   const nowEth = state.ManagementRefTime;
   const genesisTime = state.ManagementVirtualChains[vcId].GenesisRefTime;
   if (nowEth - genesisTime < config.VchainSyncThresholdSeconds) return false;
   return true;
+}
+
+function isVcStuck(vcId: string, state: State, config: VchainSyncStatusParams): boolean {
+  if (!state.VchainMetrics[vcId]) return false;
+  const lastCommitTime = state.VchainMetrics[vcId].LastCommitTime;
+  if (lastCommitTime == -1) return false;
+  const now = getCurrentClockTime();
+  if (now - lastCommitTime > config.VchainStuckThresholdSeconds) return true;
+  return false;
 }

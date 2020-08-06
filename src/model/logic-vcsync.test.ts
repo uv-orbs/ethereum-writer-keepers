@@ -12,11 +12,13 @@ function getExampleState() {
     LastBlockHeight: 5000,
     UptimeSeconds: 3000,
     LastBlockTime: getCurrentClockTime() - 35,
+    LastCommitTime: getCurrentClockTime() - 35,
   };
   exampleState.VchainMetrics['1001'] = {
     LastBlockHeight: 5000,
     UptimeSeconds: 3000,
     LastBlockTime: getCurrentClockTime() - 42,
+    LastCommitTime: getCurrentClockTime() - 42,
   };
   exampleState.ManagementVirtualChains['1000'] = getPostGenesisVc();
   exampleState.ManagementVirtualChains['1001'] = getPostGenesisVc();
@@ -49,6 +51,14 @@ test('in sync becomes out of sync and returns to sync', (t) => {
   t.is(state.VchainSyncStatus, 'in-sync');
 
   state.VchainMetrics['1001'].LastBlockTime = getCurrentClockTime() - 24 * 60 * 60;
+  state.VchainSyncStatus = calcVchainSyncStatus(state, exampleConfig);
+  t.is(state.VchainSyncStatus, 'exist-not-in-sync');
+
+  state.VchainMetrics['1001'].LastCommitTime = getCurrentClockTime() - 24 * 60 * 60; // becomes VCStuck
+  state.VchainSyncStatus = calcVchainSyncStatus(state, exampleConfig);
+  t.is(state.VchainSyncStatus, 'in-sync');
+
+  state.VchainMetrics['1001'].LastCommitTime = getCurrentClockTime() - 38; // no longer VCStuck
   state.VchainSyncStatus = calcVchainSyncStatus(state, exampleConfig);
   t.is(state.VchainSyncStatus, 'exist-not-in-sync');
 
@@ -88,6 +98,7 @@ test('in sync ignores newly created vc that is not live yet', (t) => {
     LastBlockHeight: 0,
     UptimeSeconds: 10,
     LastBlockTime: 0,
+    LastCommitTime: 0,
   };
   state.ManagementVirtualChains['1002'] = getPreGenesisVc();
   state.VchainSyncStatus = calcVchainSyncStatus(state, exampleConfig);
@@ -105,6 +116,7 @@ test('zero vcs and then a newly created vc that is not live yet', (t) => {
     LastBlockHeight: 0,
     UptimeSeconds: 10,
     LastBlockTime: 0,
+    LastCommitTime: 0,
   };
   state.ManagementVirtualChains['1000'] = getPreGenesisVc();
   state.VchainSyncStatus = calcVchainSyncStatus(state, exampleConfig);

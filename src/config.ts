@@ -15,6 +15,7 @@ export interface Configuration {
   VchainUptimeRequiredSeconds: number;
   VchainSyncThresholdSeconds: number;
   VchainOutOfSyncThresholdSeconds: number;
+  VchainStuckThresholdSeconds: number;
   EthereumSyncRequirementSeconds: number;
   FailToSyncVcsTimeoutSeconds: number;
   ElectionsRefreshWindowSeconds: number;
@@ -36,9 +37,10 @@ export const defaultConfiguration = {
   OrbsReputationsContract: '_Committee',
   VchainUptimeRequiredSeconds: 5,
   VchainSyncThresholdSeconds: 5 * 60,
+  VchainOutOfSyncThresholdSeconds: 60 * 60,
+  VchainStuckThresholdSeconds: 60 * 60,
   EthereumBalancePollTimeSeconds: 4 * 60 * 60,
   EthereumPendingTxPollTimeSeconds: 2 * 60,
-  VchainOutOfSyncThresholdSeconds: 60 * 60,
   EthereumSyncRequirementSeconds: 20 * 60,
   FailToSyncVcsTimeoutSeconds: 24 * 60 * 60,
   ElectionsRefreshWindowSeconds: 2 * 60 * 60,
@@ -132,6 +134,12 @@ export function validateConfiguration(config: Configuration) {
   }
   if (typeof config.VchainOutOfSyncThresholdSeconds != 'number') {
     throw new Error(`VchainOutOfSyncThresholdSeconds is not a number.`);
+  }
+  if (!config.VchainStuckThresholdSeconds) {
+    throw new Error(`VchainStuckThresholdSeconds is empty or zero.`);
+  }
+  if (typeof config.VchainStuckThresholdSeconds != 'number') {
+    throw new Error(`VchainStuckThresholdSeconds is not a number.`);
   }
   if (!config.EthereumSyncRequirementSeconds) {
     throw new Error(`EthereumSyncRequirementSeconds is empty or zero.`);

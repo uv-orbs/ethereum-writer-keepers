@@ -9,21 +9,17 @@ const vchainMetricsPath = '/metrics';
 // prefer json string in these tests since TimeNano is a big number
 const validVchainMetricsResponse = `{
   "ExtraField": "something",
-  "BlockStorage": {
-    "InOrderBlock": {
-      "BlockHeight": 4618292,
-      "BlockTime": {
-        "Value": 1592414358588627900
-      }
-    },
-    "LastCommit": {
-      "Value": 1592515358588627900
-    }
+  "BlockStorage.BlockHeight": {
+    "Name": "BlockStorage.BlockHeight",
+    "Value": 4618292
   },
-  "Runtime": {
-    "Uptime": {
-      "Value": 15
-    }
+  "BlockStorage.LastCommitted.TimeNano": {
+    "Name": "BlockStorage.LastCommitted.TimeNano",
+    "Value": 1592414358588627900
+  },
+  "Runtime.Uptime.Seconds": {
+    "Name": "Runtime.Uptime.Seconds",
+    "Value": 15
   }
 }`;
 
@@ -65,7 +61,7 @@ test.serial('reads data from valid VchainMetrics', async (t) => {
       LastBlockHeight: 4618292,
       LastBlockTime: 1592414358,
       UptimeSeconds: 15,
-      LastCommitTime: 1592515358,
+      LastCommitTime: -1,
     });
   }
 });
@@ -84,7 +80,7 @@ test.serial('no VchainMetrics response from first vchain', async (t) => {
     LastBlockHeight: 4618292,
     LastBlockTime: 1592414358,
     UptimeSeconds: 15,
-    LastCommitTime: 1592515358,
+    LastCommitTime: -1,
   });
   t.deepEqual(state.VchainMetrics['1000000'], {
     LastBlockHeight: -1,
@@ -109,7 +105,7 @@ test.serial('404 VchainMetrics response from first vchain', async (t) => {
     LastBlockHeight: 4618292,
     LastBlockTime: 1592414358,
     UptimeSeconds: 15,
-    LastCommitTime: 1592515358,
+    LastCommitTime: -1,
   });
   t.deepEqual(state.VchainMetrics['1000000'], {
     LastBlockHeight: -1,
@@ -136,7 +132,7 @@ test.serial('invalid JSON format VchainMetrics response from first vchain', asyn
     LastBlockHeight: 4618292,
     LastBlockTime: 1592414358,
     UptimeSeconds: 15,
-    LastCommitTime: 1592515358,
+    LastCommitTime: -1,
   });
   t.deepEqual(state.VchainMetrics['1000000'], {
     LastBlockHeight: -1,
@@ -148,18 +144,13 @@ test.serial('invalid JSON format VchainMetrics response from first vchain', asyn
 
 const partialVchainMetricsResponse = `{
   "ExtraField": "something",
-  "BlockStorage": {
-    "InOrderBlock": {
-      "BlockHeight": 4618292,
-    },
-    "LastCommit": {
-      "Value": 1592515358588627900
-    }
+  "BlockStorage.LastCommitted.TimeNano": {
+    "Name": "BlockStorage.LastCommitted.TimeNano",
+    "Value": 1592414358588627900
   },
-  "Runtime": {
-    "Uptime": {
-      "Value": 15
-    }
+  "Runtime.Uptime.Seconds": {
+    "Name": "Runtime.Uptime.Seconds",
+    "Value": 15
   }
 }`;
 
@@ -180,7 +171,7 @@ test.serial('partial VchainMetrics response from first vchain', async (t) => {
     LastBlockHeight: 4618292,
     LastBlockTime: 1592414358,
     UptimeSeconds: 15,
-    LastCommitTime: 1592515358,
+    LastCommitTime: -1,
   });
   t.deepEqual(state.VchainMetrics['1000000'], {
     LastBlockHeight: -1,
