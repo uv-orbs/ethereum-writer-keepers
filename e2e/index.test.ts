@@ -1,7 +1,7 @@
 import test from 'ava';
 import { TestEnvironment } from './driver';
 import { join } from 'path';
-import { sleep } from '../src/helpers';
+import { sleep, getToday } from '../src/helpers';
 import {
   deepDataMatcher,
   isValidEtherBalance,
@@ -113,6 +113,9 @@ test.serial('[E2E] all vchains synced -> sends ready-for-committee', async (t) =
       GasPrice: 30000000000,
     },
     EthereumLastVoteUnreadyTime: {},
+    EthereumSuccessfulTxStats: {
+      [getToday()]: isPositiveNumber,
+    },
     VchainReputationsLastPollTime: isValidTimeRef,
     VchainReputations: {
       '42': {
@@ -200,6 +203,9 @@ test.serial('[E2E] enter committee -> sends vote unready for bad rep', async (t)
     },
     EthereumLastVoteUnreadyTime: {
       e16e965a4cc3fcd597ecdb9cd9ab8f3e6a750ac9: isValidTimeRef,
+    },
+    EthereumSuccessfulTxStats: {
+      [getToday()]: isPositiveNumber,
     },
     VchainReputationsLastPollTime: isValidTimeRef,
     VchainReputations: {

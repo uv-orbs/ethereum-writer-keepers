@@ -1,9 +1,11 @@
 import { State } from './state';
 import * as Logger from '../logger';
+import { getToday } from '../helpers';
 
 const MAX_STANDBYS = 5; // in future, can be taken from the MaxStandbysChanged event
 
 export function shouldNotifyReadyToSync(state: State, config: EthereumElectionsParams): boolean {
+  if (state.EthereumSuccessfulTxStats[getToday()] >= config.EthereumMaxSuccessfulDailyTx) return false;
   if (state.EthereumSyncStatus != 'operational') return false;
 
   if (
@@ -33,6 +35,7 @@ export function shouldNotifyReadyToSync(state: State, config: EthereumElectionsP
 }
 
 export function shouldNotifyReadyForCommittee(state: State, config: EthereumElectionsParams): boolean {
+  if (state.EthereumSuccessfulTxStats[getToday()] >= config.EthereumMaxSuccessfulDailyTx) return false;
   if (state.EthereumSyncStatus != 'operational') return false;
   if (config.ElectionsAuditOnly) return false;
   if (state.VchainSyncStatus != 'in-sync') return false;
@@ -65,6 +68,7 @@ export function shouldNotifyReadyForCommittee(state: State, config: EthereumElec
 export interface EthereumElectionsParams {
   ElectionsRefreshWindowSeconds: number;
   ElectionsAuditOnly: boolean;
+  EthereumMaxSuccessfulDailyTx: number;
 }
 
 function isMyUpdateStale(state: State, config: EthereumElectionsParams): boolean {

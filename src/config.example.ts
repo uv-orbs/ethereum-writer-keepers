@@ -28,4 +28,5 @@ export const exampleConfig: Configuration = {
   EthereumDiscountTxTimeoutSeconds: 60 * 60,
   EthereumNonDiscountTxTimeoutSeconds: 10 * 60,
   EthereumMaxGasPrice: 150000000000, // 150 gwei
+  EthereumMaxSuccessfulDailyTx: 4,
 };

@@ -36,6 +36,7 @@ export class State {
   EthereumBalanceLastPollTime = 0; // UTC seconds
   EtherBalance = ''; // string in wei
   EthereumConsecutiveTxTimeouts = 0;
+  EthereumSuccessfulTxStats: { [day: string]: number } = {};
 
   // updated by index.ts
   VchainSyncStatus: VchainSyncStatusEnum = 'not-exist';

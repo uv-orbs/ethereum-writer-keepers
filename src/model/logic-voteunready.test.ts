@@ -2,7 +2,7 @@ import test from 'ava';
 import { State } from './state';
 import { getAllGuardiansToVoteUnready } from './logic-voteunready';
 import { exampleConfig } from '../config.example';
-import { getCurrentClockTime } from '../helpers';
+import { getCurrentClockTime, getToday } from '../helpers';
 
 // example state reflects excellent reputations
 function getExampleState() {
@@ -174,4 +174,17 @@ test('only sending vote unreadys if good eth sync, good vchain sync and sender i
 
   state.ManagementInCommittee = true;
   t.deepEqual(getAllGuardiansToVoteUnready(state, exampleConfig), [{ EthAddress: 'e2', Weight: 10 }]);
+});
+
+test('too many successful daily tx', (t) => {
+  const state = getExampleState();
+  state.VchainReputations['42']['o1'] = 1;
+  state.VchainReputations['42']['o2'] = 6; // bad
+  state.VchainReputations['42']['o3'] = 1;
+  t.deepEqual(getAllGuardiansToVoteUnready(state, exampleConfig), []);
+  t.assert(state.TimeEnteredBadReputation['e2']['42'] > 1400000000);
+
+  state.EthereumSuccessfulTxStats[getToday()] = exampleConfig.EthereumMaxSuccessfulDailyTx;
+  state.TimeEnteredBadReputation['e2']['42'] = getCurrentClockTime() - 10 * 60 * 60;
+  t.deepEqual(getAllGuardiansToVoteUnready(state, exampleConfig), []);
 });

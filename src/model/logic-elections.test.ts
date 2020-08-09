@@ -3,7 +3,7 @@ import test from 'ava';
 import { State } from './state';
 import { shouldNotifyReadyToSync, shouldNotifyReadyForCommittee } from './logic-elections';
 import { exampleConfig } from '../config.example';
-import { getCurrentClockTime } from '../helpers';
+import { getCurrentClockTime, getToday } from '../helpers';
 
 const STALE_UPDATE_GRACE = 7 * 24 * 60 * 60;
 
@@ -166,6 +166,13 @@ test('shouldNotifyReadyToSync: audit-only keeps position in standby', (t) => {
   t.true(shouldNotifyReadyToSync(state, getAuditConfig()));
 });
 
+test('shouldNotifyReadyToSync: too many successful daily tx', (t) => {
+  const state = getExampleState();
+  state.EthereumSuccessfulTxStats[getToday()] = exampleConfig.EthereumMaxSuccessfulDailyTx;
+  state.VchainSyncStatus = 'exist-not-in-sync';
+  t.false(shouldNotifyReadyToSync(state, exampleConfig));
+});
+
 test('shouldNotifyReadyForCommittee: new node finished syncing', (t) => {
   const state = getExampleState();
   state.VchainSyncStatus = 'exist-not-in-sync';
@@ -246,4 +253,11 @@ test('shouldNotifyReadyForCommittee: only when ethereum state is operational', (
 
   state.EthereumSyncStatus = 'operational';
   t.true(shouldNotifyReadyForCommittee(state, exampleConfig));
+});
+
+test('shouldNotifyReadyForCommittee: too many successful daily tx', (t) => {
+  const state = getExampleState();
+  state.EthereumSuccessfulTxStats[getToday()] = exampleConfig.EthereumMaxSuccessfulDailyTx;
+  state.VchainSyncStatus = 'in-sync';
+  t.false(shouldNotifyReadyForCommittee(state, exampleConfig));
 });
