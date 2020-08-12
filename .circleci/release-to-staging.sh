@@ -8,6 +8,6 @@ docker push orbsnetworkstaging/ethereum-writer:$VERSION
 
 if [[ $CIRCLE_BRANCH == "master" ]] ;
 then
-  docker tag orbsnetworkstaging/management-service:$VERSION orbsnetworkstaging/management-service:experimental
-  docker push orbsnetworkstaging/management-service:experimental
+  docker tag orbsnetworkstaging/ethereum-writer:$VERSION orbsnetworkstaging/ethereum-writer:experimental
+  docker push orbsnetworkstaging/ethereum-writer:experimental
 fi
