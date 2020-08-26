@@ -62,6 +62,8 @@ export async function signAndSendTransaction(
     nonce: nonce,
   };
 
+  Logger.log(`About to estimate gas for tx object: ${jsonStringifyComplexTypes(txObject)}.`);
+
   let gasLimit = toNumber(await state.web3.eth.estimateGas(txObject));
   if (gasLimit <= 0) {
     throw new Error(`Cannot estimate gas for tx with data ${encodedAbi}.`);
