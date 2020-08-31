@@ -20,7 +20,7 @@
     "pretest": "npm run typecheck && npm run lint",
     "clean": "rimraf ./dist/",
     "prebuild": "npm run clean",
-    "build": "tsc --skipLibCheck -p ./tsconfig.prod.json && docker build -t local/ethereum-writer .",
+    "build": "tsc --skipLibCheck -p ./tsconfig.prod.json && ./boyar/create-version-file.sh && docker build -t local/ethereum-writer .",
     "build:quick": "tsc --skipLibCheck -p ./tsconfig.prod.json",
     "test": "ava --verbose --serial",
     "test:quick": "echo '-- TEST --' && ava --verbose",
