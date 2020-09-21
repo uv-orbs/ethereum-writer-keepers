@@ -26,6 +26,7 @@ export interface VoteUnreadyParams {
   InvalidReputationGraceSeconds: number;
   VoteUnreadyValiditySeconds: number;
   EthereumMaxSuccessfulDailyTx: number;
+  VchainOutOfSyncThresholdSeconds: number;
 }
 
 function hasLongBadReputationInAnyVc(ethAddress: string, state: State, config: VoteUnreadyParams): boolean {
@@ -34,6 +35,9 @@ function hasLongBadReputationInAnyVc(ethAddress: string, state: State, config: V
   if (!orbsAddress) return false;
   for (const [vcId, reputations] of Object.entries(state.VchainReputations)) {
     initTimeEnteredBadReputationIfNeeded(ethAddress, vcId, state);
+
+    // if vc is out of sync, ignore its reputation altogether
+    if (!isVcNear(vcId, state, config)) continue;
 
     // maintain a helper state variable to see how long they're in bad reputation
     if (isBadReputation(orbsAddress, reputations)) {
@@ -71,4 +75,12 @@ function noPendingVoteUnready(ethAddress: string, state: State, config: VoteUnre
 function initTimeEnteredBadReputationIfNeeded(ethAddress: string, vcId: string, state: State) {
   if (!state.TimeEnteredBadReputation[ethAddress]) state.TimeEnteredBadReputation[ethAddress] = {};
   if (!state.TimeEnteredBadReputation[ethAddress][vcId]) state.TimeEnteredBadReputation[ethAddress][vcId] = 0;
+}
+
+function isVcNear(vcId: string, state: State, config: VoteUnreadyParams): boolean {
+  if (!state.VchainMetrics[vcId]) return false;
+  const lastBlockTime = state.VchainMetrics[vcId].LastBlockTime;
+  const now = getCurrentClockTime();
+  if (now - lastBlockTime > config.VchainOutOfSyncThresholdSeconds) return false;
+  return true;
 }
