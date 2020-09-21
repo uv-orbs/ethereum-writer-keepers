@@ -21,6 +21,19 @@ function getExampleState() {
     '42': { o1: 0, o2: 0, o3: 0 },
     '43': { o1: 0, o2: 0, o3: 0 },
   };
+  // make sure both vcs are in sync
+  exampleState.VchainMetrics['42'] = {
+    LastBlockHeight: 5000,
+    UptimeSeconds: 3000,
+    LastBlockTime: getCurrentClockTime() - 35,
+    LastCommitTime: getCurrentClockTime() - 35,
+  };
+  exampleState.VchainMetrics['43'] = {
+    LastBlockHeight: 5000,
+    UptimeSeconds: 3000,
+    LastBlockTime: getCurrentClockTime() - 35,
+    LastCommitTime: getCurrentClockTime() - 35,
+  };
   return exampleState;
 }
 
@@ -186,5 +199,20 @@ test('too many successful daily tx', (t) => {
 
   state.EthereumSuccessfulTxStats[getToday()] = exampleConfig.EthereumMaxSuccessfulDailyTx;
   state.TimeEnteredBadReputation['e2']['42'] = getCurrentClockTime() - 10 * 60 * 60;
+  t.deepEqual(getAllGuardiansToVoteUnready(state, exampleConfig), []);
+});
+
+test('vc that is not in sync/stuck does not cause vote unready', (t) => {
+  const state = getExampleState();
+  state.VchainReputations['42']['o1'] = 1;
+  state.VchainReputations['42']['o2'] = 6; // bad
+  state.VchainReputations['42']['o3'] = 1;
+  t.deepEqual(getAllGuardiansToVoteUnready(state, exampleConfig), []);
+  t.assert(state.TimeEnteredBadReputation['e2']['42'] > 1400000000);
+
+  state.TimeEnteredBadReputation['e2']['42'] = getCurrentClockTime() - 10 * 60 * 60;
+  t.deepEqual(getAllGuardiansToVoteUnready(state, exampleConfig), [{ EthAddress: 'e2', Weight: 10 }]);
+
+  state.VchainMetrics['42'].LastBlockTime = getCurrentClockTime() - 2 * 60 * 60;
   t.deepEqual(getAllGuardiansToVoteUnready(state, exampleConfig), []);
 });
