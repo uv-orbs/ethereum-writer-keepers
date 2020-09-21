@@ -131,12 +131,7 @@ export async function readPendingTransactionStatus(
 
   // needed since getTransactionReceipt fails on light client when tx is pending
   const tx = await state.web3.eth.getTransaction(status.TxHash);
-  if (tx == null) {
-    Logger.error(`Last ethereum ${status.Type} tx ${status.TxHash} removed from pool.`);
-    status.Status = 'removed-from-pool';
-    return;
-  }
-  if (tx.blockNumber == null) {
+  if (tx == null || tx.blockNumber == null) {
     Logger.log(`Last ethereum ${status.Type} tx ${status.TxHash} is still waiting for block.`);
     handlePendingTxTimeout(status, state, config);
     return; // still pending
