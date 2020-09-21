@@ -369,7 +369,7 @@ test('readPendingTransactionStatus on a recent pending tx that becomes removed f
   await readPendingTransactionStatus(state.EthereumLastElectionsTx, state, exampleConfig);
 
   t.assert(state.EthereumLastElectionsTx.LastPollTime > 1400000000);
-  t.is(state.EthereumLastElectionsTx.Status, 'removed-from-pool');
+  t.is(state.EthereumLastElectionsTx.Status, 'pending'); // this used to return error
   t.is(state.EthereumConsecutiveTxTimeouts, 3);
   t.is(state.EthereumSuccessfulTxStats[getToday()], 1);
   t.is(arr.length, 0);

@@ -87,7 +87,7 @@ export interface EthereumTxStatus {
   SendTime: number; // UTC seconds
   GasPriceStrategy: GasPriceStrategy;
   GasPrice: number; // wei
-  Status: 'pending' | 'final' | 'failed-send' | 'timeout' | 'removed-from-pool' | 'revert'; // final according to ManagementEthRefBlock
+  Status: 'pending' | 'final' | 'failed-send' | 'timeout' | 'revert'; // final according to ManagementEthRefBlock
   TxHash: string;
   EthBlock: number;
   OnFinal?: () => void;
