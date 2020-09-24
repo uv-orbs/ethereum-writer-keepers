@@ -4,6 +4,7 @@ import { writeStatusToDisk } from './status';
 import { State } from '../model/state';
 import { readFileSync } from 'fs';
 import { exampleConfig } from '../config.example';
+import { weiToEth } from '../model/helpers';
 
 test.serial.afterEach.always(() => {
   mockFs.restore();
@@ -29,8 +30,8 @@ test.serial('eth balance appears in status and error when too low', (t) => {
   const writtenContents = JSON.parse(readFileSync('./status/status.json').toString());
   t.log('result:', JSON.stringify(writtenContents, null, 2));
 
-  t.assert(writtenContents.Status.includes(state.EtherBalance));
-  t.assert(writtenContents.Error.includes(state.EtherBalance));
+  t.assert(writtenContents.Status.includes(weiToEth(state.EtherBalance)));
+  t.assert(writtenContents.Error.includes(weiToEth(state.EtherBalance)));
 });
 
 test.serial('contains all payload fields', (t) => {

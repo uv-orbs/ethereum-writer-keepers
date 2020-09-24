@@ -3,8 +3,9 @@ import { State } from '../model/state';
 import { writeFileSync } from 'fs';
 import { ensureFileDirectoryExists, JsonResponse, getCurrentClockTime } from '../helpers';
 import { Configuration } from '../config';
+import { weiToEth } from '../model/helpers';
 
-const MINIMUM_ALLOWED_ETH_BALANCE_WEI = BigInt('20000000000000000');
+const MINIMUM_ALLOWED_ETH_BALANCE_WEI = BigInt('100000000000000000'); // 0.1 ETH
 const TX_CONSECUTIVE_TIMEOUTS = 10;
 const TX_SEND_FAILURE_TIMEOUT = 24 * 60 * 60; // seconds
 
@@ -61,7 +62,7 @@ function getStatusText(state: State) {
   res.push();
   res.push(`EthereumSyncStatus = ${state.EthereumSyncStatus}`);
   res.push(`VchainSyncStatus = ${state.VchainSyncStatus}`);
-  res.push(`EtherBalance = ${state.EtherBalance}`);
+  res.push(`EtherBalance = ${weiToEth(state.EtherBalance)} ETH`);
   return res.join(', ');
 }
 
@@ -71,7 +72,7 @@ function getErrorText(state: State, err?: Error) {
     res.push(`Service requires reset.`);
   }
   if (BigInt(state.EtherBalance) < MINIMUM_ALLOWED_ETH_BALANCE_WEI) {
-    res.push(`Eth balance low: ${state.EtherBalance}.`);
+    res.push(`Eth balance low: ${weiToEth(state.EtherBalance)} ETH.`);
   }
   if (state.EthereumSyncStatus == 'out-of-sync') {
     res.push(`Eth is out of sync.`);

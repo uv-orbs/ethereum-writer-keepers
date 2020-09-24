@@ -1,6 +1,6 @@
 import test from 'ava';
 import { State } from './state';
-import { findEthFromOrbsAddress, calcMedianInPlace } from './helpers';
+import { findEthFromOrbsAddress, calcMedianInPlace, weiToEth } from './helpers';
 
 test('findEthFromOrbsAddress', (t) => {
   const state = new State();
@@ -27,4 +27,13 @@ test('calcMedianInPlace', (t) => {
   t.is(calcMedianInPlace([2, 1]), 1.5);
   t.is(calcMedianInPlace([3, 1, 2]), 2);
   t.is(calcMedianInPlace([3, 1, 4, 2]), 2.5);
+});
+
+test('weiToEth', (t) => {
+  t.is(weiToEth('100000000000000000'), '0.1');
+  t.is(weiToEth('0'), '0');
+  t.is(weiToEth('123432123432123432'), '0.123432');
+  t.is(weiToEth('623597280544873'), '0.000623');
+  t.is(weiToEth('6235972803'), '0');
+  t.is(weiToEth('4000000000000000000000'), '4000');
 });
