@@ -147,8 +147,8 @@ export async function readPendingTransactionStatus(
   status.EthBlock = receipt.blockNumber;
   state.EthereumConsecutiveTxTimeouts = 0;
   const today = getToday();
-  if (!state.EthereumSuccessfulTxStats[today]) state.EthereumSuccessfulTxStats[today] = 0;
-  state.EthereumSuccessfulTxStats[today]++;
+  if (!state.EthereumCommittedTxStats[today]) state.EthereumCommittedTxStats[today] = 0;
+  state.EthereumCommittedTxStats[today]++;
   if (receipt.status) {
     Logger.log(`Last ethereum ${status.Type} tx ${status.TxHash} was successful in block ${receipt.blockNumber}.`);
     if (state.ManagementEthRefBlock >= receipt.blockNumber) {

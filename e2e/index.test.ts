@@ -113,7 +113,7 @@ test.serial('[E2E] all vchains synced -> sends ready-for-committee', async (t) =
       GasPrice: 30000000000,
     },
     EthereumLastVoteUnreadyTime: {},
-    EthereumSuccessfulTxStats: {
+    EthereumCommittedTxStats: {
       [getToday()]: isPositiveNumber,
     },
     VchainReputationsLastPollTime: isValidTimeRef,
@@ -204,7 +204,7 @@ test.serial('[E2E] enter committee -> sends vote unready for bad rep', async (t)
     EthereumLastVoteUnreadyTime: {
       e16e965a4cc3fcd597ecdb9cd9ab8f3e6a750ac9: isValidTimeRef,
     },
-    EthereumSuccessfulTxStats: {
+    EthereumCommittedTxStats: {
       [getToday()]: isPositiveNumber,
     },
     VchainReputationsLastPollTime: isValidTimeRef,

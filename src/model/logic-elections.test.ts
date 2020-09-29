@@ -168,7 +168,7 @@ test('shouldNotifyReadyToSync: audit-only keeps position in standby', (t) => {
 
 test('shouldNotifyReadyToSync: too many successful daily tx', (t) => {
   const state = getExampleState();
-  state.EthereumSuccessfulTxStats[getToday()] = exampleConfig.EthereumMaxSuccessfulDailyTx;
+  state.EthereumCommittedTxStats[getToday()] = exampleConfig.EthereumMaxCommittedDailyTx;
   state.VchainSyncStatus = 'exist-not-in-sync';
   t.false(shouldNotifyReadyToSync(state, exampleConfig));
 });
@@ -257,7 +257,7 @@ test('shouldNotifyReadyForCommittee: only when ethereum state is operational', (
 
 test('shouldNotifyReadyForCommittee: too many successful daily tx', (t) => {
   const state = getExampleState();
-  state.EthereumSuccessfulTxStats[getToday()] = exampleConfig.EthereumMaxSuccessfulDailyTx;
+  state.EthereumCommittedTxStats[getToday()] = exampleConfig.EthereumMaxCommittedDailyTx;
   state.VchainSyncStatus = 'in-sync';
   t.false(shouldNotifyReadyForCommittee(state, exampleConfig));
 });
