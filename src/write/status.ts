@@ -72,7 +72,7 @@ function getErrorText(state: State, err?: Error) {
     res.push(`Service requires reset.`);
   }
   if (BigInt(state.EtherBalance) < MINIMUM_ALLOWED_ETH_BALANCE_WEI) {
-    res.push(`Eth balance low: ${weiToEth(state.EtherBalance)} ETH.`);
+    res.push(`Eth balance below ${weiToEth(MINIMUM_ALLOWED_ETH_BALANCE_WEI.toString(10))}: ${weiToEth(state.EtherBalance)} ETH.`);
   }
   if (state.EthereumSyncStatus == 'out-of-sync') {
     res.push(`Eth is out of sync.`);
