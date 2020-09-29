@@ -60,8 +60,8 @@ export function writeStatusToDisk(filePath: string, state: State, config: Config
 function getStatusText(state: State) {
   const res = [];
   res.push();
-  res.push(`EthereumSyncStatus = ${state.EthereumSyncStatus}`);
-  res.push(`VchainSyncStatus = ${state.VchainSyncStatus}`);
+  res.push(`EthSyncStatus = ${state.EthereumSyncStatus}`);
+  res.push(`VcSyncStatus = ${state.VchainSyncStatus}`);
   res.push(`EtherBalance = ${weiToEth(state.EtherBalance)} ETH`);
   return res.join(', ');
 }
