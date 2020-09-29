@@ -19,6 +19,10 @@ export function getToday(): string {
   return new Date().toISOString().substr(0, 10);
 }
 
+export function getMonth(): string {
+  return new Date().toISOString().substr(0, 7);
+}
+
 export function toNumber(val: number | string) {
   if (typeof val == 'string') {
     return parseInt(val);

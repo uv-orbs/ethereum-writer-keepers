@@ -11,6 +11,8 @@ import { Contract } from 'web3-eth-contract';
 import { sleep, getCurrentClockTime, getToday } from '../helpers';
 import Signer from 'orbs-signer-client';
 import { exampleConfig } from '../config.example';
+import { TransactionReceipt } from 'web3-core';
+import { getReceiptFeeInEth } from './ethereum-helpers';
 
 test('initializes web3 and contracts', (t) => {
   const state = new State();
@@ -464,4 +466,14 @@ test('readPendingTransactionStatus on an old pending tx committed in block that 
   t.is(state.EthereumConsecutiveTxTimeouts, 0);
   t.is(state.EthereumCommittedTxStats[getToday()], 1);
   t.is(arr.length, 1);
+});
+
+test('getReceiptFeeInEth', (t) => {
+  const mockReceipt: TransactionReceipt = ({
+    gasUsed: 258406,
+  } as unknown) as TransactionReceipt;
+  const mockStatus: EthereumTxStatus = ({
+    GasPrice: 65000000000,
+  } as unknown) as EthereumTxStatus;
+  t.is(getReceiptFeeInEth(mockReceipt, mockStatus), 0.01679639);
 });

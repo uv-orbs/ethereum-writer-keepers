@@ -1,7 +1,7 @@
 import test from 'ava';
 import { TestEnvironment } from './driver';
 import { join } from 'path';
-import { sleep, getToday } from '../src/helpers';
+import { sleep, getToday, getMonth } from '../src/helpers';
 import {
   deepDataMatcher,
   isValidEtherBalance,
@@ -9,6 +9,7 @@ import {
   isValidTimeRef,
   isValidBlock,
   isNonEmptyString,
+  isPositiveFloat,
 } from './deep-matcher';
 
 const driver = new TestEnvironment(join(__dirname, 'docker-compose.yml'));
@@ -206,6 +207,9 @@ test.serial('[E2E] enter committee -> sends vote unready for bad rep', async (t)
     },
     EthereumCommittedTxStats: {
       [getToday()]: isPositiveNumber,
+    },
+    EthereumFeesStats: {
+      [getMonth()]: isPositiveFloat,
     },
     VchainReputationsLastPollTime: isValidTimeRef,
     VchainReputations: {

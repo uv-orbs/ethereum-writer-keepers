@@ -37,6 +37,7 @@ export class State {
   EtherBalance = ''; // string in wei
   EthereumConsecutiveTxTimeouts = 0;
   EthereumCommittedTxStats: { [day: string]: number } = {};
+  EthereumFeesStats: { [month: string]: number } = {}; // number in eth
 
   // updated by index.ts
   VchainSyncStatus: VchainSyncStatusEnum = 'not-exist';

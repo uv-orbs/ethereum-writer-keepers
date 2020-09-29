@@ -1,7 +1,7 @@
 import * as Logger from '../logger';
 import { State, EthereumTxStatus, GasPriceStrategy } from '../model/state';
 import { getCurrentClockTime, jsonStringifyComplexTypes, toNumber } from '../helpers';
-import { TransactionConfig } from 'web3-core';
+import { TransactionConfig, TransactionReceipt } from 'web3-core';
 
 const GAS_LIMIT_ESTIMATE_EXTRA = 100000;
 const GAS_LIMIT_HARD_LIMIT = 2000000;
@@ -110,4 +110,8 @@ export function handlePendingTxTimeout(status: EthereumTxStatus | undefined, sta
     status.Status = 'timeout';
     state.EthereumConsecutiveTxTimeouts++;
   }
+}
+
+export function getReceiptFeeInEth(receipt: TransactionReceipt, status: EthereumTxStatus): number {
+  return ((status.GasPrice / 1e9) * receipt.gasUsed) / 1e9;
 }

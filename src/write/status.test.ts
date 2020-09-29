@@ -52,6 +52,7 @@ test.serial('contains all payload fields', (t) => {
     EthereumConsecutiveTxTimeouts: 0,
     EthereumLastVoteUnreadyTime: {},
     EthereumCommittedTxStats: {},
+    EthereumFeesStats: {},
     VchainReputationsLastPollTime: 0,
     VchainReputations: {},
     VchainMetricsLastPollTime: 0,
