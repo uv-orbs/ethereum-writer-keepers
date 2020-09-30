@@ -1,7 +1,7 @@
 import test from 'ava';
 import { TestEnvironment } from './driver';
 import { join } from 'path';
-import { sleep, getToday, getMonth } from '../src/helpers';
+import { sleep, getToday, getTenDayPeriod } from '../src/helpers';
 import {
   deepDataMatcher,
   isValidEtherBalance,
@@ -209,7 +209,7 @@ test.serial('[E2E] enter committee -> sends vote unready for bad rep', async (t)
       [getToday()]: isPositiveNumber,
     },
     EthereumFeesStats: {
-      [getMonth()]: isPositiveFloat,
+      [getTenDayPeriod()]: isPositiveFloat,
     },
     VchainReputationsLastPollTime: isValidTimeRef,
     VchainReputations: {

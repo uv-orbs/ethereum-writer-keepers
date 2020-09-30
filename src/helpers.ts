@@ -19,8 +19,14 @@ export function getToday(): string {
   return new Date().toISOString().substr(0, 10);
 }
 
-export function getMonth(): string {
-  return new Date().toISOString().substr(0, 7);
+// returns the ten days group of the month
+export function getTenDayPeriod(): string {
+  const iso = new Date().toISOString();
+  const prefix = iso.substr(0, 8);
+  const day = parseInt(iso.substr(8, 2));
+  if (day <= 10) return prefix + '1:10';
+  if (day <= 20) return prefix + '11:20';
+  return prefix + '21:31';
 }
 
 export function toNumber(val: number | string) {

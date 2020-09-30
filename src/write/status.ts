@@ -1,12 +1,12 @@
 import * as Logger from '../logger';
 import { State } from '../model/state';
 import { writeFileSync } from 'fs';
-import { ensureFileDirectoryExists, JsonResponse, getCurrentClockTime, getMonth } from '../helpers';
+import { ensureFileDirectoryExists, JsonResponse, getCurrentClockTime, getTenDayPeriod } from '../helpers';
 import { Configuration } from '../config';
 import { weiToEth } from '../model/helpers';
 
 const MINIMUM_ALLOWED_ETH_BALANCE_WEI = BigInt('100000000000000000'); // 0.1 ETH
-const MAX_ALLOWED_FEE_PER_MONTH_ETH = 0.2;
+const MAX_ALLOWED_FEE_PER_TEN_DAYS_ETH = 0.1;
 const TX_CONSECUTIVE_TIMEOUTS = 10;
 const TX_SEND_FAILURE_TIMEOUT = 24 * 60 * 60; // seconds
 
@@ -65,8 +65,8 @@ function getStatusText(state: State) {
   res.push(`EthSyncStatus = ${state.EthereumSyncStatus}`);
   res.push(`VcSyncStatus = ${state.VchainSyncStatus}`);
   res.push(`EtherBalance = ${weiToEth(state.EtherBalance)} ETH`);
-  const thisMonth = getMonth();
-  res.push(`TxFeesThisMonth = ${(state.EthereumFeesStats[thisMonth] ?? 0).toFixed(6)} ETH`);
+  const tenDays = getTenDayPeriod();
+  res.push(`TxFeesIn10Days = ${(state.EthereumFeesStats[tenDays] ?? 0).toFixed(6)} ETH`);
   return res.join(', ');
 }
 
@@ -88,10 +88,10 @@ function getErrorText(state: State, err?: Error) {
   if (state.EthereumConsecutiveTxTimeouts > TX_CONSECUTIVE_TIMEOUTS) {
     res.push(`Too many pending tx timeouts: ${state.EthereumConsecutiveTxTimeouts}.`);
   }
-  const thisMonth = getMonth();
-  if ((state.EthereumFeesStats[thisMonth] ?? 0) > MAX_ALLOWED_FEE_PER_MONTH_ETH) {
+  const tenDays = getTenDayPeriod();
+  if ((state.EthereumFeesStats[tenDays] ?? 0) > MAX_ALLOWED_FEE_PER_TEN_DAYS_ETH) {
     res.push(
-      `Tx fees this month above ${MAX_ALLOWED_FEE_PER_MONTH_ETH}: ${(state.EthereumFeesStats[thisMonth] ?? 0).toFixed(
+      `Tx fees in 10 days above ${MAX_ALLOWED_FEE_PER_TEN_DAYS_ETH}: ${(state.EthereumFeesStats[tenDays] ?? 0).toFixed(
         6
       )} ETH.`
     );
