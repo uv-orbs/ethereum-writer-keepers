@@ -12,7 +12,7 @@
         "Name": "Guardian3"
       },
       {
-        "EthAddress": "e16e965a4cc3fcd597ecdb9cd9ab8f3e6a750ac9",
+        "EthAddress": "94fda04016784d0348ec2ece7a9b24e3313885f0",
         "Weight": 30000,
         "Name": "Guardian1"
       }
@@ -29,7 +29,7 @@
         "Name": "Guardian2"
       },
       {
-        "EthAddress": "29ce860a2247d97160d6dfc087a15f41e2349087",
+        "EthAddress": "98b4d71c78789637364a70f696227ec89e35626c",
         "IsStandby": false,
         "Name": "Guardian0"
       }
@@ -78,8 +78,8 @@
         "Port": 0
       },
       {
-        "EthAddress": "e16e965a4cc3fcd597ecdb9cd9ab8f3e6a750ac9",
-        "OrbsAddress": "86544bdd6c8b957cd198252c45fa215fc3892126",
+        "EthAddress": "94fda04016784d0348ec2ece7a9b24e3313885f0",
+        "OrbsAddress": "945dc264e11c09f8a518da6ce1bea493e0055b16",
         "Ip": "225.110.150.90",
         "Port": 0
       },
@@ -91,9 +91,9 @@
       }
     ],
     "Guardians": {
-      "29ce860a2247d97160d6dfc087a15f41e2349087": {
-        "EthAddress": "29ce860a2247d97160d6dfc087a15f41e2349087",
-        "OrbsAddress": "16fcf728f8dc3f687132f2157d8379c021a08c12",
+      "98b4d71c78789637364a70f696227ec89e35626c": {
+        "EthAddress": "98b4d71c78789637364a70f696227ec89e35626c",
+        "OrbsAddress": "b1985d8a332bfc903fd437489ea933792fbfa500",
         "Ip": "41.206.134.10",
         "EffectiveStake": 10000,
         "ElectionsStatus": {
@@ -106,9 +106,9 @@
         "Website": "Guardian0-website",
         "Contact": "Guardian0-contact"
       },
-      "e16e965a4cc3fcd597ecdb9cd9ab8f3e6a750ac9": {
-        "EthAddress": "e16e965a4cc3fcd597ecdb9cd9ab8f3e6a750ac9",
-        "OrbsAddress": "86544bdd6c8b957cd198252c45fa215fc3892126",
+      "94fda04016784d0348ec2ece7a9b24e3313885f0": {
+        "EthAddress": "94fda04016784d0348ec2ece7a9b24e3313885f0",
+        "OrbsAddress": "945dc264e11c09f8a518da6ce1bea493e0055b16",
         "Ip": "225.110.150.90",
         "EffectiveStake": 20000,
         "ElectionsStatus": {

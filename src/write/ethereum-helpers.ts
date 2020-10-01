@@ -13,6 +13,7 @@ export interface EthereumTxParams {
   EthereumDiscountTxTimeoutSeconds: number;
   EthereumNonDiscountTxTimeoutSeconds: number;
   EthereumMaxGasPrice: number;
+  VoteUnreadyValiditySeconds: number;
 }
 
 export function getGasPriceStrategy(previousTxStatus: EthereumTxStatus | undefined): GasPriceStrategy {

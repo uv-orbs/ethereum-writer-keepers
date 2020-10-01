@@ -95,7 +95,8 @@ export async function sendEthereumVoteUnreadyTransaction(
   };
 
   try {
-    const encodedAbi = contractMethod(ethAddressForAbi).encodeABI() as string;
+    const voteExpiration = getCurrentClockTime() + config.VoteUnreadyValiditySeconds;
+    const encodedAbi = contractMethod(ethAddressForAbi, voteExpiration).encodeABI() as string;
     const contractAddress = state.ethereumElectionsContract.options.address;
     const senderAddress = `0x${nodeOrbsAddress}`;
     const txHash = await signAndSendTransaction(encodedAbi, contractAddress, senderAddress, gasPrice, state);

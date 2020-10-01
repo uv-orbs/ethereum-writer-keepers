@@ -102,12 +102,12 @@ export class TestEnvironment {
       await guardian.stake(stake);
       await guardian.registerAsGuardian();
       this.nodeOrbsAddress = guardian.orbsAddress;
-      console.log(`[posv2] driver.nodeOrbsAddress = ${this.nodeOrbsAddress}`);
+      console.log(`[posv2] driver.nodeOrbsAddress = ${this.nodeOrbsAddress}, ethAddress = ${guardian.address}`);
       const peer = this.ethereumPosDriver.newParticipant();
       await peer.stake(stake);
       await peer.registerAsGuardian();
       await peer.readyForCommittee();
-      console.log(`[posv2] peer ethAddress for vote unreadys = ${peer.address}`);
+      console.log(`[posv2] peer ethAddress for vote unreadys = ${peer.address}, orbsAddress = ${peer.orbsAddress}`);
     });
 
     // step 4 - deploy Orbs contracts to gamma

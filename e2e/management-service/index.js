@@ -12,7 +12,7 @@ app.get('/status', (req, res) => {
   
   if (mockState == 'in-committee') {
     data.Payload.CurrentCommittee.push({
-      EthAddress: '29ce860a2247d97160d6dfc087a15f41e2349087',
+      EthAddress: '98b4d71c78789637364a70f696227ec89e35626c',
       Weight: 20000,
     });
   }
