@@ -197,7 +197,7 @@ test('too many successful daily tx', (t) => {
   t.deepEqual(getAllGuardiansToVoteUnready(state, exampleConfig), []);
   t.assert(state.TimeEnteredBadReputation['e2']['42'] > 1400000000);
 
-  state.EthereumSuccessfulTxStats[getToday()] = exampleConfig.EthereumMaxSuccessfulDailyTx;
+  state.EthereumCommittedTxStats[getToday()] = exampleConfig.EthereumMaxCommittedDailyTx;
   state.TimeEnteredBadReputation['e2']['42'] = getCurrentClockTime() - 10 * 60 * 60;
   t.deepEqual(getAllGuardiansToVoteUnready(state, exampleConfig), []);
 });

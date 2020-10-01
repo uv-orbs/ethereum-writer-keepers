@@ -26,7 +26,7 @@ export interface Configuration {
   EthereumDiscountTxTimeoutSeconds: number;
   EthereumNonDiscountTxTimeoutSeconds: number;
   EthereumMaxGasPrice: number; // in wei (below 2^54 so number is ok)
-  EthereumMaxSuccessfulDailyTx: number;
+  EthereumMaxCommittedDailyTx: number;
 }
 
 export const defaultConfiguration = {
@@ -52,7 +52,7 @@ export const defaultConfiguration = {
   EthereumDiscountTxTimeoutSeconds: 60 * 60,
   EthereumNonDiscountTxTimeoutSeconds: 10 * 60,
   EthereumMaxGasPrice: 150000000000, // 150 gwei
-  EthereumMaxSuccessfulDailyTx: 4,
+  EthereumMaxCommittedDailyTx: 4,
 };
 
 export function validateConfiguration(config: Configuration) {
@@ -200,10 +200,10 @@ export function validateConfiguration(config: Configuration) {
   if (typeof config.EthereumMaxGasPrice != 'number') {
     throw new Error(`EthereumMaxGasPrice is not a number.`);
   }
-  if (!config.EthereumMaxSuccessfulDailyTx) {
-    throw new Error(`EthereumMaxSuccessfulDailyTx is empty or zero.`);
+  if (!config.EthereumMaxCommittedDailyTx) {
+    throw new Error(`EthereumMaxCommittedDailyTx is empty or zero.`);
   }
-  if (typeof config.EthereumMaxSuccessfulDailyTx != 'number') {
-    throw new Error(`EthereumMaxSuccessfulDailyTx is not a number.`);
+  if (typeof config.EthereumMaxCommittedDailyTx != 'number') {
+    throw new Error(`EthereumMaxCommittedDailyTx is not a number.`);
   }
 }

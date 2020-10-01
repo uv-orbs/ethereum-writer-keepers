@@ -11,6 +11,8 @@ import { Contract } from 'web3-eth-contract';
 import { sleep, getCurrentClockTime, getToday } from '../helpers';
 import Signer from 'orbs-signer-client';
 import { exampleConfig } from '../config.example';
+import { TransactionReceipt } from 'web3-core';
+import { getReceiptFeeInEth } from './ethereum-helpers';
 
 test('initializes web3 and contracts', (t) => {
   const state = new State();
@@ -108,7 +110,7 @@ test('sendEthereumElectionsTransaction ready-to-sync successful after successful
   t.is(state.EthereumLastElectionsTx.EthBlock, 0);
   t.falsy(state.EthereumLastElectionsTx.OnFinal);
   t.is(state.EthereumConsecutiveTxTimeouts, 0);
-  t.is(state.EthereumSuccessfulTxStats[getToday()], undefined);
+  t.is(state.EthereumCommittedTxStats[getToday()], undefined);
 });
 
 test('sendEthereumElectionsTransaction ready-for-committee successful after timeout', async (t) => {
@@ -131,7 +133,7 @@ test('sendEthereumElectionsTransaction ready-for-committee successful after time
   t.is(state.EthereumLastElectionsTx.EthBlock, 0);
   t.falsy(state.EthereumLastElectionsTx.OnFinal);
   t.is(state.EthereumConsecutiveTxTimeouts, 0);
-  t.is(state.EthereumSuccessfulTxStats[getToday()], undefined);
+  t.is(state.EthereumCommittedTxStats[getToday()], undefined);
 });
 
 test('sendEthereumElectionsTransaction ready-for-committee successful with huge gas price', async (t) => {
@@ -154,7 +156,7 @@ test('sendEthereumElectionsTransaction ready-for-committee successful with huge 
   t.is(state.EthereumLastElectionsTx.EthBlock, 0);
   t.falsy(state.EthereumLastElectionsTx.OnFinal);
   t.is(state.EthereumConsecutiveTxTimeouts, 0);
-  t.is(state.EthereumSuccessfulTxStats[getToday()], undefined);
+  t.is(state.EthereumCommittedTxStats[getToday()], undefined);
 });
 
 test('sendEthereumElectionsTransaction fails on send', async (t) => {
@@ -263,13 +265,13 @@ test('readPendingTransactionStatus on a recent pending tx that still has no txHa
   state.EthereumLastElectionsTx = getExampleEthereumTxStatus(arr);
   state.EthereumLastElectionsTx.TxHash = '';
   state.EthereumConsecutiveTxTimeouts = 3;
-  state.EthereumSuccessfulTxStats[getToday()] = 1;
+  state.EthereumCommittedTxStats[getToday()] = 1;
   await readPendingTransactionStatus(state.EthereumLastElectionsTx, state, exampleConfig);
 
   t.assert(state.EthereumLastElectionsTx.LastPollTime == 0);
   t.is(state.EthereumLastElectionsTx.Status, 'pending');
   t.is(state.EthereumConsecutiveTxTimeouts, 3);
-  t.is(state.EthereumSuccessfulTxStats[getToday()], 1);
+  t.is(state.EthereumCommittedTxStats[getToday()], 1);
   t.is(arr.length, 0);
 });
 
@@ -281,13 +283,13 @@ test('readPendingTransactionStatus on an old pending tx that still has no txHash
   state.EthereumLastElectionsTx.TxHash = '';
   state.EthereumLastElectionsTx.SendTime = getCurrentClockTime() - 24 * 60 * 60;
   state.EthereumConsecutiveTxTimeouts = 3;
-  state.EthereumSuccessfulTxStats[getToday()] = 1;
+  state.EthereumCommittedTxStats[getToday()] = 1;
   await readPendingTransactionStatus(state.EthereumLastElectionsTx, state, exampleConfig);
 
   t.assert(state.EthereumLastElectionsTx.LastPollTime == 0);
   t.is(state.EthereumLastElectionsTx.Status, 'pending');
   t.is(state.EthereumConsecutiveTxTimeouts, 3);
-  t.is(state.EthereumSuccessfulTxStats[getToday()], 1);
+  t.is(state.EthereumCommittedTxStats[getToday()], 1);
   t.is(arr.length, 0);
 });
 
@@ -297,13 +299,13 @@ test('readPendingTransactionStatus on a recent pending tx that has txHash but no
   const arr: number[] = [];
   state.EthereumLastElectionsTx = getExampleEthereumTxStatus(arr);
   state.EthereumConsecutiveTxTimeouts = 3;
-  state.EthereumSuccessfulTxStats[getToday()] = 1;
+  state.EthereumCommittedTxStats[getToday()] = 1;
   await readPendingTransactionStatus(state.EthereumLastElectionsTx, state, exampleConfig);
 
   t.assert(state.EthereumLastElectionsTx.LastPollTime > 1400000000);
   t.is(state.EthereumLastElectionsTx.Status, 'pending');
   t.is(state.EthereumConsecutiveTxTimeouts, 3);
-  t.is(state.EthereumSuccessfulTxStats[getToday()], 1);
+  t.is(state.EthereumCommittedTxStats[getToday()], 1);
   t.is(arr.length, 0);
 });
 
@@ -314,13 +316,13 @@ test('readPendingTransactionStatus on an old pending tx that has txHash but no b
   state.EthereumLastElectionsTx = getExampleEthereumTxStatus(arr);
   state.EthereumLastElectionsTx.SendTime = getCurrentClockTime() - 24 * 60 * 60;
   state.EthereumConsecutiveTxTimeouts = 3;
-  state.EthereumSuccessfulTxStats[getToday()] = 1;
+  state.EthereumCommittedTxStats[getToday()] = 1;
   await readPendingTransactionStatus(state.EthereumLastElectionsTx, state, exampleConfig);
 
   t.assert(state.EthereumLastElectionsTx.LastPollTime > 1400000000);
   t.is(state.EthereumLastElectionsTx.Status, 'timeout');
   t.is(state.EthereumConsecutiveTxTimeouts, 4);
-  t.is(state.EthereumSuccessfulTxStats[getToday()], 1);
+  t.is(state.EthereumCommittedTxStats[getToday()], 1);
   t.is(arr.length, 0);
 });
 
@@ -330,14 +332,14 @@ test('readPendingTransactionStatus on a recent pending tx that becomes committed
   const arr: number[] = [];
   state.EthereumLastElectionsTx = getExampleEthereumTxStatus(arr);
   state.EthereumConsecutiveTxTimeouts = 3;
-  state.EthereumSuccessfulTxStats[getToday()] = 1;
+  state.EthereumCommittedTxStats[getToday()] = 1;
   await readPendingTransactionStatus(state.EthereumLastElectionsTx, state, exampleConfig);
 
   t.assert(state.EthereumLastElectionsTx.LastPollTime > 1400000000);
   t.is(state.EthereumLastElectionsTx.Status, 'pending');
   t.is(state.EthereumLastElectionsTx.EthBlock, 117);
   t.is(state.EthereumConsecutiveTxTimeouts, 0);
-  t.is(state.EthereumSuccessfulTxStats[getToday()], 2);
+  t.is(state.EthereumCommittedTxStats[getToday()], 2);
   t.is(arr.length, 0);
 });
 
@@ -348,14 +350,14 @@ test('readPendingTransactionStatus on an old pending tx that becomes committed i
   state.EthereumLastElectionsTx = getExampleEthereumTxStatus(arr);
   state.EthereumLastElectionsTx.SendTime = getCurrentClockTime() - 24 * 60 * 60;
   state.EthereumConsecutiveTxTimeouts = 3;
-  // state.EthereumSuccessfulTxStats[getToday()] does not exist
+  // state.EthereumCommittedTxStats[getToday()] does not exist
   await readPendingTransactionStatus(state.EthereumLastElectionsTx, state, exampleConfig);
 
   t.assert(state.EthereumLastElectionsTx.LastPollTime > 1400000000);
   t.is(state.EthereumLastElectionsTx.Status, 'pending');
   t.is(state.EthereumLastElectionsTx.EthBlock, 117);
   t.is(state.EthereumConsecutiveTxTimeouts, 0);
-  t.is(state.EthereumSuccessfulTxStats[getToday()], 1);
+  t.is(state.EthereumCommittedTxStats[getToday()], 1);
   t.is(arr.length, 0);
 });
 
@@ -365,13 +367,13 @@ test('readPendingTransactionStatus on a recent pending tx that becomes removed f
   const arr: number[] = [];
   state.EthereumLastElectionsTx = getExampleEthereumTxStatus(arr);
   state.EthereumConsecutiveTxTimeouts = 3;
-  state.EthereumSuccessfulTxStats[getToday()] = 1;
+  state.EthereumCommittedTxStats[getToday()] = 1;
   await readPendingTransactionStatus(state.EthereumLastElectionsTx, state, exampleConfig);
 
   t.assert(state.EthereumLastElectionsTx.LastPollTime > 1400000000);
   t.is(state.EthereumLastElectionsTx.Status, 'pending'); // this used to return error
   t.is(state.EthereumConsecutiveTxTimeouts, 3);
-  t.is(state.EthereumSuccessfulTxStats[getToday()], 1);
+  t.is(state.EthereumCommittedTxStats[getToday()], 1);
   t.is(arr.length, 0);
 });
 
@@ -381,14 +383,14 @@ test('readPendingTransactionStatus on a recent pending tx that becomes reverted 
   const arr: number[] = [];
   state.EthereumLastElectionsTx = getExampleEthereumTxStatus(arr);
   state.EthereumConsecutiveTxTimeouts = 3;
-  state.EthereumSuccessfulTxStats[getToday()] = 1;
+  state.EthereumCommittedTxStats[getToday()] = 1;
   await readPendingTransactionStatus(state.EthereumLastElectionsTx, state, exampleConfig);
 
   t.assert(state.EthereumLastElectionsTx.LastPollTime > 1400000000);
   t.is(state.EthereumLastElectionsTx.Status, 'revert');
   t.is(state.EthereumLastElectionsTx.EthBlock, 117);
   t.is(state.EthereumConsecutiveTxTimeouts, 0);
-  t.is(state.EthereumSuccessfulTxStats[getToday()], 2);
+  t.is(state.EthereumCommittedTxStats[getToday()], 2);
   t.is(arr.length, 0);
 });
 
@@ -400,13 +402,13 @@ test('readPendingTransactionStatus on a recent pending tx committed in block but
   state.EthereumLastElectionsTx = getExampleEthereumTxStatus(arr);
   state.EthereumLastElectionsTx.EthBlock = 117;
   state.EthereumConsecutiveTxTimeouts = 0;
-  state.EthereumSuccessfulTxStats[getToday()] = 1;
+  state.EthereumCommittedTxStats[getToday()] = 1;
   await readPendingTransactionStatus(state.EthereumLastElectionsTx, state, exampleConfig);
 
   t.assert(state.EthereumLastElectionsTx.LastPollTime == 0);
   t.is(state.EthereumLastElectionsTx.Status, 'pending');
   t.is(state.EthereumConsecutiveTxTimeouts, 0);
-  t.is(state.EthereumSuccessfulTxStats[getToday()], 1);
+  t.is(state.EthereumCommittedTxStats[getToday()], 1);
   t.is(arr.length, 0);
 });
 
@@ -419,13 +421,13 @@ test('readPendingTransactionStatus on an old pending tx committed in block but n
   state.EthereumLastElectionsTx.SendTime = getCurrentClockTime() - 24 * 60 * 60;
   state.EthereumLastElectionsTx.EthBlock = 117;
   state.EthereumConsecutiveTxTimeouts = 0;
-  state.EthereumSuccessfulTxStats[getToday()] = 1;
+  state.EthereumCommittedTxStats[getToday()] = 1;
   await readPendingTransactionStatus(state.EthereumLastElectionsTx, state, exampleConfig);
 
   t.assert(state.EthereumLastElectionsTx.LastPollTime == 0);
   t.is(state.EthereumLastElectionsTx.Status, 'pending');
   t.is(state.EthereumConsecutiveTxTimeouts, 0);
-  t.is(state.EthereumSuccessfulTxStats[getToday()], 1);
+  t.is(state.EthereumCommittedTxStats[getToday()], 1);
   t.is(arr.length, 0);
 });
 
@@ -437,13 +439,13 @@ test('readPendingTransactionStatus on a recent pending tx committed in block tha
   state.EthereumLastElectionsTx = getExampleEthereumTxStatus(arr);
   state.EthereumLastElectionsTx.EthBlock = 117;
   state.EthereumConsecutiveTxTimeouts = 0;
-  state.EthereumSuccessfulTxStats[getToday()] = 1;
+  state.EthereumCommittedTxStats[getToday()] = 1;
   await readPendingTransactionStatus(state.EthereumLastElectionsTx, state, exampleConfig);
 
   t.assert(state.EthereumLastElectionsTx.LastPollTime == 0);
   t.is(state.EthereumLastElectionsTx.Status, 'final');
   t.is(state.EthereumConsecutiveTxTimeouts, 0);
-  t.is(state.EthereumSuccessfulTxStats[getToday()], 1);
+  t.is(state.EthereumCommittedTxStats[getToday()], 1);
   t.is(arr.length, 1);
 });
 
@@ -456,12 +458,22 @@ test('readPendingTransactionStatus on an old pending tx committed in block that 
   state.EthereumLastElectionsTx.SendTime = getCurrentClockTime() - 24 * 60 * 60;
   state.EthereumLastElectionsTx.EthBlock = 117;
   state.EthereumConsecutiveTxTimeouts = 0;
-  state.EthereumSuccessfulTxStats[getToday()] = 1;
+  state.EthereumCommittedTxStats[getToday()] = 1;
   await readPendingTransactionStatus(state.EthereumLastElectionsTx, state, exampleConfig);
 
   t.assert(state.EthereumLastElectionsTx.LastPollTime == 0);
   t.is(state.EthereumLastElectionsTx.Status, 'final');
   t.is(state.EthereumConsecutiveTxTimeouts, 0);
-  t.is(state.EthereumSuccessfulTxStats[getToday()], 1);
+  t.is(state.EthereumCommittedTxStats[getToday()], 1);
   t.is(arr.length, 1);
+});
+
+test('getReceiptFeeInEth', (t) => {
+  const mockReceipt: TransactionReceipt = ({
+    gasUsed: 258406,
+  } as unknown) as TransactionReceipt;
+  const mockStatus: EthereumTxStatus = ({
+    GasPrice: 65000000000,
+  } as unknown) as EthereumTxStatus;
+  t.is(getReceiptFeeInEth(mockReceipt, mockStatus), 0.01679639);
 });

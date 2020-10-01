@@ -5,10 +5,11 @@ import {
   calcGasPrice,
   signAndSendTransaction,
   handlePendingTxTimeout,
+  getReceiptFeeInEth,
 } from './ethereum-helpers';
 import Web3 from 'web3';
 import * as Logger from '../logger';
-import { getCurrentClockTime, getToday } from '../helpers';
+import { getCurrentClockTime, getToday, getTenDayPeriod } from '../helpers';
 import { State, EthereumTxStatus, CommitteeMember } from '../model/state';
 import { compiledContracts } from '@orbs-network/orbs-ethereum-contracts-v2/release/compiled-contracts';
 
@@ -147,8 +148,11 @@ export async function readPendingTransactionStatus(
   status.EthBlock = receipt.blockNumber;
   state.EthereumConsecutiveTxTimeouts = 0;
   const today = getToday();
-  if (!state.EthereumSuccessfulTxStats[today]) state.EthereumSuccessfulTxStats[today] = 0;
-  state.EthereumSuccessfulTxStats[today]++;
+  if (!state.EthereumCommittedTxStats[today]) state.EthereumCommittedTxStats[today] = 0;
+  state.EthereumCommittedTxStats[today]++;
+  const tenDays = getTenDayPeriod();
+  if (!state.EthereumFeesStats[tenDays]) state.EthereumFeesStats[tenDays] = 0;
+  state.EthereumFeesStats[tenDays] += getReceiptFeeInEth(receipt, status);
   if (receipt.status) {
     Logger.log(`Last ethereum ${status.Type} tx ${status.TxHash} was successful in block ${receipt.blockNumber}.`);
     if (state.ManagementEthRefBlock >= receipt.blockNumber) {

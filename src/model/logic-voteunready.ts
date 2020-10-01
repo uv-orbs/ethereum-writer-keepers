@@ -7,7 +7,7 @@ const INVALID_REPUTATION_THRESHOLD = 4;
 const VALID_REPUTATION_THRESHOLD = 2;
 
 export function getAllGuardiansToVoteUnready(state: State, config: VoteUnreadyParams): CommitteeMember[] {
-  if (state.EthereumSuccessfulTxStats[getToday()] >= config.EthereumMaxSuccessfulDailyTx) return [];
+  if (state.EthereumCommittedTxStats[getToday()] >= config.EthereumMaxCommittedDailyTx) return [];
   if (state.EthereumSyncStatus != 'operational') return [];
   if (state.VchainSyncStatus != 'in-sync') return [];
   if (!state.ManagementInCommittee) return [];
@@ -25,7 +25,7 @@ function shouldBeVotedUnready(guardian: CommitteeMember, state: State, config: V
 export interface VoteUnreadyParams {
   InvalidReputationGraceSeconds: number;
   VoteUnreadyValiditySeconds: number;
-  EthereumMaxSuccessfulDailyTx: number;
+  EthereumMaxCommittedDailyTx: number;
   VchainOutOfSyncThresholdSeconds: number;
 }
 
