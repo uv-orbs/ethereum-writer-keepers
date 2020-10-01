@@ -51,7 +51,7 @@ export const defaultConfiguration = {
   EthereumDiscountGasPriceFactor: 0.75,
   EthereumDiscountTxTimeoutSeconds: 60 * 60,
   EthereumNonDiscountTxTimeoutSeconds: 10 * 60,
-  EthereumMaxGasPrice: 150000000000, // 150 gwei
+  EthereumMaxGasPrice: 500000000000, // 500 gwei
   EthereumMaxCommittedDailyTx: 4,
 };
 
