@@ -8,7 +8,11 @@ import { readAllVchainReputations } from './read/vchain-reputations';
 import { readAllVchainMetrics } from './read/vchain-metrics';
 import { calcVchainSyncStatus } from './model/logic-vcsync';
 import { calcEthereumSyncStatus } from './model/logic-ethsync';
-import { shouldNotifyReadyForCommittee, shouldNotifyReadyToSync } from './model/logic-elections';
+import {
+  shouldNotifyReadyForCommittee,
+  shouldNotifyReadyToSync,
+  shouldCheckCanJoinCommittee,
+} from './model/logic-elections';
 import { getAllGuardiansToVoteUnready } from './model/logic-voteunready';
 import Signer from 'orbs-signer-client';
 import {
@@ -17,6 +21,7 @@ import {
   readPendingTransactionStatus,
   sendEthereumElectionsTransaction,
   sendEthereumVoteUnreadyTransaction,
+  queryCanJoinCommittee,
 } from './write/ethereum';
 
 export async function runLoop(config: Configuration) {
@@ -45,7 +50,7 @@ export async function runLoop(config: Configuration) {
 async function runLoopTick(config: Configuration, state: State) {
   Logger.log('Run loop waking up.');
 
-  // read all data
+  // STEP 1: read all data (io)
 
   // refresh all info from management-service, we don't mind doing this often (20s)
   await readManagementStatus(config.ManagementServiceEndpoint, config.NodeOrbsAddress, state);
@@ -81,7 +86,17 @@ async function runLoopTick(config: Configuration, state: State) {
     await readEtherBalance(config.NodeOrbsAddress, state);
   }
 
-  // update all state machine logic
+  // query ethereum for Elections.canJoinCommittee (call)
+  let ethereumCanJoinCommittee = false;
+  if (
+    getCurrentClockTime() - state.EthereumCanJoinCommitteeLastPollTime >
+      config.EthereumCanJoinCommitteePollTimeSeconds &&
+    shouldCheckCanJoinCommittee(state, config)
+  ) {
+    ethereumCanJoinCommittee = await queryCanJoinCommittee(config.NodeOrbsAddress, state);
+  }
+
+  // STEP 2: update all state machine logic (compute)
 
   // vchain sync status state machine
   const newVchainSyncStatus = calcVchainSyncStatus(state, config);
@@ -97,10 +112,10 @@ async function runLoopTick(config: Configuration, state: State) {
     state.EthereumSyncStatus = newEthereumSyncStatus;
   }
 
-  // write all data
+  // STEP 3: write all data (io)
 
   // send ready-to-sync / ready-for-comittee if needed, we don't mind checking this often (20s)
-  if (shouldNotifyReadyForCommittee(state, config)) {
+  if (shouldNotifyReadyForCommittee(state, ethereumCanJoinCommittee, config)) {
     Logger.log(`Decided to send ready-for-committee.`);
     await sendEthereumElectionsTransaction('ready-for-committee', config.NodeOrbsAddress, state, config);
   } else if (shouldNotifyReadyToSync(state, config)) {

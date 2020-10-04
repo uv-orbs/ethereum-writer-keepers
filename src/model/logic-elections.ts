@@ -34,7 +34,11 @@ export function shouldNotifyReadyToSync(state: State, config: EthereumElectionsP
   return false;
 }
 
-export function shouldNotifyReadyForCommittee(state: State, config: EthereumElectionsParams): boolean {
+export function shouldNotifyReadyForCommittee(
+  state: State,
+  ethereumCanJoinCommittee: boolean,
+  config: EthereumElectionsParams
+): boolean {
   if (state.EthereumCommittedTxStats[getToday()] >= config.EthereumMaxCommittedDailyTx) return false;
   if (state.EthereumSyncStatus != 'operational') return false;
   if (config.ElectionsAuditOnly) return false;
@@ -54,13 +58,23 @@ export function shouldNotifyReadyForCommittee(state: State, config: EthereumElec
     state.ManagementIsStandby &&
     state.ManagementMyElectionsStatus &&
     state.ManagementMyElectionsStatus.ReadyForCommittee == true &&
-    isMyUpdateStale(state, config)
+    (isMyUpdateStale(state, config) || ethereumCanJoinCommittee)
   ) {
-    Logger.log(`shouldNotifyReadyForCommittee because consensus node refresh - in standby, in sync and stale.`);
+    Logger.log(
+      `shouldNotifyReadyForCommittee because consensus node refresh - in standby, in sync and stale or can join ${ethereumCanJoinCommittee}.`
+    );
     return true;
   }
 
   return false;
+}
+
+export function shouldCheckCanJoinCommittee(state: State, config: EthereumElectionsParams): boolean {
+  if (state.EthereumSyncStatus != 'operational') return false;
+  if (config.ElectionsAuditOnly) return false;
+  if (state.VchainSyncStatus != 'in-sync') return false;
+  if (state.ManagementInCommittee) return false;
+  return true;
 }
 
 // helpers

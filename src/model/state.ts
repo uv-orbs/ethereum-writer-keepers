@@ -35,6 +35,7 @@ export class State {
   EthereumLastVoteUnreadyTime: { [EthAddress: string]: number } = {};
   EthereumBalanceLastPollTime = 0; // UTC seconds
   EtherBalance = ''; // string in wei
+  EthereumCanJoinCommitteeLastPollTime = 0; // UTC seconds
   EthereumConsecutiveTxTimeouts = 0;
   EthereumCommittedTxStats: { [day: string]: number } = {};
   EthereumFeesStats: { [month: string]: number } = {}; // number in eth

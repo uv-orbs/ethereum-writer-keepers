@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import test from 'ava';
 import { State } from './state';
-import { shouldNotifyReadyToSync, shouldNotifyReadyForCommittee } from './logic-elections';
+import { shouldNotifyReadyToSync, shouldNotifyReadyForCommittee, shouldCheckCanJoinCommittee } from './logic-elections';
 import { exampleConfig } from '../config.example';
 import { getCurrentClockTime, getToday } from '../helpers';
 
@@ -176,18 +176,18 @@ test('shouldNotifyReadyToSync: too many successful daily tx', (t) => {
 test('shouldNotifyReadyForCommittee: new node finished syncing', (t) => {
   const state = getExampleState();
   state.VchainSyncStatus = 'exist-not-in-sync';
-  t.false(shouldNotifyReadyForCommittee(state, exampleConfig));
+  t.false(shouldNotifyReadyForCommittee(state, false, exampleConfig));
 
   state.VchainSyncStatus = 'in-sync';
-  t.true(shouldNotifyReadyForCommittee(state, exampleConfig));
+  t.true(shouldNotifyReadyForCommittee(state, false, exampleConfig));
 
-  t.false(shouldNotifyReadyForCommittee(state, getAuditConfig()));
+  t.false(shouldNotifyReadyForCommittee(state, false, getAuditConfig()));
 
   state.ManagementIsStandby = true;
-  t.true(shouldNotifyReadyForCommittee(state, exampleConfig));
+  t.true(shouldNotifyReadyForCommittee(state, false, exampleConfig));
 
   state.ManagementInCommittee = true;
-  t.false(shouldNotifyReadyForCommittee(state, exampleConfig));
+  t.false(shouldNotifyReadyForCommittee(state, false, exampleConfig));
 
   state.ManagementInCommittee = false;
   state.ManagementMyElectionsStatus = {
@@ -196,7 +196,7 @@ test('shouldNotifyReadyForCommittee: new node finished syncing', (t) => {
     ReadyForCommittee: true,
     TimeToStale: STALE_UPDATE_GRACE - 2 * 24 * 60 * 60,
   };
-  t.false(shouldNotifyReadyForCommittee(state, exampleConfig));
+  t.false(shouldNotifyReadyForCommittee(state, false, exampleConfig));
 
   state.ManagementMyElectionsStatus = {
     LastUpdateTime: getCurrentClockTime() - 2 * 24 * 60 * 60,
@@ -204,7 +204,7 @@ test('shouldNotifyReadyForCommittee: new node finished syncing', (t) => {
     ReadyForCommittee: false,
     TimeToStale: STALE_UPDATE_GRACE - 2 * 24 * 60 * 60,
   };
-  t.true(shouldNotifyReadyForCommittee(state, exampleConfig));
+  t.true(shouldNotifyReadyForCommittee(state, false, exampleConfig));
 });
 
 test('shouldNotifyReadyForCommittee: standby in sync going stale', (t) => {
@@ -217,7 +217,8 @@ test('shouldNotifyReadyForCommittee: standby in sync going stale', (t) => {
     ReadyForCommittee: true,
     TimeToStale: STALE_UPDATE_GRACE - 2 * 24 * 60 * 60,
   };
-  t.false(shouldNotifyReadyForCommittee(state, exampleConfig));
+  t.false(shouldNotifyReadyForCommittee(state, false, exampleConfig));
+  t.true(shouldNotifyReadyForCommittee(state, true, exampleConfig));
 
   state.ManagementMyElectionsStatus = {
     LastUpdateTime: getCurrentClockTime() - 20 * 24 * 60 * 60,
@@ -225,9 +226,10 @@ test('shouldNotifyReadyForCommittee: standby in sync going stale', (t) => {
     ReadyForCommittee: true,
     TimeToStale: 0,
   };
-  t.true(shouldNotifyReadyForCommittee(state, exampleConfig));
+  t.true(shouldNotifyReadyForCommittee(state, false, exampleConfig));
+  t.true(shouldNotifyReadyForCommittee(state, true, exampleConfig));
 
-  t.false(shouldNotifyReadyForCommittee(state, getAuditConfig()));
+  t.false(shouldNotifyReadyForCommittee(state, false, getAuditConfig()));
 });
 
 test('shouldNotifyReadyForCommittee: only when ethereum state is operational', (t) => {
@@ -240,24 +242,51 @@ test('shouldNotifyReadyForCommittee: only when ethereum state is operational', (
     ReadyForCommittee: true,
     TimeToStale: 0,
   };
-  t.true(shouldNotifyReadyForCommittee(state, exampleConfig));
+  t.true(shouldNotifyReadyForCommittee(state, false, exampleConfig));
+  t.true(shouldNotifyReadyForCommittee(state, true, exampleConfig));
 
   state.EthereumSyncStatus = 'out-of-sync';
-  t.false(shouldNotifyReadyForCommittee(state, exampleConfig));
+  t.false(shouldNotifyReadyForCommittee(state, true, exampleConfig));
 
   state.EthereumSyncStatus = 'tx-pending';
-  t.false(shouldNotifyReadyForCommittee(state, exampleConfig));
+  t.false(shouldNotifyReadyForCommittee(state, true, exampleConfig));
 
   state.EthereumSyncStatus = 'need-reset';
-  t.false(shouldNotifyReadyForCommittee(state, exampleConfig));
+  t.false(shouldNotifyReadyForCommittee(state, true, exampleConfig));
 
   state.EthereumSyncStatus = 'operational';
-  t.true(shouldNotifyReadyForCommittee(state, exampleConfig));
+  t.true(shouldNotifyReadyForCommittee(state, false, exampleConfig));
+  t.true(shouldNotifyReadyForCommittee(state, true, exampleConfig));
 });
 
 test('shouldNotifyReadyForCommittee: too many successful daily tx', (t) => {
   const state = getExampleState();
   state.EthereumCommittedTxStats[getToday()] = exampleConfig.EthereumMaxCommittedDailyTx;
   state.VchainSyncStatus = 'in-sync';
-  t.false(shouldNotifyReadyForCommittee(state, exampleConfig));
+  t.false(shouldNotifyReadyForCommittee(state, false, exampleConfig));
+});
+
+test('shouldCheckCanJoinCommittee: only when conditions are right', (t) => {
+  const state = getExampleState();
+  state.EthereumSyncStatus = 'operational';
+  state.VchainSyncStatus = 'in-sync';
+  state.ManagementInCommittee = false;
+
+  t.true(shouldCheckCanJoinCommittee(state, exampleConfig));
+  t.false(shouldCheckCanJoinCommittee(state, getAuditConfig()));
+
+  state.EthereumSyncStatus = 'tx-pending';
+  t.false(shouldCheckCanJoinCommittee(state, exampleConfig));
+  state.EthereumSyncStatus = 'operational';
+  t.true(shouldCheckCanJoinCommittee(state, exampleConfig));
+
+  state.VchainSyncStatus = 'exist-not-in-sync';
+  t.false(shouldCheckCanJoinCommittee(state, exampleConfig));
+  state.VchainSyncStatus = 'in-sync';
+  t.true(shouldCheckCanJoinCommittee(state, exampleConfig));
+
+  state.ManagementInCommittee = true;
+  t.false(shouldCheckCanJoinCommittee(state, exampleConfig));
+  state.ManagementInCommittee = false;
+  t.true(shouldCheckCanJoinCommittee(state, exampleConfig));
 });

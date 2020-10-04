@@ -49,6 +49,7 @@ test.serial('contains all payload fields', (t) => {
     VchainSyncStatus: 'not-exist',
     EthereumBalanceLastPollTime: 0,
     EtherBalance: '',
+    EthereumCanJoinCommitteeLastPollTime: 0,
     EthereumConsecutiveTxTimeouts: 0,
     EthereumLastVoteUnreadyTime: {},
     EthereumCommittedTxStats: {},

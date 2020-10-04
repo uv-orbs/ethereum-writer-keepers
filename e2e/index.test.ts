@@ -34,6 +34,7 @@ test.serial('[E2E] launches with one vchain out of sync -> sends ready-to-sync',
     VchainSyncStatus: 'exist-not-in-sync',
     EthereumBalanceLastPollTime: isValidTimeRef,
     EtherBalance: isValidEtherBalance,
+    EthereumCanJoinCommitteeLastPollTime: 0,
     EthereumConsecutiveTxTimeouts: 0,
     EthereumLastElectionsTx: {
       Type: 'ready-to-sync',
@@ -106,6 +107,7 @@ test.serial('[E2E] all vchains synced -> sends ready-for-committee', async (t) =
     VchainSyncStatus: 'in-sync',
     EthereumBalanceLastPollTime: isValidTimeRef,
     EtherBalance: isValidEtherBalance,
+    EthereumCanJoinCommitteeLastPollTime: isValidTimeRef,
     EthereumConsecutiveTxTimeouts: 0,
     EthereumLastElectionsTx: {
       Type: 'ready-for-committee',
@@ -181,6 +183,7 @@ test.serial('[E2E] enter committee -> sends vote unready for bad rep', async (t)
     VchainSyncStatus: 'in-sync',
     EthereumBalanceLastPollTime: isValidTimeRef,
     EtherBalance: isValidEtherBalance,
+    EthereumCanJoinCommitteeLastPollTime: isValidTimeRef,
     EthereumConsecutiveTxTimeouts: 0,
     EthereumLastElectionsTx: {
       LastPollTime: isValidTimeRef,

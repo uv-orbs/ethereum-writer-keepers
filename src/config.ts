@@ -10,6 +10,7 @@ export interface Configuration {
   VchainMetricsPollTimeSeconds: number; // multiple of RunLoopPollTimeSeconds
   VchainReputationsPollTimeSeconds: number; // multiple of RunLoopPollTimeSeconds
   EthereumBalancePollTimeSeconds: number; // multiple of RunLoopPollTimeSeconds
+  EthereumCanJoinCommitteePollTimeSeconds: number; // multiple of RunLoopPollTimeSeconds
   EthereumPendingTxPollTimeSeconds: number; // multiple of RunLoopPollTimeSeconds
   OrbsReputationsContract: string;
   VchainUptimeRequiredSeconds: number;
@@ -41,6 +42,7 @@ export const defaultConfiguration = {
   VchainOutOfSyncThresholdSeconds: 60 * 60,
   VchainStuckThresholdSeconds: 60 * 60,
   EthereumBalancePollTimeSeconds: 4 * 60 * 60,
+  EthereumCanJoinCommitteePollTimeSeconds: 10 * 60,
   EthereumPendingTxPollTimeSeconds: 2 * 60,
   EthereumSyncRequirementSeconds: 20 * 60,
   FailToSyncVcsTimeoutSeconds: 24 * 60 * 60,
@@ -109,6 +111,12 @@ export function validateConfiguration(config: Configuration) {
   }
   if (typeof config.EthereumBalancePollTimeSeconds != 'number') {
     throw new Error(`EthereumBalancePollTimeSeconds is not a number.`);
+  }
+  if (!config.EthereumCanJoinCommitteePollTimeSeconds) {
+    throw new Error(`EthereumCanJoinCommitteePollTimeSeconds is empty or zero.`);
+  }
+  if (typeof config.EthereumCanJoinCommitteePollTimeSeconds != 'number') {
+    throw new Error(`EthereumCanJoinCommitteePollTimeSeconds is not a number.`);
   }
   if (!config.EthereumPendingTxPollTimeSeconds) {
     throw new Error(`EthereumPendingTxPollTimeSeconds is empty or zero.`);

@@ -4,6 +4,7 @@ import {
   sendEthereumElectionsTransaction,
   sendEthereumVoteUnreadyTransaction,
   readPendingTransactionStatus,
+  queryCanJoinCommittee,
 } from './ethereum';
 import Web3 from 'web3';
 import { State, EthereumTxStatus } from '../model/state';
@@ -73,6 +74,14 @@ function getMockElectionsContract() {
       voteUnready: () => {
         return { encodeABI: () => '0xencodedAbi' };
       },
+      canJoinCommittee: () => {
+        return {
+          call: async () => {
+            await sleep(0);
+            return true;
+          },
+        };
+      },
     },
   } as unknown) as Contract;
 }
@@ -89,29 +98,6 @@ function getMockSigner(successful = true) {
     },
   } as unknown) as Signer;
 }
-
-test('sendEthereumElectionsTransaction ready-to-sync successful after successful send', async (t) => {
-  const state = new State();
-  state.EthereumLastElectionsTx = getExampleEthereumTxStatus([]);
-  state.EthereumLastElectionsTx.Status = 'final';
-  state.web3 = getMockWeb3Client();
-  state.signer = getMockSigner();
-  state.ethereumElectionsContract = getMockElectionsContract();
-  await sendEthereumElectionsTransaction('ready-to-sync', 'sender', state, exampleConfig);
-
-  if (!state.EthereumLastElectionsTx) throw new Error(`EthereumLastElectionsTx not defined`);
-  t.is(state.EthereumLastElectionsTx.LastPollTime, 0);
-  t.is(state.EthereumLastElectionsTx.Type, 'ready-to-sync');
-  t.assert(state.EthereumLastElectionsTx.SendTime > 1400000000);
-  t.is(state.EthereumLastElectionsTx.GasPriceStrategy, 'discount');
-  t.is(state.EthereumLastElectionsTx.GasPrice, 30000000000);
-  t.is(state.EthereumLastElectionsTx.Status, 'pending');
-  t.is(state.EthereumLastElectionsTx.TxHash, '0xtxHash');
-  t.is(state.EthereumLastElectionsTx.EthBlock, 0);
-  t.falsy(state.EthereumLastElectionsTx.OnFinal);
-  t.is(state.EthereumConsecutiveTxTimeouts, 0);
-  t.is(state.EthereumCommittedTxStats[getToday()], undefined);
-});
 
 test('sendEthereumElectionsTransaction ready-for-committee successful after timeout', async (t) => {
   const state = new State();
@@ -476,4 +462,12 @@ test('getReceiptFeeInEth', (t) => {
     GasPrice: 65000000000,
   } as unknown) as EthereumTxStatus;
   t.is(getReceiptFeeInEth(mockReceipt, mockStatus), 0.01679639);
+});
+
+test('queryCanJoinCommittee works', async (t) => {
+  const state = new State();
+  state.web3 = getMockWeb3Client();
+  state.ethereumElectionsContract = getMockElectionsContract();
+
+  t.is(await queryCanJoinCommittee(exampleConfig.NodeOrbsAddress, state), true);
 });
