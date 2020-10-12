@@ -10,6 +10,7 @@ import {
   isValidBlock,
   isNonEmptyString,
   isPositiveFloat,
+  isValidImageVersion,
 } from './deep-matcher';
 
 const driver = new TestEnvironment(join(__dirname, 'docker-compose.yml'));
@@ -30,6 +31,9 @@ test.serial('[E2E] launches with one vchain out of sync -> sends ready-to-sync',
   const errors = deepDataMatcher(status.Payload, {
     Uptime: isPositiveNumber,
     MemoryBytesUsed: isPositiveNumber,
+    Version: {
+      Semantic: isValidImageVersion,
+    },
     EthereumSyncStatus: 'operational',
     VchainSyncStatus: 'exist-not-in-sync',
     EthereumBalanceLastPollTime: isValidTimeRef,
