@@ -94,6 +94,15 @@ export async function sendEthereumVoteUnreadyTransaction(
     OnFinal: () => (state.EthereumLastVoteUnreadyTime[ethAddress] = state.ManagementRefTime),
   };
 
+  // special mode to simulate vote unready without actually sending the transactions
+  if (config.SuspendVoteUnready) {
+    state.EthereumLastVoteUnreadyTx.Status = 'final';
+    if (state.EthereumLastVoteUnreadyTx.OnFinal) state.EthereumLastVoteUnreadyTx.OnFinal();
+    state.EthereumLastVoteUnreadyTx.TxHash = 'not-actually-sent';
+    Logger.log(`vote unready transaction against ${ethAddress} simulated and not actually sent.`);
+    return; // and don't actually send the tx
+  }
+
   try {
     const encodedAbi = contractMethod(ethAddressForAbi).encodeABI() as string;
     const contractAddress = state.ethereumElectionsContract.options.address;
