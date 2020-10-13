@@ -13,11 +13,14 @@ import { getCurrentClockTime, getToday, getTenDayPeriod } from '../helpers';
 import { State, EthereumTxStatus, CommitteeMember } from '../model/state';
 import { compiledContracts } from '@orbs-network/orbs-ethereum-contracts-v2/release/compiled-contracts';
 
+const HTTP_TIMEOUT_SEC = 20;
+
 export function initWeb3Client(ethereumEndpoint: string, electionsContractAddress: string, state: State) {
   // init web3
   state.web3 = new Web3(
     new Web3.providers.HttpProvider(ethereumEndpoint, {
       keepAlive: true,
+      timeout: HTTP_TIMEOUT_SEC * 1000,
     })
   );
   state.web3.eth.transactionBlockTimeout = 0; // to stop web3 from polling pending tx
