@@ -83,7 +83,7 @@ test.serial('[E2E] launches with one vchain out of sync -> sends ready-to-sync',
   t.log('events:', JSON.stringify(events, null, 2));
 
   t.assert(events.length == 1);
-  t.is(events[0].returnValues.addr.toLowerCase(), '0x98b4d71c78789637364a70f696227ec89e35626c');
+  t.is(events[0].returnValues.guardian.toLowerCase(), '0x98b4d71c78789637364a70f696227ec89e35626c');
   t.is(events[0].returnValues.readyToSync, true);
   t.is(events[0].returnValues.readyForCommittee, false);
 });
@@ -159,7 +159,7 @@ test.serial('[E2E] all vchains synced -> sends ready-for-committee', async (t) =
   t.log('last event:', JSON.stringify(events, null, 2));
 
   t.assert(events.length == 1);
-  t.is(events[0].returnValues.addr.toLowerCase(), '0x98b4d71c78789637364a70f696227ec89e35626c');
+  t.is(events[0].returnValues.guardian.toLowerCase(), '0x98b4d71c78789637364a70f696227ec89e35626c');
   t.is(events[0].returnValues.readyToSync, true);
   t.is(events[0].returnValues.readyForCommittee, true);
 });
