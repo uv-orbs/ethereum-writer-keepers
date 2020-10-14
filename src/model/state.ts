@@ -1,12 +1,13 @@
 import Web3 from 'web3';
 import { Contract } from 'web3-eth-contract';
 import * as Orbs from 'orbs-client-sdk';
-import { getCurrentClockTime } from '../helpers';
+import { getCurrentClockTime, getCurrentVersion } from '../helpers';
 import Signer from 'orbs-signer-client';
 
 export class State {
   // not updated
   ServiceLaunchTime = getCurrentClockTime(); // UTC seconds
+  CurrentVersion = getCurrentVersion(); // v1.2.3
 
   // updated by read/management.ts
   ManagementLastPollTime = 0; // UTC seconds

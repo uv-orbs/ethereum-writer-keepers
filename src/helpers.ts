@@ -1,6 +1,8 @@
 import _ from 'lodash';
+import fs from 'fs';
 import { mkdirSync } from 'fs';
 import { dirname } from 'path';
+import * as Logger from './logger';
 
 export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -13,6 +15,15 @@ export function ensureFileDirectoryExists(filePath: string) {
 // returns UTC clock time in seconds (similar to unix timestamp / Ethereum block time / RefTime)
 export function getCurrentClockTime() {
   return Math.round(new Date().getTime() / 1000);
+}
+
+export function getCurrentVersion() {
+  try {
+    return fs.readFileSync('./version').toString().trim();
+  } catch (err) {
+    Logger.log(`Cound not find version: ${err.message}`);
+  }
+  return '';
 }
 
 export function getToday(): string {

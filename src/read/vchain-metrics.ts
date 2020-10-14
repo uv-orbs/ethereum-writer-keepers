@@ -40,19 +40,6 @@ export function getEndpoint(virtualChainId: string, endpointSchema: string) {
 async function fetchVchainMetrics(url: string): Promise<VchainMetrics> {
   const res = await fetch(url);
   const body = await res.text();
-  // try deprecated format first - start
-  try {
-    const decoded = decodeString(vchainMetricsResponseDecoderDeprecated, body);
-    return {
-      LastBlockHeight: decoded['BlockStorage.BlockHeight'].Value,
-      LastBlockTime: Math.floor(decoded['BlockStorage.LastCommitted.TimeNano'].Value / 1e9),
-      UptimeSeconds: decoded['Runtime.Uptime.Seconds'].Value,
-      LastCommitTime: -1,
-    };
-  } catch (err) {
-    Logger.log(`VchainMetrics no longer in deprecated format, did we move to the new format?`);
-  }
-  // try deprecated format first - end
   try {
     const decoded = decodeString(vchainMetricsResponseDecoder, body);
     return {
@@ -104,29 +91,3 @@ const vchainMetricsResponseDecoder: Decoder<VchainMetricsResponse> = object({
     }),
   }),
 });
-
-// deprecated format - we should eventually delete - start
-interface VchainMetricsResponseDeprecated {
-  'BlockStorage.BlockHeight': {
-    Value: number;
-  };
-  'BlockStorage.LastCommitted.TimeNano': {
-    Value: number;
-  };
-  'Runtime.Uptime.Seconds': {
-    Value: number;
-  };
-}
-
-const vchainMetricsResponseDecoderDeprecated: Decoder<VchainMetricsResponseDeprecated> = object({
-  'BlockStorage.BlockHeight': object({
-    Value: num,
-  }),
-  'BlockStorage.LastCommitted.TimeNano': object({
-    Value: num,
-  }),
-  'Runtime.Uptime.Seconds': object({
-    Value: num,
-  }),
-});
-// deprecated format - we should eventually delete - end

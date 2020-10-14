@@ -45,6 +45,9 @@ test.serial('contains all payload fields', (t) => {
   t.deepEqual(writtenContents.Payload, {
     Uptime: 0,
     MemoryBytesUsed: writtenContents.Payload.MemoryBytesUsed,
+    Version: {
+      Semantic: '',
+    },
     EthereumSyncStatus: 'out-of-sync',
     VchainSyncStatus: 'not-exist',
     EthereumBalanceLastPollTime: 0,

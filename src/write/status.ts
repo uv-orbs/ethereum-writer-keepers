@@ -17,6 +17,9 @@ export function writeStatusToDisk(filePath: string, state: State, config: Config
     Payload: {
       Uptime: getCurrentClockTime() - state.ServiceLaunchTime,
       MemoryBytesUsed: process.memoryUsage().heapUsed,
+      Version: {
+        Semantic: state.CurrentVersion,
+      },
       EthereumSyncStatus: state.EthereumSyncStatus,
       VchainSyncStatus: state.VchainSyncStatus,
       EthereumBalanceLastPollTime: state.EthereumBalanceLastPollTime,

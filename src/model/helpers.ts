@@ -16,6 +16,7 @@ export function calcMedianInPlace(values: number[]): number {
   return (values[half - 1] + values[half]) / 2.0;
 }
 
+// returns 0.123456 ETH (6 digits accuracy like etherscan)
 export function weiToEth(wei: string): string {
   const num = Number(BigInt(wei) / BigInt('1000000000000'));
   return (num / 1000000).toString();

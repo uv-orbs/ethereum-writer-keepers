@@ -3,7 +3,7 @@ import { State, EthereumTxStatus, GasPriceStrategy } from '../model/state';
 import { getCurrentClockTime, jsonStringifyComplexTypes, toNumber } from '../helpers';
 import { TransactionConfig, TransactionReceipt } from 'web3-core';
 
-const GAS_LIMIT_ESTIMATE_EXTRA = 100000;
+const GAS_LIMIT_ESTIMATE_EXTRA = 300000;
 const GAS_LIMIT_HARD_LIMIT = 2000000;
 
 export type Type = 'ready-to-sync' | 'ready-for-committee';
@@ -14,6 +14,7 @@ export interface EthereumTxParams {
   EthereumNonDiscountTxTimeoutSeconds: number;
   EthereumMaxGasPrice: number;
   VoteUnreadyValiditySeconds: number;
+  SuspendVoteUnready: boolean;
 }
 
 export function getGasPriceStrategy(previousTxStatus: EthereumTxStatus | undefined): GasPriceStrategy {

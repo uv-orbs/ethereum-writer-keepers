@@ -13,11 +13,14 @@ import { getCurrentClockTime, getToday, getTenDayPeriod } from '../helpers';
 import { State, EthereumTxStatus, CommitteeMember } from '../model/state';
 import { compiledContracts } from '@orbs-network/orbs-ethereum-contracts-v2/release/compiled-contracts';
 
+const HTTP_TIMEOUT_SEC = 20;
+
 export function initWeb3Client(ethereumEndpoint: string, electionsContractAddress: string, state: State) {
   // init web3
   state.web3 = new Web3(
     new Web3.providers.HttpProvider(ethereumEndpoint, {
       keepAlive: true,
+      timeout: HTTP_TIMEOUT_SEC * 1000,
     })
   );
   state.web3.eth.transactionBlockTimeout = 0; // to stop web3 from polling pending tx
@@ -93,6 +96,15 @@ export async function sendEthereumVoteUnreadyTransaction(
     EthBlock: 0,
     OnFinal: () => (state.EthereumLastVoteUnreadyTime[ethAddress] = state.ManagementRefTime),
   };
+
+  // special mode to simulate vote unready without actually sending the transactions
+  if (config.SuspendVoteUnready) {
+    state.EthereumLastVoteUnreadyTx.Status = 'final';
+    if (state.EthereumLastVoteUnreadyTx.OnFinal) state.EthereumLastVoteUnreadyTx.OnFinal();
+    state.EthereumLastVoteUnreadyTx.TxHash = 'not-actually-sent';
+    Logger.log(`vote unready transaction against ${ethAddress} simulated and not actually sent.`);
+    return; // and don't actually send the tx
+  }
 
   try {
     const voteExpiration = getCurrentClockTime() + config.VoteUnreadyValiditySeconds;

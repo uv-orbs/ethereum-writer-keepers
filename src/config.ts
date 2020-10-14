@@ -23,6 +23,7 @@ export interface Configuration {
   InvalidReputationGraceSeconds: number;
   VoteUnreadyValiditySeconds: number;
   ElectionsAuditOnly: boolean;
+  SuspendVoteUnready: boolean;
   EthereumDiscountGasPriceFactor: number;
   EthereumDiscountTxTimeoutSeconds: number;
   EthereumNonDiscountTxTimeoutSeconds: number;
@@ -50,10 +51,11 @@ export const defaultConfiguration = {
   InvalidReputationGraceSeconds: 6 * 60 * 60,
   VoteUnreadyValiditySeconds: 7 * 24 * 60 * 60,
   ElectionsAuditOnly: false,
+  SuspendVoteUnready: false,
   EthereumDiscountGasPriceFactor: 0.75,
   EthereumDiscountTxTimeoutSeconds: 60 * 60,
   EthereumNonDiscountTxTimeoutSeconds: 10 * 60,
-  EthereumMaxGasPrice: 150000000000, // 150 gwei
+  EthereumMaxGasPrice: 500000000000, // 500 gwei
   EthereumMaxCommittedDailyTx: 4,
 };
 
@@ -183,6 +185,9 @@ export function validateConfiguration(config: Configuration) {
   }
   if (typeof config.ElectionsAuditOnly != 'boolean') {
     throw new Error(`ElectionsAuditOnly is not found or not a boolean.`);
+  }
+  if (typeof config.SuspendVoteUnready != 'boolean') {
+    throw new Error(`SuspendVoteUnready is not found or not a boolean.`);
   }
   if (!config.EthereumDiscountGasPriceFactor) {
     throw new Error(`EthereumDiscountGasPriceFactor is empty or zero.`);
