@@ -107,7 +107,8 @@ export async function sendEthereumVoteUnreadyTransaction(
   }
 
   try {
-    const encodedAbi = contractMethod(ethAddressForAbi).encodeABI() as string;
+    const voteExpiration = getCurrentClockTime() + config.VoteUnreadyValiditySeconds;
+    const encodedAbi = contractMethod(ethAddressForAbi, voteExpiration).encodeABI() as string;
     const contractAddress = state.ethereumElectionsContract.options.address;
     const senderAddress = `0x${nodeOrbsAddress}`;
     const txHash = await signAndSendTransaction(encodedAbi, contractAddress, senderAddress, gasPrice, state);
@@ -188,4 +189,21 @@ export async function readEtherBalance(nodeOrbsAddress: string, state: State) {
 
   // log progress
   Logger.log(`Fetched ETH balance for account ${nodeOrbsAddress}: ${state.EtherBalance}.`);
+}
+
+export async function queryCanJoinCommittee(nodeOrbsAddress: string, state: State): Promise<boolean> {
+  if (!state.ethereumElectionsContract)
+    throw new Error('Cannot query canJoinCommittee until contract object is initialized.');
+
+  // done before the actual execution to space out calls in case of connection errors
+  state.EthereumCanJoinCommitteeLastPollTime = getCurrentClockTime();
+
+  const orbsAddressForAbi = `0x${nodeOrbsAddress}`;
+  const contractMethod = state.ethereumElectionsContract.methods.canJoinCommittee;
+  const res = await contractMethod(orbsAddressForAbi).call();
+
+  // log progress
+  Logger.log(`Queried canJoinCommittee for account ${nodeOrbsAddress}: ${res}.`);
+
+  return res;
 }

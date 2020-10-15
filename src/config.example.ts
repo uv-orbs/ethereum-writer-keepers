@@ -12,6 +12,7 @@ export const exampleConfig: Configuration = {
   VchainMetricsPollTimeSeconds: 1,
   VchainReputationsPollTimeSeconds: 1,
   EthereumBalancePollTimeSeconds: 1,
+  EthereumCanJoinCommitteePollTimeSeconds: 1,
   EthereumPendingTxPollTimeSeconds: 1,
   OrbsReputationsContract: 'MockCommittee',
   VchainUptimeRequiredSeconds: 2,

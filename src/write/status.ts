@@ -24,6 +24,7 @@ export function writeStatusToDisk(filePath: string, state: State, config: Config
       VchainSyncStatus: state.VchainSyncStatus,
       EthereumBalanceLastPollTime: state.EthereumBalanceLastPollTime,
       EtherBalance: state.EtherBalance,
+      EthereumCanJoinCommitteeLastPollTime: state.EthereumCanJoinCommitteeLastPollTime,
       EthereumConsecutiveTxTimeouts: state.EthereumConsecutiveTxTimeouts,
       EthereumLastElectionsTx: state.EthereumLastElectionsTx,
       EthereumLastVoteUnreadyTx: state.EthereumLastVoteUnreadyTx,
