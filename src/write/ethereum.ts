@@ -11,7 +11,11 @@ import Web3 from 'web3';
 import * as Logger from '../logger';
 import { getCurrentClockTime, getToday, getTenDayPeriod } from '../helpers';
 import { State, EthereumTxStatus, CommitteeMember } from '../model/state';
-import { compiledContracts } from '@orbs-network/orbs-ethereum-contracts-v2/release/compiled-contracts';
+import {
+  ContractRegistryKey,
+  getAbiByContractAddress,
+  getAbiByContractRegistryKey,
+} from '@orbs-network/orbs-ethereum-contracts-v2';
 
 const HTTP_TIMEOUT_SEC = 20;
 
@@ -27,8 +31,17 @@ export function initWeb3Client(ethereumEndpoint: string, electionsContractAddres
   state.web3.eth.transactionPollingTimeout = 0; // to stop web3 from polling pending tx
   state.web3.eth.transactionConfirmationBlocks = 1; // to stop web3 from polling pending tx
   // init contracts
-  const electionsAbi = compiledContracts.Elections.abi;
+  const electionsAbi = getAbiForContract(electionsContractAddress, 'elections');
   state.ethereumElectionsContract = new state.web3.eth.Contract(electionsAbi, electionsContractAddress);
+}
+
+function getAbiForContract(address: string, contractName: ContractRegistryKey) {
+  // attempts to get the ABI by address first (useful for deprecated contracts and breaking ABI changes)
+  const abi = getAbiByContractAddress(address);
+  if (abi) return abi;
+
+  // if address is unknown, rely on the latest ABI's (useful for testing mostly)
+  return getAbiByContractRegistryKey(contractName);
 }
 
 export async function sendEthereumElectionsTransaction(
