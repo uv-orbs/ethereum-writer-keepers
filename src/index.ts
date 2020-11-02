@@ -55,31 +55,17 @@ async function runLoopTick(config: Configuration, state: State) {
   // refresh all info from management-service, we don't mind doing this often (20s)
   await readManagementStatus(config.ManagementServiceEndpoint, config.NodeOrbsAddress, state);
 
-  // refresh all vchain metrics to see if they're live and in sync, rate according to config
-  if (getCurrentClockTime() - state.VchainMetricsLastPollTime > config.VchainMetricsPollTimeSeconds) {
-    await readAllVchainMetrics(config.VirtualChainEndpointSchema, state);
-  }
+  // refresh all vchain metrics to see if they're live and in sync
+  await readAllVchainMetrics(config.VirtualChainEndpointSchema, state);
 
-  // refresh all vchain reputations to prepare for vote unreadys, rate according to config
-  if (getCurrentClockTime() - state.VchainReputationsLastPollTime > config.VchainReputationsPollTimeSeconds) {
-    await readAllVchainReputations(config.VirtualChainEndpointSchema, config.OrbsReputationsContract, state);
-  }
+  // refresh all vchain reputations to prepare for vote unreadys
+  await readAllVchainReputations(config.VirtualChainEndpointSchema, config.OrbsReputationsContract, state);
 
-  // refresh pending ethereum transactions status for ready-to-sync / ready-for-comittee, rate according to config
-  if (
-    getCurrentClockTime() - (state.EthereumLastElectionsTx?.LastPollTime ?? 0) >
-    config.EthereumPendingTxPollTimeSeconds
-  ) {
-    await readPendingTransactionStatus(state.EthereumLastElectionsTx, state, config);
-  }
+  // refresh pending ethereum transactions status for ready-to-sync / ready-for-comittee
+  await readPendingTransactionStatus(state.EthereumLastElectionsTx, state, config);
 
-  // refresh pending ethereum transactions status for vote unreadys, rate according to config
-  if (
-    getCurrentClockTime() - (state.EthereumLastVoteUnreadyTx?.LastPollTime ?? 0) >
-    config.EthereumPendingTxPollTimeSeconds
-  ) {
-    await readPendingTransactionStatus(state.EthereumLastVoteUnreadyTx, state, config);
-  }
+  // refresh pending ethereum transactions status for vote unreadys
+  await readPendingTransactionStatus(state.EthereumLastVoteUnreadyTx, state, config);
 
   // warn if we have low ether to pay tx fees, rate according to config
   if (getCurrentClockTime() - state.EthereumBalanceLastPollTime > config.EthereumBalancePollTimeSeconds) {

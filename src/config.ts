@@ -7,11 +7,8 @@ export interface Configuration {
   VirtualChainEndpointSchema: string;
   StatusJsonPath: string;
   RunLoopPollTimeSeconds: number;
-  VchainMetricsPollTimeSeconds: number; // multiple of RunLoopPollTimeSeconds
-  VchainReputationsPollTimeSeconds: number; // multiple of RunLoopPollTimeSeconds
   EthereumBalancePollTimeSeconds: number; // multiple of RunLoopPollTimeSeconds
   EthereumCanJoinCommitteePollTimeSeconds: number; // multiple of RunLoopPollTimeSeconds
-  EthereumPendingTxPollTimeSeconds: number; // multiple of RunLoopPollTimeSeconds
   OrbsReputationsContract: string;
   VchainUptimeRequiredSeconds: number;
   VchainSyncThresholdSeconds: number;
@@ -34,9 +31,7 @@ export interface Configuration {
 export const defaultConfiguration = {
   StatusJsonPath: './status/status.json',
   VirtualChainEndpointSchema: 'http://chain-{{ID}}:8080',
-  RunLoopPollTimeSeconds: 20,
-  VchainMetricsPollTimeSeconds: 5 * 60,
-  VchainReputationsPollTimeSeconds: 20 * 60,
+  RunLoopPollTimeSeconds: 2 * 60,
   OrbsReputationsContract: '_Committee',
   VchainUptimeRequiredSeconds: 5,
   VchainSyncThresholdSeconds: 5 * 60,
@@ -44,7 +39,6 @@ export const defaultConfiguration = {
   VchainStuckThresholdSeconds: 60 * 60,
   EthereumBalancePollTimeSeconds: 4 * 60 * 60,
   EthereumCanJoinCommitteePollTimeSeconds: 10 * 60,
-  EthereumPendingTxPollTimeSeconds: 2 * 60,
   EthereumSyncRequirementSeconds: 20 * 60,
   FailToSyncVcsTimeoutSeconds: 24 * 60 * 60,
   ElectionsRefreshWindowSeconds: 2 * 60 * 60,
@@ -96,18 +90,6 @@ export function validateConfiguration(config: Configuration) {
   if (typeof config.RunLoopPollTimeSeconds != 'number') {
     throw new Error(`RunLoopPollTimeSeconds is not a number.`);
   }
-  if (!config.VchainMetricsPollTimeSeconds) {
-    throw new Error(`VchainMetricsPollTimeSeconds is empty or zero.`);
-  }
-  if (typeof config.VchainMetricsPollTimeSeconds != 'number') {
-    throw new Error(`VchainMetricsPollTimeSeconds is not a number.`);
-  }
-  if (!config.VchainReputationsPollTimeSeconds) {
-    throw new Error(`VchainReputationsPollTimeSeconds is empty or zero.`);
-  }
-  if (typeof config.VchainReputationsPollTimeSeconds != 'number') {
-    throw new Error(`VchainReputationsPollTimeSeconds is not a number.`);
-  }
   if (!config.EthereumBalancePollTimeSeconds) {
     throw new Error(`EthereumBalancePollTimeSeconds is empty or zero.`);
   }
@@ -119,12 +101,6 @@ export function validateConfiguration(config: Configuration) {
   }
   if (typeof config.EthereumCanJoinCommitteePollTimeSeconds != 'number') {
     throw new Error(`EthereumCanJoinCommitteePollTimeSeconds is not a number.`);
-  }
-  if (!config.EthereumPendingTxPollTimeSeconds) {
-    throw new Error(`EthereumPendingTxPollTimeSeconds is empty or zero.`);
-  }
-  if (typeof config.EthereumPendingTxPollTimeSeconds != 'number') {
-    throw new Error(`EthereumPendingTxPollTimeSeconds is not a number.`);
   }
   if (!config.OrbsReputationsContract) {
     throw new Error(`OrbsReputationsContract is empty in config.`);

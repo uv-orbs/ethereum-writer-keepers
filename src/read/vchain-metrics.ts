@@ -15,9 +15,9 @@ export async function readAllVchainMetrics(endpointSchema: string, state: State)
       Logger.error(err.stack);
       state.VchainMetrics[vcId] = {
         LastBlockHeight: -1,
-        LastBlockTime: -1,
+        LastBlockTime: -1, // block time of the latest block (when was it closed under consensus)
         UptimeSeconds: -1,
-        LastCommitTime: -1,
+        LastCommitTime: -1, // when did I last write a block to my block storage (in current execution)
       };
     }
   }

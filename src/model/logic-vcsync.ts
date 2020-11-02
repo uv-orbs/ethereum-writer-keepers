@@ -42,6 +42,7 @@ function isAnyLiveVcFar(state: State, config: VchainSyncStatusParams): boolean {
   return false;
 }
 
+// live = after genesis + not stuck
 function isVcLive(vcId: string, state: State, config: VchainSyncStatusParams): boolean {
   if (!state.ManagementVirtualChains[vcId]) return false;
   if (isVcStuck(vcId, state, config)) return false;
