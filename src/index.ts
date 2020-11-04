@@ -34,7 +34,7 @@ export async function runLoop(config: Configuration) {
       // main business logic
       await runLoopTick(config, state);
 
-      // write status.json file, we don't mind doing this often (20s)
+      // write status.json file, we don't mind doing this often (2min)
       writeStatusToDisk(config.StatusJsonPath, state, config);
     } catch (err) {
       Logger.log('Exception thrown during runLoop, going back to sleep:');
@@ -46,13 +46,13 @@ export async function runLoop(config: Configuration) {
   }
 }
 
-// runs every 20 seconds in prod, 1 second in tests
+// runs every 2 minutes in prod, 1 second in tests
 async function runLoopTick(config: Configuration, state: State) {
   Logger.log('Run loop waking up.');
 
   // STEP 1: read all data (io)
 
-  // refresh all info from management-service, we don't mind doing this often (20s)
+  // refresh all info from management-service, we don't mind doing this often (2min)
   await readManagementStatus(config.ManagementServiceEndpoint, config.NodeOrbsAddress, state);
 
   // refresh all vchain metrics to see if they're live and in sync
@@ -100,7 +100,7 @@ async function runLoopTick(config: Configuration, state: State) {
 
   // STEP 3: write all data (io)
 
-  // send ready-to-sync / ready-for-comittee if needed, we don't mind checking this often (20s)
+  // send ready-to-sync / ready-for-comittee if needed, we don't mind checking this often (2min)
   if (shouldNotifyReadyForCommittee(state, ethereumCanJoinCommittee, config)) {
     Logger.log(`Decided to send ready-for-committee.`);
     await sendEthereumElectionsTransaction('ready-for-committee', config.NodeOrbsAddress, state, config);
@@ -109,7 +109,7 @@ async function runLoopTick(config: Configuration, state: State) {
     await sendEthereumElectionsTransaction('ready-to-sync', config.NodeOrbsAddress, state, config);
   }
 
-  // send vote unreadys if needed, we don't mind checking this often (20s)
+  // send vote unreadys if needed, we don't mind checking this often (2min)
   const toVoteUnready = getAllGuardiansToVoteUnready(state, config);
   if (toVoteUnready.length > 0) {
     Logger.log(`Decided to send vote unreadys against validators: ${toVoteUnready.map((n) => n.EthAddress)}.`);

@@ -52,7 +52,7 @@
     "typescript": "~3.7.5"
   },
   "dependencies": {
-    "@orbs-network/orbs-ethereum-contracts-v2": "0.0.36",
+    "@orbs-network/orbs-ethereum-contracts-v2": "0.0.38",
     "lodash": "^4.17.15",
     "node-fetch": "^2.6.0",
     "orbs-client-sdk": "^2.3.1",
