@@ -23,7 +23,12 @@ test.serial('[E2E] launches with one vchain out of sync -> sends ready-to-sync',
   driver.testLogger = t.log;
   t.timeout(60 * 1000);
 
-  await sleep(1000);
+  t.log('waiting until service launches');
+  await sleep(2000);
+  await driver.catJsonInService('app', '/opt/orbs/status/status.json');
+
+  t.log('waiting until the first run loop completes');
+  await sleep(4000);
 
   const status = await driver.catJsonInService('app', '/opt/orbs/status/status.json');
   t.log('status:', JSON.stringify(status, null, 2));
