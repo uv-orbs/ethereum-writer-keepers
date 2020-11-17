@@ -42,7 +42,7 @@ export const defaultConfiguration = {
   EthereumSyncRequirementSeconds: 20 * 60,
   FailToSyncVcsTimeoutSeconds: 24 * 60 * 60,
   ElectionsRefreshWindowSeconds: 2 * 60 * 60,
-  InvalidReputationGraceSeconds: 6 * 60 * 60,
+  InvalidReputationGraceSeconds: 30 * 60 * 60,
   VoteUnreadyValiditySeconds: 7 * 24 * 60 * 60,
   ElectionsAuditOnly: false,
   SuspendVoteUnready: true,
