@@ -1,6 +1,8 @@
 import { State } from './state';
 import * as Logger from '../logger';
-import { getToday } from '../helpers';
+import { getToday, getCurrentClockTime } from '../helpers';
+import { findEthFromOrbsAddress } from './helpers';
+import { Configuration } from '../config';
 
 const MAX_STANDBYS = 5; // in future, can be taken from the MaxStandbysChanged event
 
@@ -75,6 +77,16 @@ export function shouldCheckCanJoinCommittee(state: State, config: EthereumElecti
   if (state.VchainSyncStatus != 'in-sync') return false;
   if (state.ManagementInCommittee) return false;
   return true;
+}
+
+// lower bound on time duration -> not opting for vc stuck and resulting in lazy "vcs in sync"
+export function calcTimeEnteredTopology(state: State, config: Configuration): number {
+  const myEthAddress = findEthFromOrbsAddress(config.NodeOrbsAddress, state);
+  if (state.ManagementCurrentTopology.some((node) => node.EthAddress == myEthAddress)) {
+    if (state.TimeEnteredTopology == -1) return getCurrentClockTime();
+    else return state.TimeEnteredTopology;
+  }
+  return -1;
 }
 
 // helpers

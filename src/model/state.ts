@@ -43,6 +43,7 @@ export class State {
   EthereumFeesStats: { [month: string]: number } = {}; // number in eth
 
   // updated by index.ts
+  TimeEnteredTopology = -1; // UTC seconds
   VchainSyncStatus: VchainSyncStatusEnum = 'not-exist';
   EthereumSyncStatus: EthereumSyncStatusEnum = 'out-of-sync';
 
@@ -51,8 +52,6 @@ export class State {
 
   // updated by model/logic-voteout.ts
   TimeEnteredBadReputation: { [EthAddress: string]: BadReputationSince } = {};
-
-  TimeEnteredTopology = -1;
 
   // non-serializable objects (lowercase)
 

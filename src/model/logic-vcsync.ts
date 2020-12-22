@@ -59,7 +59,10 @@ function isVcStuck(vcId: string, state: State, config: VchainSyncStatusParams): 
   if (lastCommitTime == -1) return false;
   if (timeEnteredTopology == -1) return false;
   const now = getCurrentClockTime();
-  if ((now - lastCommitTime > config.VchainStuckThresholdSeconds) &&
-      (now - timeEnteredTopology > config.VchainStuckThresholdSeconds)) return true;
+  if (
+    now - lastCommitTime > config.VchainStuckThresholdSeconds &&
+    now - timeEnteredTopology > config.VchainStuckThresholdSeconds
+  )
+    return true;
   return false;
 }

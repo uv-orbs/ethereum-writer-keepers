@@ -51,7 +51,7 @@ interface ManagementStatusResponse {
     CurrentRefBlock: number;
     CurrentCommittee: { EthAddress: string; Weight: number }[];
     CurrentCandidates: { EthAddress: string; IsStandby: boolean }[];
-    CurrentTopology: { EthAddress: string}[];
+    CurrentTopology: { EthAddress: string }[];
     Guardians: {
       [EthAddress: string]: {
         OrbsAddress: string;
@@ -92,9 +92,9 @@ const managementStatusResponseDecoder: Decoder<ManagementStatusResponse> = objec
       })
     ),
     CurrentTopology: array(
-        object({
-          EthAddress: str,
-        })
+      object({
+        EthAddress: str,
+      })
     ),
     Guardians: record(
       object({

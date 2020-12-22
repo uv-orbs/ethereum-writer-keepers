@@ -12,6 +12,7 @@ import {
   shouldNotifyReadyForCommittee,
   shouldNotifyReadyToSync,
   shouldCheckCanJoinCommittee,
+  calcTimeEnteredTopology,
 } from './model/logic-elections';
 import { getAllGuardiansToVoteUnready } from './model/logic-voteunready';
 import Signer from 'orbs-signer-client';
@@ -23,7 +24,6 @@ import {
   sendEthereumVoteUnreadyTransaction,
   queryCanJoinCommittee,
 } from './write/ethereum';
-import {findEthFromOrbsAddress} from "./model/helpers";
 
 export async function runLoop(config: Configuration) {
   const state = initializeState(config);
@@ -88,6 +88,7 @@ async function runLoopTick(config: Configuration, state: State) {
 
   // STEP 2: update all state machine logic (compute)
 
+  // time entered topology
   const newTimeEnteredTopology = calcTimeEnteredTopology(state, config);
   if (newTimeEnteredTopology != state.TimeEnteredTopology) {
     const logMessage = state.TimeEnteredTopology == -1 ? `Exited topology` : `Entered topology`;
@@ -135,15 +136,4 @@ function initializeState(config: Configuration): State {
   initWeb3Client(config.EthereumEndpoint, config.EthereumElectionsContract, state);
   state.signer = new Signer(config.SignerEndpoint);
   return state;
-}
-
-// lower bound on time duration -> not opting for vc stuck and resulting in lazy "vcs in sync"
-function calcTimeEnteredTopology(state: State, config: Configuration): number {
-  const myEthAddress = findEthFromOrbsAddress(config.NodeOrbsAddress, state);
-  if (state.ManagementCurrentTopology.some((node) => node.EthAddress == myEthAddress)) {
-    if (state.TimeEnteredTopology == -1)
-      return getCurrentClockTime();
-    else return state.TimeEnteredTopology;
-  }
-  return -1;
 }
