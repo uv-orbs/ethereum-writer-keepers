@@ -21,6 +21,7 @@ export class State {
   ManagementOthersElectionsStatus: { [EthAddress: string]: ManagementElectionsStatus | undefined } = {};
   ManagementCurrentCommittee: CommitteeMember[] = [];
   ManagementCurrentStandbys: { EthAddress: string }[] = [];
+  ManagementCurrentTopology: { EthAddress: string }[] = [];
 
   // updated by read/vchain-metrics.ts
   VchainMetricsLastPollTime = 0; // UTC seconds
@@ -50,6 +51,8 @@ export class State {
 
   // updated by model/logic-voteout.ts
   TimeEnteredBadReputation: { [EthAddress: string]: BadReputationSince } = {};
+
+  TimeEnteredTopology = -1;
 
   // non-serializable objects (lowercase)
 

@@ -54,7 +54,8 @@ test('in sync becomes out of sync and returns to sync', (t) => {
   state.VchainSyncStatus = calcVchainSyncStatus(state, exampleConfig);
   t.is(state.VchainSyncStatus, 'exist-not-in-sync');
 
-  state.VchainMetrics['1001'].LastCommitTime = getCurrentClockTime() - 24 * 60 * 60; // becomes VCStuck
+  state.VchainMetrics['1001'].LastCommitTime = getCurrentClockTime() - 24 * 60 * 60;
+  state.TimeEnteredTopology = getCurrentClockTime() - 24 * 60 * 60; // together with LastCommitTime above becomes VCStuck
   state.VchainSyncStatus = calcVchainSyncStatus(state, exampleConfig);
   t.is(state.VchainSyncStatus, 'in-sync');
 
