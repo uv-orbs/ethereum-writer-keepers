@@ -8,6 +8,7 @@ import { exampleConfig } from '../config.example';
 function getExampleState() {
   const exampleState = new State();
   exampleState.ManagementRefTime = getCurrentClockTime();
+  exampleState.TimeEnteredTopology = getCurrentClockTime() - 24 * 60 * 60;
   exampleState.VchainMetrics['1000'] = {
     LastBlockHeight: 5000,
     UptimeSeconds: 3000,
@@ -54,12 +55,19 @@ test('in sync becomes out of sync and returns to sync', (t) => {
   state.VchainSyncStatus = calcVchainSyncStatus(state, exampleConfig);
   t.is(state.VchainSyncStatus, 'exist-not-in-sync');
 
-  state.VchainMetrics['1001'].LastCommitTime = getCurrentClockTime() - 24 * 60 * 60;
-  state.TimeEnteredTopology = getCurrentClockTime() - 24 * 60 * 60; // together with LastCommitTime above becomes VCStuck
+  state.VchainMetrics['1001'].LastCommitTime = getCurrentClockTime() - 24 * 60 * 60; // together with TimeEnteredTopology in setup becomes VCStuck
   state.VchainSyncStatus = calcVchainSyncStatus(state, exampleConfig);
   t.is(state.VchainSyncStatus, 'in-sync');
 
-  state.VchainMetrics['1001'].LastCommitTime = getCurrentClockTime() - 38; // no longer VCStuck
+  state.TimeEnteredTopology = getCurrentClockTime() - 1 * 60 * 60; // no longer VCStuck 1
+  state.VchainSyncStatus = calcVchainSyncStatus(state, exampleConfig);
+  t.is(state.VchainSyncStatus, 'exist-not-in-sync');
+
+  state.TimeEnteredTopology = getCurrentClockTime() - 24 * 60 * 60; // together with old LastCommitTime return to VCStuck
+  state.VchainSyncStatus = calcVchainSyncStatus(state, exampleConfig);
+  t.is(state.VchainSyncStatus, 'in-sync');
+
+  state.VchainMetrics['1001'].LastCommitTime = getCurrentClockTime() - 38; // no longer VCStuck 2
   state.VchainSyncStatus = calcVchainSyncStatus(state, exampleConfig);
   t.is(state.VchainSyncStatus, 'exist-not-in-sync');
 
