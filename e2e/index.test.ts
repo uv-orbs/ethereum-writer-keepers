@@ -85,6 +85,7 @@ test.serial('[E2E] launches with one vchain out of sync -> sends ready-to-sync',
     },
     TimeEnteredStandbyWithoutVcSync: 0,
     TimeEnteredBadReputation: {},
+    TimeEnteredTopology: -1,
   });
   t.deepEqual(errors, []);
 
@@ -161,6 +162,7 @@ test.serial('[E2E] all vchains synced -> sends ready-for-committee', async (t) =
     },
     TimeEnteredStandbyWithoutVcSync: 0,
     TimeEnteredBadReputation: {},
+    TimeEnteredTopology: -1,
   });
   t.deepEqual(errors, []);
 
@@ -269,6 +271,7 @@ test.serial('[E2E] enter committee -> sends vote unready for bad rep', async (t)
         '43': 0,
       },
     },
+    TimeEnteredTopology: -1,
   });
   t.deepEqual(errors, []);
 
