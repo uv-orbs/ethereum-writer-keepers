@@ -21,6 +21,7 @@ export class State {
   ManagementOthersElectionsStatus: { [EthAddress: string]: ManagementElectionsStatus | undefined } = {};
   ManagementCurrentCommittee: CommitteeMember[] = [];
   ManagementCurrentStandbys: { EthAddress: string }[] = [];
+  ManagementCurrentTopology: { EthAddress: string }[] = [];
 
   // updated by read/vchain-metrics.ts
   VchainMetricsLastPollTime = 0; // UTC seconds
@@ -42,6 +43,7 @@ export class State {
   EthereumFeesStats: { [month: string]: number } = {}; // number in eth
 
   // updated by index.ts
+  TimeEnteredTopology = -1; // UTC seconds
   VchainSyncStatus: VchainSyncStatusEnum = 'not-exist';
   EthereumSyncStatus: EthereumSyncStatusEnum = 'out-of-sync';
 

@@ -42,6 +42,7 @@ export function writeStatusToDisk(filePath: string, state: State, config: Config
       ManagementMyElectionStatus: state.ManagementMyElectionsStatus,
       TimeEnteredStandbyWithoutVcSync: state.TimeEnteredStandbyWithoutVcSync,
       TimeEnteredBadReputation: state.TimeEnteredBadReputation,
+      TimeEnteredTopology: state.TimeEnteredTopology,
       Config: config,
     },
   };

@@ -12,6 +12,7 @@ import {
   shouldNotifyReadyForCommittee,
   shouldNotifyReadyToSync,
   shouldCheckCanJoinCommittee,
+  calcTimeEnteredTopology,
 } from './model/logic-elections';
 import { getAllGuardiansToVoteUnready } from './model/logic-voteunready';
 import Signer from 'orbs-signer-client';
@@ -86,6 +87,14 @@ async function runLoopTick(config: Configuration, state: State) {
   }
 
   // STEP 2: update all state machine logic (compute)
+
+  // time entered topology
+  const newTimeEnteredTopology = calcTimeEnteredTopology(state, config);
+  if (newTimeEnteredTopology != state.TimeEnteredTopology) {
+    const logMessage = state.TimeEnteredTopology == -1 ? `Exited topology` : `Entered topology`;
+    Logger.log(logMessage);
+    state.TimeEnteredTopology = newTimeEnteredTopology;
+  }
 
   // vchain sync status state machine
   const newVchainSyncStatus = calcVchainSyncStatus(state, config);

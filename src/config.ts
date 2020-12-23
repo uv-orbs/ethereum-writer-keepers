@@ -36,7 +36,7 @@ export const defaultConfiguration = {
   VchainUptimeRequiredSeconds: 5,
   VchainSyncThresholdSeconds: 5 * 60,
   VchainOutOfSyncThresholdSeconds: 60 * 60,
-  VchainStuckThresholdSeconds: 60 * 60,
+  VchainStuckThresholdSeconds: 2 * 60 * 60,
   EthereumBalancePollTimeSeconds: 4 * 60 * 60,
   EthereumCanJoinCommitteePollTimeSeconds: 10 * 60,
   EthereumSyncRequirementSeconds: 20 * 60,
