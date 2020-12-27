@@ -44,7 +44,7 @@ test.serial('contains all payload fields', (t) => {
 
   t.deepEqual(writtenContents.Payload, {
     Uptime: 0,
-    MemoryBytesUsed: writtenContents.Payload.MemoryBytesUsed,
+    MemoryUsage: writtenContents.Payload.MemoryUsage,
     Version: {
       Semantic: '',
     },

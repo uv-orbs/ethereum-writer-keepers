@@ -35,7 +35,10 @@ test.serial('[E2E] launches with one vchain out of sync -> sends ready-to-sync',
 
   const errors = deepDataMatcher(status.Payload, {
     Uptime: isPositiveNumber,
-    MemoryBytesUsed: isPositiveNumber,
+    MemoryUsage: {
+      heapUsed: isPositiveNumber,
+      rss: isPositiveNumber,
+    },
     Version: {
       Semantic: isValidImageVersion,
     },
@@ -112,7 +115,10 @@ test.serial('[E2E] all vchains synced -> sends ready-for-committee', async (t) =
 
   const errors = deepDataMatcher(status.Payload, {
     Uptime: isPositiveNumber,
-    MemoryBytesUsed: isPositiveNumber,
+    MemoryUsage: {
+      heapUsed: isPositiveNumber,
+      rss: isPositiveNumber,
+    },
     EthereumSyncStatus: 'operational',
     VchainSyncStatus: 'in-sync',
     EthereumBalanceLastPollTime: isValidTimeRef,
@@ -189,7 +195,10 @@ test.serial('[E2E] enter committee -> sends vote unready for bad rep', async (t)
 
   const errors = deepDataMatcher(status.Payload, {
     Uptime: isPositiveNumber,
-    MemoryBytesUsed: isPositiveNumber,
+    MemoryUsage: {
+      heapUsed: isPositiveNumber,
+      rss: isPositiveNumber,
+    },
     EthereumSyncStatus: 'operational',
     VchainSyncStatus: 'in-sync',
     EthereumBalanceLastPollTime: isValidTimeRef,
