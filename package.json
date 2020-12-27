@@ -33,7 +33,7 @@
     "@types/child-process-promise": "^2.2.1",
     "@types/lodash": "^4.14.149",
     "@types/mock-fs": "^4.10.0",
-    "@types/node": "^12.12.31",
+    "@types/node": "^14.14.16",
     "@types/node-fetch": "^2.5.5",
     "@types/yargs": "^15.0.4",
     "@typescript-eslint/eslint-plugin": "^2.25.0",
