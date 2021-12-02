@@ -70,6 +70,8 @@ export async function sendEthereumElectionsTransaction(
     EthBlock: 0,
   };
 
+  state.ChainId = config.ChainId;
+
   try {
     const encodedAbi = contractMethod().encodeABI() as string;
     const contractAddress = state.ethereumElectionsContract.options.address;

@@ -15,6 +15,7 @@ export interface EthereumTxParams {
   EthereumMaxGasPrice: number;
   VoteUnreadyValiditySeconds: number;
   SuspendVoteUnready: boolean;
+  ChainId: number | undefined;
 }
 
 export function getGasPriceStrategy(previousTxStatus: EthereumTxStatus | undefined): GasPriceStrategy {
@@ -62,6 +63,7 @@ export async function signAndSendTransaction(
     gasPrice: gasPrice,
     data: encodedAbi,
     nonce: nonce,
+    chainId: state.ChainId,
   };
 
   Logger.log(`About to estimate gas for tx object: ${jsonStringifyComplexTypes(txObject)}.`);
