@@ -15,7 +15,6 @@ export interface EthereumTxParams {
   EthereumMaxGasPrice: number;
   VoteUnreadyValiditySeconds: number;
   SuspendVoteUnready: boolean;
-  ChainId: number | undefined;
 }
 
 export function getGasPriceStrategy(previousTxStatus: EthereumTxStatus | undefined): GasPriceStrategy {
@@ -50,7 +49,7 @@ export async function signAndSendTransaction(
   contractAddress: string,
   senderAddress: string,
   gasPrice: number,
-  state: State
+  state: State,
 ): Promise<string> {
   if (!state.web3) throw new Error('Cannot send tx until web3 client is initialized.');
   if (!state.signer) throw new Error('Cannot send tx until signer is initialized.');
@@ -63,7 +62,7 @@ export async function signAndSendTransaction(
     gasPrice: gasPrice,
     data: encodedAbi,
     nonce: nonce,
-    chainId: state.ChainId,
+    chainId: state.chainId,
   };
 
   Logger.log(`About to estimate gas for tx object: ${jsonStringifyComplexTypes(txObject)}.`);

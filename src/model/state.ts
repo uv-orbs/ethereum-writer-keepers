@@ -64,7 +64,7 @@ export class State {
   orbsAccount = Orbs.createAccount();
   orbsClientPerVchain: { [VirtualChainId: string]: Orbs.Client } = {};
 
-  ChainId: number | undefined = undefined;
+  chainId = 1;
 }
 
 // helpers

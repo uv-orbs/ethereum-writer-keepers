@@ -26,7 +26,7 @@ import {
 } from './write/ethereum';
 
 export async function runLoop(config: Configuration) {
-  const state = initializeState(config);
+  const state = await initializeState(config);
   // initialize status.json to make sure healthcheck passes from now on
   writeStatusToDisk(config.StatusJsonPath, state, config);
 
@@ -131,9 +131,9 @@ async function runLoopTick(config: Configuration, state: State) {
 
 // helpers
 
-function initializeState(config: Configuration): State {
+async function initializeState(config: Configuration): Promise<State> {
   const state = new State();
-  initWeb3Client(config.EthereumEndpoint, config.EthereumElectionsContract, state);
+  await initWeb3Client(config.EthereumEndpoint, config.EthereumElectionsContract, state);
   state.signer = new Signer(config.SignerEndpoint);
   return state;
 }

@@ -19,7 +19,7 @@ import {
 
 const HTTP_TIMEOUT_SEC = 20;
 
-export function initWeb3Client(ethereumEndpoint: string, electionsContractAddress: string, state: State) {
+export async function initWeb3Client(ethereumEndpoint: string, electionsContractAddress: string, state: State) {
   // init web3
   state.web3 = new Web3(
     new Web3.providers.HttpProvider(ethereumEndpoint, {
@@ -33,6 +33,7 @@ export function initWeb3Client(ethereumEndpoint: string, electionsContractAddres
   // init contracts
   const electionsAbi = getAbiForContract(electionsContractAddress, 'elections');
   state.ethereumElectionsContract = new state.web3.eth.Contract(electionsAbi, electionsContractAddress);
+  state.chainId = await state.web3.eth.getChainId()
 }
 
 function getAbiForContract(address: string, contractName: ContractRegistryKey) {
@@ -69,8 +70,6 @@ export async function sendEthereumElectionsTransaction(
     TxHash: '',
     EthBlock: 0,
   };
-
-  state.ChainId = config.ChainId;
 
   try {
     const encodedAbi = contractMethod().encodeABI() as string;
