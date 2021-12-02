@@ -62,7 +62,6 @@ export async function signAndSendTransaction(
     gasPrice: gasPrice,
     data: encodedAbi,
     nonce: nonce,
-    chainId: state.chainId,
   };
 
   Logger.log(`About to estimate gas for tx object: ${jsonStringifyComplexTypes(txObject)}.`);
@@ -78,6 +77,7 @@ export async function signAndSendTransaction(
   txObject.gas = gasLimit;
 
   Logger.log(`About to sign and send tx object: ${jsonStringifyComplexTypes(txObject)}.`);
+  txObject.chainId = state.chainId;
 
   const { rawTransaction, transactionHash } = await state.signer.sign(txObject);
   if (!rawTransaction || !transactionHash) {
