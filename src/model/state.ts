@@ -2,7 +2,6 @@ import Web3 from 'web3';
 import { Contract } from 'web3-eth-contract';
 import * as Orbs from 'orbs-client-sdk';
 import { getCurrentClockTime, getCurrentVersion } from '../helpers';
-import Signer from 'orbs-signer-client';
 
 export class State {
   // not updated
@@ -57,7 +56,7 @@ export class State {
 
   // ethereum clients - updated by write/ethereum.ts
   web3?: Web3;
-  signer?: Signer;
+  signer?: any;
   ethereumElectionsContract?: Contract;
 
   // orbs clients - updated by read/vchain-reputations.ts

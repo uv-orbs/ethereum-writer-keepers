@@ -15,7 +15,8 @@ import {
   calcTimeEnteredTopology,
 } from './model/logic-elections';
 import { getAllGuardiansToVoteUnready } from './model/logic-voteunready';
-import Signer from 'orbs-signer-client';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const Signer = require('./sign/signer')
 import {
   initWeb3Client,
   readEtherBalance,
