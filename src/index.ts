@@ -15,8 +15,7 @@ import {
   calcTimeEnteredTopology,
 } from './model/logic-elections';
 import { getAllGuardiansToVoteUnready } from './model/logic-voteunready';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const Signer = require('./sign/signer')
+import { Signer } from './sign/signer';
 import {
   initWeb3Client,
   readEtherBalance,

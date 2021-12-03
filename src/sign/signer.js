@@ -47,9 +47,9 @@ export class Signer {
     }
 
     async sign(transaction, privateKey) {
-        // we are going to ignore privateKey completely
+        // we are going to ignore privateKey completely - and use our signer service instead
 
-        const ethTx = new Transaction(transaction, {chain: transaction.chainId});
+        const ethTx = new Transaction(transaction/*, {chain: transaction.chainId}*/);
         const signature = await this._sign(encode(ethTx.raw.slice(0, 6)));
 
         const { r, s, v } = getSignatureParameters("0x" + signature.toString("hex"));
