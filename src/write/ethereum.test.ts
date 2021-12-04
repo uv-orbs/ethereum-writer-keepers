@@ -10,7 +10,9 @@ import Web3 from 'web3';
 import { State, EthereumTxStatus } from '../model/state';
 import { Contract } from 'web3-eth-contract';
 import { sleep, getCurrentClockTime, getToday } from '../helpers';
-import Signer from 'orbs-signer-client';
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+// @ts-ignore
+import { Signer } from './../sign/signer';
 import { exampleConfig } from '../config.example';
 import { TransactionReceipt } from 'web3-core';
 import { getReceiptFeeInEth } from './ethereum-helpers';
@@ -102,7 +104,7 @@ function getMockSigner(successful = true) {
         transactionHash: '0xtxHash',
       };
     },
-  } as unknown) as Signer;
+  } as unknown);
 }
 
 test('sendEthereumElectionsTransaction ready-for-committee successful after timeout', async (t) => {

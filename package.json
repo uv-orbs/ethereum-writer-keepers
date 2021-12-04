@@ -53,6 +53,8 @@
   },
   "dependencies": {
     "@orbs-network/orbs-ethereum-contracts-v2": "0.0.38",
+    "ethereumjs-common": "^1.5.2",
+    "ethereumjs-tx": "^2.1.2",
     "lodash": "^4.17.15",
     "node-fetch": "^2.6.0",
     "orbs-client-sdk": "^2.3.1",

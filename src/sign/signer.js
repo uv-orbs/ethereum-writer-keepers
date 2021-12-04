@@ -1,5 +1,5 @@
 const { Transaction } = require("ethereumjs-tx");
-const { Common } = require("ethereumjs-common")
+const Common = require("ethereumjs-common")
 const fetch = require("node-fetch");
 const { encode } = require("rlp");
 const { keccak256, isHexStrict, hexToNumber } = require("web3-utils");
@@ -58,26 +58,26 @@ class Signer {
         return new NodeSignOutputReader(data).getSignature();
     }
 
-    async sign(transaction, privateKey) {
+    async sign(transaction, chainId) {
         // we are going to ignore privateKey completely - and use our signer service instead
 
-        const customCommon = Common.forCustomChain(
+        const customCommon = Common.default.forCustomChain(
             'mainnet',
             {
                 name: 'my-network',
                 //networkId: 123,
-                chainId: transaction.chainId,
+                chainId: chainId,
             },
             // 'petersburg',
         )
         const ethTx = new Transaction(transaction, { common: customCommon });
 
-        console.log('injecting chainId to first buffer', transaction.chainId)
+        console.log('injecting chainId to first buffer', ethTx.getChainId())
 
-        const payload = getRlpEncodedDataForSignature(ethTx, transaction.chainId);
+        const payload = getRlpEncodedDataForSignature(ethTx, chainId);
         const signature = await this._sign(payload);
 
-        const { r, s, v } = getSignatureParameters("0x" + signature.toString("hex"), transaction.chainId);
+        const { r, s, v } = getSignatureParameters("0x" + signature.toString("hex"), chainId);
 
         ethTx.r = r;
         ethTx.s = s;
