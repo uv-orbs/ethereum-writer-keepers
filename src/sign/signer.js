@@ -17,7 +17,7 @@ function getSignatureParameters(signature, chainId) {
 
     if (![27, 28].includes(v)) v += 27;
 
-    v = v + 8 + chainId * 2 // see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md
+    v = chainId * 2 + 8 + v;// see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md
     return {
         r,
         s,
