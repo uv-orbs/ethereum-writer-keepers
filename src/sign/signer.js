@@ -5,7 +5,7 @@ const { keccak256, isHexStrict, hexToNumber } = require("web3-utils");
 const NodeSignInputBuilder = require("./node-sign-input-builder");
 const NodeSignOutputReader = require("./node-sign-output-reader");
 
-function getSignatureParameters(signature) {
+function getSignatureParameters(signature, chainId) {
     if (!isHexStrict(signature)) {
         throw new Error(`Given value "${signature}" is not a valid hex string.`);
     }
@@ -17,11 +17,22 @@ function getSignatureParameters(signature) {
 
     if (![27, 28].includes(v)) v += 27;
 
+    v = v + 8 + chainId * 2 // see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md
     return {
         r,
         s,
         v
     };
+}
+
+function getRlpEncodedDataForSignature(ethTx, chainId) {
+    const rawBuffers = ethTx.raw.slice(0, 6);
+
+    // see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md
+    const additional = [Buffer.of(chainId), Buffer.of(0), Buffer.of(0)]
+    const allElements = rawBuffers.concat(additional)
+    const payload = encode(allElements);
+    return payload;
 }
 
 class Signer {
@@ -51,15 +62,12 @@ class Signer {
 
         const ethTx = new Transaction(transaction);
 
+        console.log('injecting chainId to first buffer', transaction.chainId)
 
-        // WORKAROUND TO SET CHAINID
-        ethTx.raw[0] = Buffer.of(transaction.chainId)
-
-
-        const payload = encode(ethTx.raw.slice(0, 6));
+        const payload = getRlpEncodedDataForSignature(ethTx, transaction.chainId);
         const signature = await this._sign(payload);
 
-        const { r, s, v } = getSignatureParameters("0x" + signature.toString("hex"));
+        const { r, s, v } = getSignatureParameters("0x" + signature.toString("hex"), transaction.chainId);
 
         ethTx.r = r;
         ethTx.s = s;
@@ -68,7 +76,8 @@ class Signer {
         const validationResult = ethTx.validate(true);
 
         if (validationResult !== '') {
-            throw new Error(`TransactionSigner Error: ${validationResult}`);
+            // TODO throw instead of print
+            console.error(`XXXXXXX TransactionSigner Error: ${validationResult}`);
         }
 
         const rlpEncoded = ethTx.serialize().toString('hex');

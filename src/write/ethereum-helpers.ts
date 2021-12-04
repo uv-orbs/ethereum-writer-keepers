@@ -61,8 +61,7 @@ export async function signAndSendTransaction(
     to: contractAddress,
     gasPrice: gasPrice,
     data: encodedAbi,
-    nonce: nonce,
-    chainId: state.chainId
+    nonce: nonce
   };
 
   Logger.log(`About to estimate gas for tx object: ${jsonStringifyComplexTypes(txObject)}.`);
@@ -75,12 +74,15 @@ export async function signAndSendTransaction(
   if (gasLimit > GAS_LIMIT_HARD_LIMIT) {
     throw new Error(`Gas limit estimate ${gasLimit} over hard limit ${GAS_LIMIT_HARD_LIMIT}.`);
   }
-  txObject.gas = gasLimit;
 
-  Logger.log(`About to sign and send tx object: ${jsonStringifyComplexTypes(txObject)}.`);
+  // Prepare transaction data for signing
+  txObject.gas = gasLimit;
   txObject.chainId = state.chainId;
 
+  Logger.log(`About to sign and send tx object: ${jsonStringifyComplexTypes(txObject)}.`);
+
   const { rawTransaction, transactionHash } = await state.signer.sign(txObject);
+
   if (!rawTransaction || !transactionHash) {
     throw new Error(`Could not sign tx object: ${jsonStringifyComplexTypes(txObject)}.`);
   }
