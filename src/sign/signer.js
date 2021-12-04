@@ -1,4 +1,5 @@
 const { Transaction } = require("ethereumjs-tx");
+const { Common } = require("ethereumjs-common")
 const fetch = require("node-fetch");
 const { encode } = require("rlp");
 const { keccak256, isHexStrict, hexToNumber } = require("web3-utils");
@@ -60,7 +61,16 @@ class Signer {
     async sign(transaction, privateKey) {
         // we are going to ignore privateKey completely - and use our signer service instead
 
-        const ethTx = new Transaction(transaction);
+        const customCommon = Common.forCustomChain(
+            'mainnet',
+            {
+                name: 'my-network',
+                //networkId: 123,
+                chainId: transaction.chainId,
+            },
+            // 'petersburg',
+        )
+        const ethTx = new Transaction(transaction, { common: customCommon });
 
         console.log('injecting chainId to first buffer', transaction.chainId)
 
