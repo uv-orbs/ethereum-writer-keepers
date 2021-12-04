@@ -35,6 +35,7 @@ it("should work with ganache", async () => {
         gasLimit: 0x7fffffff,
         data: d.erc20.web3Contract.methods.assign(address, new BN(200)).encodeABI(),
         nonce: await d.web3.eth.getTransactionCount(address),
+        chainId: 137
     };
 
     const transactionSigner = new Signer("http://localhost:7777");

@@ -62,6 +62,7 @@ export async function signAndSendTransaction(
     gasPrice: gasPrice,
     data: encodedAbi,
     nonce: nonce,
+    chainId: state.chainId
   };
 
   Logger.log(`About to estimate gas for tx object: ${jsonStringifyComplexTypes(txObject)}.`);

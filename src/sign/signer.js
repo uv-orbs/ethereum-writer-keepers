@@ -24,7 +24,7 @@ function getSignatureParameters(signature) {
     };
 }
 
-export class Signer {
+class Signer {
     constructor(host) {
         this.host = host;
     }
@@ -51,11 +51,13 @@ export class Signer {
 
         const ethTx = new Transaction(transaction);
 
+
         // WORKAROUND TO SET CHAINID
         ethTx.raw[0] = Buffer.of(transaction.chainId)
 
 
-        const signature = await this._sign(encode(ethTx.raw.slice(0, 6)));
+        const payload = encode(ethTx.raw.slice(0, 6));
+        const signature = await this._sign(payload);
 
         const { r, s, v } = getSignatureParameters("0x" + signature.toString("hex"));
 
@@ -83,3 +85,5 @@ export class Signer {
         };
     }
 }
+
+module.exports = Signer
