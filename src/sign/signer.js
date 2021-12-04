@@ -86,4 +86,6 @@ class Signer {
     }
 }
 
-module.exports = Signer
+module.exports = {
+    Signer
+}
