@@ -62,7 +62,7 @@ class Signer {
         // we are going to ignore privateKey completely - and use our signer service instead
 
         const customCommon = Common.default.forCustomChain(
-            'polygon-mainnet',
+            'mainnet',
             {
                 name: 'my-network',
                 //networkId: 123,
