@@ -68,7 +68,7 @@ class Signer {
                 //networkId: 123,
                 chainId: chainId,
             },
-            // 'petersburg',
+            'istanbul',
         )
         const ethTx = new Transaction(transaction, { common: customCommon });
 
