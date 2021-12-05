@@ -50,7 +50,7 @@ export class Signer {
         return new NodeSignOutputReader(data).getSignature();
     }
 
-    async sign(transaction, chainId) {
+    async sign(transaction, chainId, expectedSenderAddress) {
         // we are going to ignore privateKey completely - and use our signer service instead
 
         const common = Common.default.custom({ chainId: chainId })
@@ -65,13 +65,14 @@ export class Signer {
 
         console.log(`signedTx: 0x${signedTx.serialize().toString('hex')}\nfrom: ${from}`)
 
-
+        if (expectedSenderAddress && from !== expectedSenderAddress) { // optional - pass undefined to disable check
+            throw new Error(`Sender address mismatch after signing: expected ${expectedSenderAddress}, got ${from}`);
+        }
 
         const validationResult = signedTx.validate(true);
 
-        if (validationResult !== '') {
-            // TODO throw instead of print
-            console.error(`XXXXXXX TransactionSigner Error: ${validationResult}`);
+        if (Array.isArray(validationResult) && validationResult.length > 0) {
+            throw new Error(`TransactionSigner Error: ${validationResult}`);
         }
 
         const rlpEncoded = signedTx.serialize().toString('hex');

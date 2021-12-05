@@ -88,7 +88,7 @@ export async function signAndSendTransaction(
 
   Logger.log(`About to sign and send tx object: ${jsonStringifyComplexTypes(txData)}.`);
 
-  const { rawTransaction, transactionHash } = await state.signer.sign(txData, state.chainId);
+  const { rawTransaction, transactionHash } = await state.signer.sign(txData, state.chainId, senderAddress);
 
   if (!rawTransaction || !transactionHash) {
     throw new Error(`Could not sign tx object: ${jsonStringifyComplexTypes(txData)}.`);
