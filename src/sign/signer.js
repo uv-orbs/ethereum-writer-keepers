@@ -28,11 +28,7 @@ function getSignatureParameters(signature, chainId) {
     };
 }
 
-function getRlpEncodedDataForSignature(ethTx) {
-    return encode(ethTx.getMessageToSign(false));
-}
-
-class Signer {
+export class Signer {
     constructor(host) {
         this.host = host;
     }
@@ -59,7 +55,7 @@ class Signer {
 
         const common = Common.default.custom({ chainId: chainId })
         const ethTx = new Transaction(transaction, { common });
-        const payload = getRlpEncodedDataForSignature(ethTx);
+        const payload = encode(ethTx.getMessageToSign(false));
         const signature = await this._sign(payload);
 
         const { r, s, v } = getSignatureParameters("0x" + signature.toString("hex"), chainId);
@@ -91,8 +87,4 @@ class Signer {
             transactionHash
         };
     }
-}
-
-module.exports = {
-    Signer
 }

@@ -15,7 +15,7 @@ test('testSigner', async (t) => {
     try {
         await signer.sign({
             to: '0x3535353535353535353535353535353535353535',
-            gasPrice: 20 * 10**9,
+            gasPrice: 20 * 10 ** 9,
             gasLimit: 1,
             value: new BN('10').pow(new BN(18)),
             data: '0x',
