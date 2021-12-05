@@ -1,5 +1,7 @@
-const { Transaction } = require("ethereumjs-tx");
-const Common = require("ethereumjs-common")
+import {TxData} from "@ethereumjs/tx";
+
+const { Transaction } = require("@ethereumjs/tx");
+const Common = require("@ethereumjs/common")
 const fetch = require("node-fetch");
 const { encode } = require("rlp");
 const { keccak256, isHexStrict, hexToNumber } = require("web3-utils");
@@ -26,14 +28,8 @@ function getSignatureParameters(signature, chainId) {
     };
 }
 
-function getRlpEncodedDataForSignature(ethTx, chainId) {
-    const rawBuffers = ethTx.raw.slice(0, 6);
-
-    // see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md
-    const additional = [Buffer.of(chainId), Buffer.of(0), Buffer.of(0)]
-    const allElements = rawBuffers.concat(additional)
-    const payload = encode(allElements);
-    return payload;
+function getRlpEncodedDataForSignature(ethTx) {
+    return encode(ethTx.getMessageToSign(false));
 }
 
 class Signer {
@@ -61,44 +57,36 @@ class Signer {
     async sign(transaction, chainId) {
         // we are going to ignore privateKey completely - and use our signer service instead
 
-        const customCommon = Common.default.forCustomChain(
-            'mainnet',
-            {
-                name: 'my-network',
-                //networkId: 123,
-                chainId: chainId,
-            },
-            'istanbul',
-        )
-        const ethTx = new Transaction(transaction, { common: customCommon });
-
-        console.log('injecting chainId to first buffer', ethTx.getChainId())
-
-        const payload = getRlpEncodedDataForSignature(ethTx, chainId);
+        const common = Common.default.custom({ chainId: chainId })
+        const ethTx = new Transaction(transaction, { common });
+        const payload = getRlpEncodedDataForSignature(ethTx);
         const signature = await this._sign(payload);
 
         const { r, s, v } = getSignatureParameters("0x" + signature.toString("hex"), chainId);
+        const signedTxData = {...transaction, v,r,s}
+        const signedTx = Transaction.fromTxData(signedTxData, { common })
+        const from = signedTx.getSenderAddress().toString()
 
-        ethTx.r = r;
-        ethTx.s = s;
-        ethTx.v = v;
+        console.log(`signedTx: 0x${signedTx.serialize().toString('hex')}\nfrom: ${from}`)
 
-        const validationResult = ethTx.validate(true);
+
+
+        const validationResult = signedTx.validate(true);
 
         if (validationResult !== '') {
             // TODO throw instead of print
             console.error(`XXXXXXX TransactionSigner Error: ${validationResult}`);
         }
 
-        const rlpEncoded = ethTx.serialize().toString('hex');
+        const rlpEncoded = signedTx.serialize().toString('hex');
         const rawTransaction = '0x' + rlpEncoded;
         const transactionHash = keccak256(rawTransaction);
 
         return {
-            messageHash: Buffer.from(ethTx.hash(false)).toString('hex'),
-            v: '0x' + Buffer.from(ethTx.v).toString('hex'),
-            r: '0x' + Buffer.from(ethTx.r).toString('hex'),
-            s: '0x' + Buffer.from(ethTx.s).toString('hex'),
+            messageHash: Buffer.from(signedTx.hash(false)).toString('hex'),
+            v: '0x' + Buffer.from(signedTx.v).toString('hex'),
+            r: '0x' + Buffer.from(signedTx.r).toString('hex'),
+            s: '0x' + Buffer.from(signedTx.s).toString('hex'),
             rawTransaction,
             transactionHash
         };
