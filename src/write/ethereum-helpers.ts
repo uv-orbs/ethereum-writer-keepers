@@ -2,7 +2,7 @@ import * as Logger from '../logger';
 import { State, EthereumTxStatus, GasPriceStrategy } from '../model/state';
 import { getCurrentClockTime, jsonStringifyComplexTypes, toNumber } from '../helpers';
 import { TransactionConfig, TransactionReceipt } from 'web3-core';
-import {TxData} from "ethereumjs-tx";
+import {TxData} from "@ethereumjs/tx";
 
 const GAS_LIMIT_ESTIMATE_EXTRA = 300000;
 const GAS_LIMIT_HARD_LIMIT = 2000000;
@@ -80,9 +80,9 @@ export async function signAndSendTransaction(
   const txData : TxData = {
     data: txConfig.data,
     gasLimit: gasLimit,
-    gasPrice: txConfig.gasPrice,
+    gasPrice: String(txConfig.gasPrice),
     nonce: txConfig.nonce,
-    value: txConfig.value,
+    value: String(txConfig.value),
     to: txConfig.to,
   }
 
