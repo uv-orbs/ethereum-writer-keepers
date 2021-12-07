@@ -11,6 +11,7 @@ jobs:
           node-version: '16.13.1'
       - docker/install-docker
       - run: node --version
+      - run: python --version
       - run: npm --version
       - run: docker --version
       - run: env
