@@ -7,7 +7,7 @@ jobs:
     machine: true
     steps:
       - checkout
-      - run:
+      - run: |
           name: Install  Node.js 16.13.1 with build in nvm tool
           # https://www.cloudesire.com/how-to-upgrade-node-on-circleci-machine-executor/
           command: |
