@@ -1,27 +1,20 @@
 version: 2.1
 orbs:
-  node: circleci/node@4.9.0
+  node: circleci/node@3.0.1
   docker: circleci/docker@0.5.19
 jobs:
   build-and-test:
     machine: true
     steps:
       - checkout
-      - run: |
-          name: Install  Node.js 16.13.1 with build in nvm tool
-          # https://www.cloudesire.com/how-to-upgrade-node-on-circleci-machine-executor/
-          command: |
-            export NVM_DIR="/opt/circleci/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-            nvm install v16.13.1 && nvm use v16.13.1 && nvm alias default v16.13.1
-            node -v
+      - node/install:
+          node-version: '12.18.0'
       - docker/install-docker
       - run: node --version
-      - run: python --version
       - run: npm --version
       - run: docker --version
       - run: env
-      - run: npm install
+      - node/install-packages
       - run: npm install --no-save tap-xunit
       - run: mkdir -p _out/unit _out/e2e
       - run: npm test --  --timeout=1m --tap| npx tap-xunit > _out/unit/test.xml
