@@ -7,6 +7,7 @@ jobs:
     machine: true
     steps:
       - checkout
+      - node/install-npm
       - node/install:
           node-version: '16.13.1'
       - docker/install-docker
