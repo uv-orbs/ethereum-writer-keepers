@@ -82,7 +82,7 @@ export async function signAndSendTransaction(
     gasLimit: gasLimit,
     gasPrice: String(txConfig.gasPrice),
     nonce: txConfig.nonce,
-    value: String(txConfig.value),
+    value: String(txConfig.value) ||  '0x',
     to: txConfig.to,
   }
 
