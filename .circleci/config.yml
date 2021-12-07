@@ -8,6 +8,7 @@ jobs:
     steps:
       - checkout
       - run: |
+          npm root -g
           cd /usr/local/lib/node_modules
           mv npm /tmp
       - node/install:
