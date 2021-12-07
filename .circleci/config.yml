@@ -7,8 +7,11 @@ jobs:
     machine: true
     steps:
       - checkout
-      - node/install-npm
+      - run: |
+          cd /usr/local/lib/node_modules
+          mv npm /tmp
       - node/install:
+          install-npm: true
           node-version: '16.13.1'
       - docker/install-docker
       - run: node --version
