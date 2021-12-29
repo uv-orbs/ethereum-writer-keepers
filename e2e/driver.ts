@@ -86,7 +86,7 @@ export class TestEnvironment {
           return new Web3(
             new (HDWalletProvider as any)(
               'vanish junk genuine web seminar cook absurd royal ability series taste method identify elevator liquid',
-              `http://localhost:${portFromAddress(ganacheAddress)}`,
+              `http://${ganacheAddress}`,
               0,
               100,
               false
