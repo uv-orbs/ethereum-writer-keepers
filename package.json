@@ -1,5 +1,5 @@
 {
-  "name": "@orbs-network/ethereum-writer",
+  "name": "@orbs-network/keepers",
   "private": true,
   "version": "0.0.1",
   "description": "Node service to send Ethereum transactions for elections lifecycle (like auto vote unready)",
@@ -20,7 +20,7 @@
     "pretest": "npm run typecheck && npm run lint",
     "clean": "rimraf ./dist/",
     "prebuild": "npm run clean",
-    "build": "tsc --skipLibCheck -p ./tsconfig.prod.json && ./boyar/create-version-file.sh && docker build -t local/ethereum-writer .",
+    "build": "tsc --skipLibCheck -p ./tsconfig.prod.json && ./boyar/create-version-file.sh && docker build -t local/keepers .",
     "build:quick": "tsc --skipLibCheck -p ./tsconfig.prod.json",
     "test": "ava --verbose --serial",
     "test:quick": "echo '-- TEST --' && ava --verbose",
@@ -53,6 +53,7 @@
   },
   "dependencies": {
     "@orbs-network/orbs-ethereum-contracts-v2": "0.0.38",
+    "bignumber": "^1.1.0",
     "lodash": "^4.17.15",
     "node-fetch": "^2.6.0",
     "orbs-client-sdk": "^2.3.1",

@@ -4,10 +4,10 @@ docker login -u $DOCKER_HUB_LOGIN -p $DOCKER_HUB_PASSWORD
 
 export VERSION=$(cat .version)
 
-docker push orbsnetworkstaging/ethereum-writer:$VERSION
+docker push orbsnetworkstaging/keepers:$VERSION
 
 if [[ $CIRCLE_BRANCH == "master" ]] ;
 then
-  docker tag orbsnetworkstaging/ethereum-writer:$VERSION orbsnetworkstaging/ethereum-writer:experimental
-  docker push orbsnetworkstaging/ethereum-writer:experimental
+  docker tag orbsnetworkstaging/keepers:$VERSION orbsnetworkstaging/keepers:experimental
+  docker push orbsnetworkstaging/keepers:experimental
 fi
