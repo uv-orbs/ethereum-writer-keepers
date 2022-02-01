@@ -14,8 +14,10 @@ export async function readManagementStatus2(endpoint: string, myOrbsAddress: str
     //status.ManagementCurrentStandbys = _.filter(response.Payload.CurrentCandidates, (node) => node.IsStandby);
     //status.ManagementCurrentTopology = response.Payload.CurrentTopology;
     status.ManagementEthToOrbsAddress = _.mapValues(response.Payload.Guardians, (node) => node.OrbsAddress);
+    //status.ManagementOrbs2Name = _.mapValues(response.Payload.Guardians, (node) => node.Name);
 
     status.myEthAddress = findEthFromOrbsAddress(myOrbsAddress, status);
+    status.myNode = response.Payload.Guardians[status.myEthAddress];
 
     status.ManagementInCommittee = response.Payload.CurrentCommittee.some((node) => node.EthAddress == status.myEthAddress);
     // doesnt need to be in status

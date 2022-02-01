@@ -4,13 +4,19 @@ import { Contract } from 'web3-eth-contract';
 import { parseArgs } from './cli-args';
 import { writeStatusToDisk } from './write/status';
 import { jsonStringifyComplexTypes, toNumber } from './helpers';
-import { TransactionConfig } from 'web3-core';
+//import { TransactionConfig } from 'web3-core';
+import { TxData } from "@ethereumjs/tx";
+
 import Signer from 'orbs-signer-client';
+import { debugSign } from "./debugSigner";
+
 import { readManagementStatus2, setLeaderStatus } from './leader'
 import { readFileSync, readdirSync } from 'fs';
 
-import * as tasks from './tasks.json';
+import * as tasksObj from './tasks.json';
 import * as Logger from './logger';
+import { biSend } from "./bi";
+//import { setAccount, debugSign } from './debugSigner'
 
 const GAS_LIMIT_ESTIMATE_EXTRA = 300000;
 const GAS_LIMIT_HARD_LIMIT = 2000000;
@@ -29,12 +35,14 @@ export class Keeper {
     private status: any;
     private signer: Signer;
     private gasPrice: string;
+    private validEthAddress: string;
 
     //////////////////////////////////////
     constructor() {
         this.abis = {};
         this.contracts = {};
         this.gasPrice = '';
+        this.validEthAddress = '';
         this.status = {
             start: Date.now(),
             successTX: [],
@@ -55,7 +63,6 @@ export class Keeper {
             })
         );
         this.signer = new Signer(config.SignerEndpoint);
-
 
         // load all ABIs                
         Logger.log(`loading abis at ${abiFolder}`);
@@ -115,7 +122,8 @@ export class Keeper {
         setLeaderStatus(management.Payload.CurrentCommittee, this.status);
 
         // balance
-        this.status.balance.BNB = await this.web3.eth.getBalance(`0x${this.status.myEthAddress}`);
+        this.validEthAddress = `0x${this.status.myEthAddress}`;
+        this.status.balance.BNB = await this.web3.eth.getBalance(this.validEthAddress);
 
         writeStatusToDisk(config.StatusJsonPath, this.status, config);
     }
@@ -127,9 +135,10 @@ export class Keeper {
         // periodic every 10 min
         setInterval(this.periodicUpdate.bind(this), 60000 * PERIODIC_MINUTES);
 
-        for (const t of tasks) {
+        //let aaa = [tasks[0], tasks[1]];
+        for (const t of tasksObj.tasks) {
             // first call - after that, task sets the next execution
-            this.exec(t);
+            await this.exec(t);
         }
     }
     //////////////////////////////////////
@@ -144,29 +153,23 @@ export class Keeper {
 
         const nonce = await web3.eth.getTransactionCount(senderAddress, 'latest'); // ignore pending pool
 
-        const txObject: TransactionConfig = {
-            from: senderAddress,
+        const txObject: TxData = {
+            //chainId: 56, // BSC
+            //from: senderAddress,
             to: contractAddress,
-            gasPrice: this.gasPrice,
+            gasPrice: toNumber(this.gasPrice) + GAS_LIMIT_ESTIMATE_EXTRA,
+            gasLimit: GAS_LIMIT_HARD_LIMIT,
             data: encodedAbi,
             nonce: nonce,
         };
 
         Logger.log(`About to estimate gas for tx object: ${jsonStringifyComplexTypes(txObject)}.`);
 
-        let gasLimit = toNumber(await web3.eth.estimateGas(txObject));
-        if (gasLimit <= 0) {
-            throw new Error(`Cannot estimate gas for tx with data ${encodedAbi}.`);
-        }
-        gasLimit += GAS_LIMIT_ESTIMATE_EXTRA;
-        if (gasLimit > GAS_LIMIT_HARD_LIMIT) {
-            throw new Error(`Gas limit estimate ${gasLimit} over hard limit ${GAS_LIMIT_HARD_LIMIT}.`);
-        }
-        txObject.gas = gasLimit;
+        //const { rawTransaction, transactionHash } = await this.signer.sign(txObject, 56);
+        // setAccount(web3);
+        const { rawTransaction, transactionHash } = debugSign(txObject);
+        //const { rawTransaction, transactionHash } = await debugSignAccount(txObject);
 
-        Logger.log(`About to sign and send tx object: ${jsonStringifyComplexTypes(txObject)}.`);
-
-        const { rawTransaction, transactionHash } = await this.signer.sign(txObject);
         if (!rawTransaction || !transactionHash) {
             throw new Error(`Could not sign tx object: ${jsonStringifyComplexTypes(txObject)}.`);
         }
@@ -194,20 +197,44 @@ export class Keeper {
         const now = new Date();
         const dt = now.toISOString();
 
-        const tx = `${dt} ${network} ${contract} ${method} ${params}`;
+        const tx = `${dt} ${network} ${contract.options.address} ${method} ${params}`;
+        let bi: any = {
+            type: 'sendTX',
+            network: network,
+            address: contract.options.address,
+            method: method,
+            params: params,
+            sender: this.validEthAddress,
+            nodeName: this.status.myNode.Name,
+            success: true
+        }
 
-        // encode call
-        const encoded = contract.methods[method](params).encodeABI();
-        await this.signAndSendTransaction(encoded, contract.options.address, config.NodeOrbsAddress).then(() => {
+
+        // encode call                
+        let encoded: any;
+        if (params) {
+            encoded = contract.methods[method](params).encodeABI();
+        } else {
+            encoded = contract.methods[method]().encodeABI();
+        }
+
+        await this.signAndSendTransaction(encoded, contract.options.address, this.validEthAddress).then(async (txhash) => {
             this.status.successTX.push(tx);
+            bi.txhash = txhash;
+            await biSend(config.BIUrl, bi);
             Logger.log('SUCCESS:' + tx);
-        }).catch(() => {
+
+        }).catch(async (err: Error) => {
             this.status.failedTX.push(tx);
+            bi.success = false;
+            bi.error = err.message;
+            await biSend(config.BIUrl, bi);
+            Logger.error('signAndSendTransaction exception: ' + err.message);
             Logger.log('FAIL:' + tx);
         });
     }
     //////////////////////////////////////
-    execNetworkAdress(task: any, network: string, adrs: string) {
+    async execNetworkAdress(task: any, network: string, adrs: string) {
         // resolve abi
         const abi = this.abis[task.abi];
         if (!abi) {
@@ -217,7 +244,7 @@ export class Keeper {
         // resolev contract
         if (!(adrs in this.contracts)) {
             this.contracts[adrs] = new this.web3.eth.Contract(abi, adrs, {
-                from: config.NodeOrbsAddress, // default from address
+                from: this.validEthAddress, // default from address
                 gasPrice: this.gasPrice // default gas price in wei, 20 gwei in this case
             });
         }
@@ -227,18 +254,18 @@ export class Keeper {
             // has params
             if (send.params) {
                 for (let params of send.params) {
-                    this.sendNetworkContract(network, contract, send.method, params);
+                    await this.sendNetworkContract(network, contract, send.method, params);
                 }
             } // no params
             else {
-                this.sendNetworkContract(network, contract, send.method, null);
+                await this.sendNetworkContract(network, contract, send.method, null);
             }
         }
     }
     //////////////////////////////////////
-    execNetwork(task: any, network: string) {
+    async execNetwork(task: any, network: string) {
         for (let adrs of task.addresses) {
-            this.execNetworkAdress(task, network, adrs);
+            await this.execNetworkAdress(task, network, adrs);
         }
     }
     //////////////////////////////////////
@@ -249,13 +276,28 @@ export class Keeper {
             return;
         }
 
-        for (let network of task.networks) {
-            this.execNetwork(task, network);
-
+        // send bi
+        let bi: any = {
+            type: 'execTask',
+            network: task.name,
+            minInterval: task.minInterval,
+            nodeName: this.status.myNode.Name,
         }
-        // update before loop execution
-        this.gasPrice = await this.web3.eth.getGasPrice();
+        await biSend(config.BIUrl, bi);
 
+        try {
+            // update before loop execution
+            this.gasPrice = await this.web3.eth.getGasPrice();
+
+            for (let network of task.networks) {
+                await this.execNetwork(task, network);
+            }
+        } catch (e) {
+            Logger.log(`Exception thrown from task: ${task.name}`);
+            Logger.error(e);
+        }
+
+        // next execution
         setTimeout(() => {
             this.exec(task);
         }, task.minInterval * 1000 * 60);
